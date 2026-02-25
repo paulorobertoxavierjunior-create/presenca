@@ -8,7 +8,7 @@ let totalTime = 0;
 let wordsCount = 0;
 let lastVolume = 0;
 let stabilityScore = 100;
-
+ 
 const micBtn = document.getElementById("micBtn");
 
 micBtn.addEventListener("click", toggleMic);
