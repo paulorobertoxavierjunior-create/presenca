@@ -3,51 +3,58 @@ let analyser;
 let microphone;
 let dataArray;
 let isActive = false;
-let speakingTime = 0;
-let totalTime = 0;
-let wordsCount = 0;
-let lastVolume = 0;
-let stabilityScore = 100;
- 
+let animationId;
+
 const micBtn = document.getElementById("micBtn");
 
 micBtn.addEventListener("click", toggleMic);
 
 async function toggleMic() {
   if (!isActive) {
-    await startMic();
-    micBtn.textContent = "⏹ Encerrar";
-    micBtn.classList.add("active");
+    try {
+      await startMic();
+      micBtn.textContent = "⏹ Encerrar";
+      micBtn.classList.add("active");
+      isActive = true;
+    } catch (err) {
+      alert("Erro ao acessar microfone: " + err.message);
+    }
   } else {
     stopMic();
     micBtn.textContent = "🎤 Ativar Microfone";
     micBtn.classList.remove("active");
+    isActive = false;
   }
-  isActive = !isActive;
 }
 
 async function startMic() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    throw new Error("Microfone não suportado neste navegador.");
+  }
+
   audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
   microphone = audioContext.createMediaStreamSource(stream);
   analyser = audioContext.createAnalyser();
-  analyser.fftSize = 512;
+  analyser.fftSize = 256;
+
   dataArray = new Uint8Array(analyser.frequencyBinCount);
 
   microphone.connect(analyser);
-  speakingTime = 0;
-  totalTime = 0;
-  wordsCount = 0;
+
   animate();
 }
 
 function stopMic() {
-  if (audioContext) audioContext.close();
+  cancelAnimationFrame(animationId);
+  if (audioContext) {
+    audioContext.close();
+  }
 }
 
 function animate() {
-  if (!isActive) return;
-
   analyser.getByteFrequencyData(dataArray);
 
   let sum = 0;
@@ -55,37 +62,27 @@ function animate() {
     sum += dataArray[i];
   }
 
-  const volume = sum / dataArray.length;
+  let volume = sum / dataArray.length;
 
-  totalTime += 0.1;
+  let energia = Math.min(volume * 2, 100);
+  let constancia = Math.min(volume * 1.5, 100);
+  let clareza = Math.min(volume * 1.2, 100);
+  let ritmo = Math.min(Math.abs(volume - 30) * 2, 100);
+  let foco = Math.min(volume * 1.3, 100);
+  let expansao = Math.min(volume * 1.1, 100);
+  let motivacao = Math.min((energia + constancia) / 2, 100);
+  let estabilidade = Math.max(0, 100 - Math.abs(volume - 30) * 3);
 
-  if (volume > 20) {
-    speakingTime += 0.1;
-    wordsCount += 0.5;
-  }
-
-  const energy = Math.min(volume * 1.5, 100);
-  const constancia = Math.min((speakingTime / totalTime) * 100, 100);
-  const clareza = Math.min(wordsCount, 100);
-  const ritmo = Math.min(Math.abs(volume - lastVolume) * 2, 100);
-  const foco = Math.min(speakingTime * 2, 100);
-  const expansao = Math.min(totalTime * 2, 100);
-  const motivacao = Math.min((energy + constancia) / 2, 100);
-
-  stabilityScore -= Math.abs(volume - lastVolume) * 0.05;
-  stabilityScore = Math.max(0, Math.min(100, stabilityScore));
-  lastVolume = volume;
-
-  updateBar("energia", energy);
+  updateBar("energia", energia);
   updateBar("constancia", constancia);
   updateBar("clareza", clareza);
   updateBar("ritmo", ritmo);
   updateBar("foco", foco);
   updateBar("expansao", expansao);
   updateBar("motivacao", motivacao);
-  updateBar("estabilidade", stabilityScore);
+  updateBar("estabilidade", estabilidade);
 
-  setTimeout(animate, 100);
+  animationId = requestAnimationFrame(animate);
 }
 
 function updateBar(id, value) {
