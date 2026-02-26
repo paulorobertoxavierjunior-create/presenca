@@ -5,25 +5,31 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Presença</title>
   <meta name="theme-color" content="#dff4f6" />
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
   <main class="wrap">
-    <section class="hero">
-      <h1>Presença</h1>
-      <p>Fale livremente e observe sua energia.</p>
+    <section class="card">
+      <h1 class="title">Presença</h1>
+      <p class="sub">Fale livremente e observe sua energia.</p>
 
-      <button id="btnMic" class="btn">
-        <span class="ico">🎙️</span>
-        <span id="btnMicTxt">Ativar Microfone</span>
-      </button>
+      <div class="controls">
+        <button id="btnMic" class="btn primary">
+          🎙️ <span id="btnMicTxt">Ativar Microfone</span>
+        </button>
 
-      <div class="bars" id="bars">
-        <!-- As barras são geradas pelo JS -->
+        <div class="mini">
+          <div>Status: <b id="micState">desligado</b></div>
+          <div>Atualização: <b>200ms</b></div>
+        </div>
       </div>
 
-      <p class="foot">Quanto mais contínuo e presente, mais as barras sobem.</p>
+      <div class="bars" id="barList"></div>
+
+      <p class="foot">
+        Quanto mais contínuo e presente, mais as barras sobem.
+      </p>
     </section>
   </main>
 
