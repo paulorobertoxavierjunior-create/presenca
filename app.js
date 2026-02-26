@@ -1,271 +1,234 @@
 (() => {
-  "use strict";
-
   // ===== Config =====
-  const TICK_MS = 200;           // update 200ms
-  const TICK_S = TICK_MS / 1000;
+  const TICK_MS = 200;
 
   // Sobe rápido (exponencial) / desce devagar (linear)
-  const RISE_TAU = 0.55;         // quanto menor, mais rápido sobe
-  const FALL_PER_SEC = 0.10;     // quanto menor, mais devagar desce
+  const RISE_ALPHA = 0.35;   // 0..1 (maior = sobe mais rápido)
+  const FALL_PER_TICK = 0.035; // 0..1 por tick (menor = desce mais devagar)
 
-  // Gate de voz (não confundir ruído com fala)
-  const VOICE_THRESHOLD = 0.018; // RMS mínimo (ajusta se precisar)
-  const HOLD_SEC = 0.45;         // mantém "falando" um pouco após cair
+  // Detectar "fala" vs "silêncio" (ajuste fino)
+  const VOICE_THRESHOLD = 0.012; // RMS (energia) mínima para considerar fala
+  const ZCR_SMOOTH = 0.25;
 
-  const METRICS = [
-    { key: "energia",     label: "Energia" },
-    { key: "constancia",  label: "Constância" },
-    { key: "clareza",     label: "Clareza" },
-    { key: "ritmo",       label: "Ritmo" },
-    { key: "foco",        label: "Foco" },
-    { key: "expansao",    label: "Expansão" },
-    { key: "motivacao",   label: "Motivação" },
-    { key: "estabilidade",label: "Estabilidade" },
-  ];
-
-  // ===== DOM =====
-  const barsEl = document.getElementById("bars");
+  // ===== UI =====
   const btnMic = document.getElementById("btnMic");
   const micStatus = document.getElementById("micStatus");
-  document.getElementById("tickMs").textContent = `${TICK_MS}ms`;
+  const tickInfo = document.getElementById("tickInfo");
+  const barsEl = document.getElementById("bars");
 
-  // build bars
-  const barRefs = {};
-  METRICS.forEach(m => {
-    const row = document.createElement("div");
-    row.className = "barRow";
-    row.innerHTML = `
-      <div class="label">${m.label}</div>
-      <div class="track"><div class="fill" id="fill_${m.key}"></div></div>
-      <div class="val" id="val_${m.key}">0%</div>
-    `;
-    barsEl.appendChild(row);
-    barRefs[m.key] = {
-      fill: row.querySelector(`#fill_${m.key}`),
-      val: row.querySelector(`#val_${m.key}`)
-    };
-  });
+  tickInfo.textContent = `${TICK_MS}ms`;
 
-  // ===== Audio state =====
+  const METRICS = [
+    { id: "energia",     label: "Energia" },
+    { id: "constancia",  label: "Constância" },
+    { id: "clareza",     label: "Clareza" },
+    { id: "ritmo",       label: "Ritmo" },
+    { id: "foco",        label: "Foco" },
+    { id: "expansao",    label: "Expansão" },
+    { id: "motivacao",   label: "Motivação" },
+    { id: "estabilidade",label: "Estabilidade" },
+  ];
+
+  const ui = {};
+  function buildBars() {
+    barsEl.innerHTML = "";
+    METRICS.forEach(m => {
+      const row = document.createElement("div");
+      row.className = "barRow";
+      row.innerHTML = `
+        <div class="barLabel">${m.label}</div>
+        <div class="track"><div class="fill" id="fill_${m.id}"></div></div>
+        <div class="barVal" id="val_${m.id}">0.00</div>
+      `;
+      barsEl.appendChild(row);
+      ui[m.id] = {
+        fill: row.querySelector(`#fill_${m.id}`),
+        val: row.querySelector(`#val_${m.id}`),
+        x: 0, // estado 0..1
+      };
+    });
+  }
+  buildBars();
+
+  // ===== Áudio =====
   let audioCtx = null;
-  let stream = null;
   let analyser = null;
-  let data = null;
-  let tickId = null;
+  let stream = null;
+  let srcNode = null;
+  let timer = null;
 
-  // scores 0..1
-  const score = {
-    talk: 0,          // “fala contínua” acumulativa
-    stability: 0.5,   // estabilidade do volume
-    rhythm: 0.4,      // regularidade dos pulsos
-    clarity: 0.4,     // proxy simples: fala > ruído
-    focus: 0.4,
-    expansion: 0.4,
-    motivation: 0.4
-  };
+  let lastVoice = false;
+  let voiceHold = 0;          // "tempo falando"
+  let silenceHold = 0;        // "tempo em silêncio"
+  let zcrAvg = 0;             // zero crossing rate suavizado (proxy de "clareza/definição")
+  let energyAvg = 0;
 
-  let lastRms = 0;
-  let hold = 0;
-  let pulseTimer = 0;
-  let pulseRate = 0; // 0..1
-  let silenceStreak = 0;
+  function clamp01(v){ return Math.max(0, Math.min(1, v)); }
 
-  function clamp01(x){ return Math.max(0, Math.min(1, x)); }
-  function lerp(a,b,t){ return a + (b-a)*t; }
-
-  function riseExp(current, target, dt, tau){
-    // aproxima target com curva exponencial
-    const k = 1 - Math.exp(-dt / Math.max(0.001, tau));
-    return current + (target - current) * k;
-  }
-
-  function fallLin(current, dt, perSec){
-    return Math.max(0, current - perSec * dt);
-  }
-
-  function setBar(key, v01){
-    const v = clamp01(v01);
-    const pct = Math.round(v * 100);
-    barRefs[key].fill.style.width = `${pct}%`;
-    barRefs[key].val.textContent = `${pct}%`;
-  }
-
-  function computeRmsFromTimeDomain(buf){
-    let sum = 0;
-    for (let i=0;i<buf.length;i++){
-      const x = (buf[i] - 128) / 128; // -1..1
-      sum += x*x;
-    }
-    return Math.sqrt(sum / buf.length);
-  }
-
-  function startTick(){
-    if (tickId) return;
-    tickId = setInterval(onTick, TICK_MS);
-  }
-
-  function stopTick(){
-    if (!tickId) return;
-    clearInterval(tickId);
-    tickId = null;
-  }
-
-  function onTick(){
-    if (!analyser || !data) return;
-
-    analyser.getByteTimeDomainData(data);
-    const rms = computeRmsFromTimeDomain(data);
-
-    // Gate: fala vs ruído
-    const voicedNow = rms >= VOICE_THRESHOLD;
-    if (voicedNow){
-      hold = HOLD_SEC;
-      silenceStreak = 0;
+  function integrate(metricId, target01) {
+    const s = ui[metricId];
+    // sobe exponencial para o alvo
+    if (target01 > s.x) {
+      s.x = s.x + (target01 - s.x) * RISE_ALPHA;
     } else {
-      hold = Math.max(0, hold - TICK_S);
-      silenceStreak += 1;
+      // desce linearmente
+      s.x = Math.max(0, s.x - FALL_PER_TICK);
     }
-    const speaking = voicedNow || hold > 0;
-
-    // Pulsos (ritmo): conta "subidas" de energia (bem simples e estável)
-    const rising = rms - lastRms > 0.004;
-    if (speaking && rising){
-      pulseTimer += TICK_S;
-      if (pulseTimer >= 0.35){
-        pulseTimer = 0;
-        pulseRate = clamp01(pulseRate + 0.08);
-      }
-    } else {
-      pulseTimer = 0;
-      pulseRate = fallLin(pulseRate, TICK_S, 0.25);
-    }
-
-    // ===== Núcleo: acumulador =====
-    // talkScore sobe rápido quando fala, cai devagar quando cala
-    if (speaking){
-      // target sobe com a força do volume (rms) mas sem explodir
-      const volumeBoost = clamp01((rms - VOICE_THRESHOLD) / 0.06);
-      const target = clamp01(0.35 + 0.65 * volumeBoost);
-      score.talk = riseExp(score.talk, target, TICK_S, RISE_TAU);
-    } else {
-      score.talk = fallLin(score.talk, TICK_S, FALL_PER_SEC);
-    }
-
-    // Estabilidade: quanto menos variação brusca de volume, mais estável
-    const delta = Math.abs(rms - lastRms);
-    const stableNow = clamp01(1 - (delta / 0.03));
-    score.stability = riseExp(score.stability, stableNow, TICK_S, 0.9);
-    if (!speaking) score.stability = fallLin(score.stability, TICK_S, 0.04);
-
-    // Clareza (proxy): fala acima do limiar e “sem tremedeira” de volume
-    const clarityNow = speaking ? clamp01((rms - VOICE_THRESHOLD)/0.06) * stableNow : 0;
-    score.clarity = riseExp(score.clarity, clarityNow, TICK_S, 0.75);
-    if (!speaking) score.clarity = fallLin(score.clarity, TICK_S, 0.06);
-
-    // Ritmo: pulseRate + estabilidade
-    const rhythmNow = speaking ? clamp01(0.55*pulseRate + 0.45*stableNow) : 0;
-    score.rhythm = riseExp(score.rhythm, rhythmNow, TICK_S, 0.7);
-    if (!speaking) score.rhythm = fallLin(score.rhythm, TICK_S, 0.07);
-
-    // Foco: continuidade sem “apagões” (silêncio longo derruba)
-    const continuity = clamp01(1 - Math.min(1, (silenceStreak * TICK_S) / 2.0));
-    const focusNow = speaking ? clamp01(0.65*continuity + 0.35*score.talk) : clamp01(0.35*continuity);
-    score.focus = riseExp(score.focus, focusNow, TICK_S, 0.9);
-    score.focus = fallLin(score.focus, TICK_S, 0.02);
-
-    // Expansão: fala sustentada (talk) + ritmo
-    const expNow = speaking ? clamp01(0.6*score.talk + 0.4*score.rhythm) : 0;
-    score.expansion = riseExp(score.expansion, expNow, TICK_S, 0.85);
-    if (!speaking) score.expansion = fallLin(score.expansion, TICK_S, 0.05);
-
-    // Motivação: sobe com consistência (foco + estabilidade) e “fala”
-    const motivNow = speaking ? clamp01(0.4*score.focus + 0.35*score.stability + 0.25*score.talk) : 0;
-    score.motivation = riseExp(score.motivation, motivNow, TICK_S, 1.0);
-    if (!speaking) score.motivation = fallLin(score.motivation, TICK_S, 0.04);
-
-    // Energia final: base no talk + volume
-    const energyNow = speaking ? clamp01(0.55*score.talk + 0.45*clamp01((rms - VOICE_THRESHOLD)/0.06)) : 0;
-    // Constância final: foco + estabilidade
-    const constNow = clamp01(0.55*score.focus + 0.45*score.stability);
-
-    // ===== Render =====
-    setBar("energia", energyNow);
-    setBar("constancia", constNow);
-    setBar("clareza", score.clarity);
-    setBar("ritmo", score.rhythm);
-    setBar("foco", score.focus);
-    setBar("expansao", score.expansion);
-    setBar("motivacao", score.motivation);
-    setBar("estabilidade", score.stability);
-
-    lastRms = rms;
+    s.fill.style.width = `${Math.round(s.x * 100)}%`;
+    s.val.textContent = s.x.toFixed(2);
   }
 
-  async function enableMic(){
-    try{
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
-      });
+  function stopAll() {
+    if (timer) { clearInterval(timer); timer = null; }
 
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const source = audioCtx.createMediaStreamSource(stream);
+    if (srcNode) { try { srcNode.disconnect(); } catch {} srcNode = null; }
+    if (analyser) { try { analyser.disconnect(); } catch {} analyser = null; }
 
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 2048;
-      analyser.smoothingTimeConstant = 0.6;
-
-      source.connect(analyser);
-
-      data = new Uint8Array(analyser.fftSize);
-
-      micStatus.textContent = "ligado";
-      btnMic.textContent = "🎤 Desativar Microfone";
-      btnMic.classList.remove("primary");
-      btnMic.classList.add("ghost");
-
-      startTick();
-    } catch (e){
-      micStatus.textContent = "bloqueado";
-      alert("Não foi possível ativar o microfone. Verifique a permissão do navegador.");
+    if (stream) {
+      try { stream.getTracks().forEach(t => t.stop()); } catch {}
+      stream = null;
     }
-  }
 
-  function disableMic(){
-    stopTick();
+    if (audioCtx) {
+      try { audioCtx.close(); } catch {}
+      audioCtx = null;
+    }
 
-    try{
-      if (stream){
-        stream.getTracks().forEach(t => t.stop());
-      }
-    } catch {}
-
-    try{
-      if (audioCtx){
-        audioCtx.close();
-      }
-    } catch {}
-
-    stream = null;
-    audioCtx = null;
-    analyser = null;
-    data = null;
-
-    micStatus.textContent = "desligado";
+    btnMic.classList.remove("on");
     btnMic.textContent = "🎤 Ativar Microfone";
-    btnMic.classList.add("primary");
-    btnMic.classList.remove("ghost");
+    micStatus.textContent = "desligado";
   }
 
+  async function startMic() {
+    // iOS/Android exigem gesto do usuário -> este start é chamado no click
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    });
+
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.0;
+
+    srcNode = audioCtx.createMediaStreamSource(stream);
+    srcNode.connect(analyser);
+
+    btnMic.classList.add("on");
+    btnMic.textContent = "🔇 Desativar Microfone";
+    micStatus.textContent = "ligado";
+
+    // zera estados de fala/silêncio
+    lastVoice = false;
+    voiceHold = 0;
+    silenceHold = 0;
+    zcrAvg = 0;
+    energyAvg = 0;
+
+    const buf = new Float32Array(analyser.fftSize);
+
+    timer = setInterval(() => {
+      analyser.getFloatTimeDomainData(buf);
+
+      // RMS (energia)
+      let sum = 0;
+      let zc = 0;
+      let prev = buf[0];
+      for (let i = 0; i < buf.length; i++) {
+        const v = buf[i];
+        sum += v * v;
+        if ((v >= 0 && prev < 0) || (v < 0 && prev >= 0)) zc++;
+        prev = v;
+      }
+      const rms = Math.sqrt(sum / buf.length); // 0..~0.1
+      const zcr = zc / buf.length;             // ~0..0.5
+
+      // suavização
+      energyAvg = energyAvg + (rms - energyAvg) * 0.25;
+      zcrAvg = zcrAvg + (zcr - zcrAvg) * ZCR_SMOOTH;
+
+      const voice = energyAvg > VOICE_THRESHOLD;
+
+      if (voice) {
+        voiceHold += 1;
+        silenceHold = Math.max(0, silenceHold - 1);
+      } else {
+        silenceHold += 1;
+        voiceHold = Math.max(0, voiceHold - 1);
+      }
+
+      // Normalizações simples (0..1)
+      // (essas fórmulas são "motivacionais": sobem com fala contínua e estabilidade)
+      const voice01 = clamp01((energyAvg - VOICE_THRESHOLD) / 0.04); // energia útil
+      const talkContinuity = clamp01(voiceHold / 18);                // ~3.6s para 1.0 (18 ticks * 200ms)
+      const calmSilence = clamp01(1 - (silenceHold / 25));           // cai com silêncio prolongado
+      const zcr01 = clamp01((zcrAvg - 0.02) / 0.10);                 // proxy de articulação (bem rough)
+
+      // "Ritmo": quer fala contínua, sem picos loucos
+      const ritmoTarget = clamp01(0.35 + 0.65 * talkContinuity);
+
+      // "Constância": fala contínua + pouco liga/desliga
+      const constTarget = clamp01(0.25 + 0.75 * talkContinuity);
+
+      // "Energia": energia útil + continuidade
+      const energiaTarget = clamp01(0.15 + 0.55 * voice01 + 0.30 * talkContinuity);
+
+      // "Clareza": usa zcr suavizado + continuidade (não é transcrição; é proxy)
+      const clarezaTarget = clamp01(0.20 + 0.55 * zcr01 + 0.25 * talkContinuity);
+
+      // "Foco": continuidade + “calma” (não ficar sumindo)
+      const focoTarget = clamp01(0.25 + 0.55 * talkContinuity + 0.20 * calmSilence);
+
+      // "Expansão": quando fala contínuo, sobe junto (pra incentivar alongar a fala)
+      const expansaoTarget = clamp01(0.10 + 0.90 * talkContinuity);
+
+      // "Motivação": mistura energia + expansão (UP)
+      const motivacaoTarget = clamp01(0.15 + 0.45 * energiaTarget + 0.40 * expansaoTarget);
+
+      // "Estabilidade": fica alto quando o áudio está “constante” (sem ligar/desligar)
+      const stabilityBase = clamp01(0.30 + 0.70 * talkContinuity);
+      const estabilidadeTarget = stabilityBase;
+
+      // Integra com subida rápida / descida lenta
+      integrate("energia", energiaTarget);
+      integrate("constancia", constTarget);
+      integrate("clareza", clarezaTarget);
+      integrate("ritmo", ritmoTarget);
+      integrate("foco", focoTarget);
+      integrate("expansao", expansaoTarget);
+      integrate("motivacao", motivacaoTarget);
+      integrate("estabilidade", estabilidadeTarget);
+
+      lastVoice = voice;
+    }, TICK_MS);
+  }
+
+  // ===== Botão Mic toggle =====
   btnMic.addEventListener("click", async () => {
-    if (!stream) await enableMic();
-    else disableMic();
+    try {
+      if (stream) {
+        stopAll();
+      } else {
+        await startMic();
+      }
+    } catch (err) {
+      stopAll();
+      alert("Não foi possível ativar o microfone. Verifique permissões do navegador (Chrome) e tente novamente.");
+      console.error(err);
+    }
   });
 
-  // start with zeros
-  METRICS.forEach(m => setBar(m.key, 0));
+  // Segurança: se o usuário sai da aba, desliga
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && stream) stopAll();
+  });
+
+  // Compatibilidade
+  if (!navigator.mediaDevices?.getUserMedia) {
+    alert("Este navegador não suporta captura de microfone.");
+    btnMic.disabled = true;
+  }
 })();
