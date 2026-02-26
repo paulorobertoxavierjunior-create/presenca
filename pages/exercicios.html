@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Presença • Exercícios</title>
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <h1>Exercícios</h1>
+    <p>Objetivo: destravar a fala e ganhar constância.</p>
+
+    <div class="actions">
+      <a class="btn ghost" href="../index.html">Voltar</a>
+      <button id="btnMic" class="btn primary">🎙️ Ativar Microfone</button>
+      <button id="btnNext" class="btn ghost">Próximo</button>
+    </div>
+
+    <div class="statusRow">
+      <span class="badge">Status: <strong id="micState">desligado</strong></span>
+      <span class="badge">Exercício: <strong id="pos">1/6</strong></span>
+    </div>
+  </div>
+
+  <div class="logoBox">
+    <img class="logo" src="../IMG-20260218-WA0015.jpg" alt="Logo" />
+  </div>
+</header>
+
+<main class="card">
+  <h2 id="q" style="margin:0 0 12px">Conte de 1 até 10 com calma.</h2>
+  <p style="color:var(--muted);margin:0 0 16px">
+    Dica: fale contínuo por alguns segundos. Se pausar, as barras descem.
+  </p>
+
+  <section class="bars">
+    <div class="barRow"><div class="barLabel">Energia</div><div class="track"><div class="fill" id="b_energia"></div></div><div class="barVal" id="v_energia">0</div></div>
+    <div class="barRow"><div class="barLabel">Constância</div><div class="track"><div class="fill" id="b_constancia"></div></div><div class="barVal" id="v_constancia">0</div></div>
+    <div class="barRow"><div class="barLabel">Clareza</div><div class="track"><div class="fill" id="b_clareza"></div></div><div class="barVal" id="v_clareza">0</div></div>
+    <div class="barRow"><div class="barLabel">Ritmo</div><div class="track"><div class="fill" id="b_ritmo"></div></div><div class="barVal" id="v_ritmo">0</div></div>
+    <div class="barRow"><div class="barLabel">Foco</div><div class="track"><div class="fill" id="b_foco"></div></div><div class="barVal" id="v_foco">0</div></div>
+    <div class="barRow"><div class="barLabel">Expansão</div><div class="track"><div class="fill" id="b_expansao"></div></div><div class="barVal" id="v_expansao">0</div></div>
+    <div class="barRow"><div class="barLabel">Motivação</div><div class="track"><div class="fill" id="b_motivacao"></div></div><div class="barVal" id="v_motivacao">0</div></div>
+    <div class="barRow"><div class="barLabel">Estabilidade</div><div class="track"><div class="fill" id="b_estabilidade"></div></div><div class="barVal" id="v_estabilidade">0</div></div>
+  </section>
+
+  <p class="foot">Faça do seu jeito. O foco é constância e presença.</p>
+</main>
+
+<script src="./exercicios.js"></script>
+</body>
+</html>
