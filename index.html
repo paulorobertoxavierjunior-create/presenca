@@ -5,50 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Presença</title>
   <meta name="theme-color" content="#dff4f6" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 
 <body>
   <main class="wrap">
     <header class="top">
       <div class="brand">
-        <div class="brandRow">
-          <div class="logoBox" title="Logo">
-            <img id="logoImg" alt="Logo" src="./assets/logo.jpg" />
-          </div>
+        <h1>Presença</h1>
+        <p>Fale livremente e observe sua energia.</p>
+      </div>
 
-          <div>
-            <h1>Presença</h1>
-            <p class="sub">Fale livremente e observe sua energia.</p>
-          </div>
-        </div>
-
-        <div class="panel">
-          <button id="btnMic" class="btn primary">
-            🎤 Ativar Microfone
-          </button>
-
-          <div class="status">
-            <div><span>Status:</span> <strong id="micStatus">desligado</strong></div>
-            <div><span>Atualização:</span> <strong id="tickMs">200ms</strong></div>
-          </div>
-
-          <div class="hint">
-            Quanto mais contínuo e presente, mais as barras sobem.
-          </div>
-        </div>
+      <div class="logo" aria-label="Logo">
+        <img src="./IMG-20260218-WA0015.jpg" alt="Logo" />
       </div>
     </header>
 
     <section class="card">
-      <div class="bars" id="bars"></div>
-    </section>
+      <div class="controls">
+        <button id="btnMic" class="btn primary">
+          🎤 Ativar Microfone
+        </button>
 
-    <footer class="foot">
-      <span>UP • Clareza • Ritmo • Consistência</span>
-    </footer>
+        <div class="meta">
+          <div>Status: <b id="micStatus">desligado</b></div>
+          <div>Atualização: <b id="tickInfo">200ms</b></div>
+        </div>
+      </div>
+
+      <div class="bars" id="bars"></div>
+
+      <footer class="foot">
+        Quanto mais contínuo e presente, mais as barras sobem.
+      </footer>
+    </section>
   </main>
 
-  <script src="./app.js"></script>
+  <script defer src="./app.js"></script>
 </body>
 </html>
