@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Presença • Relatório</title>
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <h1>Relatório</h1>
+    <p>Resumo local da sessão e, se usado, média do modo Aula.</p>
+
+    <div class="actions">
+      <a class="btn ghost" href="../index.html">Voltar</a>
+      <button id="btnBuild" class="btn primary">Gerar</button>
+      <button id="btnCopy" class="btn ghost" disabled>Copiar</button>
+      <button id="btnDownload" class="btn ghost" disabled>Baixar JSON</button>
+      <button id="btnClear" class="btn ghost">Limpar dados</button>
+    </div>
+  </div>
+
+  <div class="logoBox">
+    <img class="logo" src="../IMG-20260218-WA0015.jpg" alt="Logo" />
+  </div>
+</header>
+
+<main class="card">
+  <textarea id="box" style="width:100%;min-height:260px;border:1px solid var(--line);border-radius:14px;padding:10px;font-family:ui-monospace,monospace;"></textarea>
+  <p class="foot">Sem nomes. Somente agregados e médias locais.</p>
+</main>
+
+<script src="./relatorio.js"></script>
+</body>
+</html>
