@@ -10,29 +10,45 @@
 
 <body>
   <main class="wrap">
-    <section class="card">
-      <h1 class="title">Presença</h1>
-      <p class="sub">Fale livremente e observe sua energia.</p>
+    <header class="top">
+      <div class="brand">
+        <div class="brandRow">
+          <div class="logoBox" title="Logo">
+            <img id="logoImg" alt="Logo" src="./assets/logo.jpg" />
+          </div>
 
-      <div class="controls">
-        <button id="btnMic" class="btn primary">
-          🎙️ <span id="btnMicTxt">Ativar Microfone</span>
-        </button>
+          <div>
+            <h1>Presença</h1>
+            <p class="sub">Fale livremente e observe sua energia.</p>
+          </div>
+        </div>
 
-        <div class="mini">
-          <div>Status: <b id="micState">desligado</b></div>
-          <div>Atualização: <b>200ms</b></div>
+        <div class="panel">
+          <button id="btnMic" class="btn primary">
+            🎤 Ativar Microfone
+          </button>
+
+          <div class="status">
+            <div><span>Status:</span> <strong id="micStatus">desligado</strong></div>
+            <div><span>Atualização:</span> <strong id="tickMs">200ms</strong></div>
+          </div>
+
+          <div class="hint">
+            Quanto mais contínuo e presente, mais as barras sobem.
+          </div>
         </div>
       </div>
+    </header>
 
-      <div class="bars" id="barList"></div>
-
-      <p class="foot">
-        Quanto mais contínuo e presente, mais as barras sobem.
-      </p>
+    <section class="card">
+      <div class="bars" id="bars"></div>
     </section>
+
+    <footer class="foot">
+      <span>UP • Clareza • Ritmo • Consistência</span>
+    </footer>
   </main>
 
-  <script defer src="./app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
