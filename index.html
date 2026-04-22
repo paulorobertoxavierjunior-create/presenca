@@ -3,117 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elayon Presença | Conexão Humana</title>
+    <title>ELAYON | Avaliação de Frequência</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        :root { --blue-elayon: #2563eb; --bg-soft: #f8fafc; }
-        body { background-color: var(--bg-soft); color: #1e293b; font-family: 'Inter', sans-serif; }
-        .card-stark { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: all 0.3s ease; }
-        .card-stark:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
-        .btn-action { background: var(--blue-elayon); transition: all 0.3s; }
-        .btn-action:hover { filter: brightness(1.1); transform: scale(1.02); }
-        .logo-box { width: 55px; height: 55px; border-radius: 14px; overflow: hidden; object-fit: cover; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
+        body { background-color: #050607; color: #f4f6f8; font-family: 'Inter', sans-serif; }
+        .step-inactive { opacity: 0.3; filter: grayscale(1); }
+        .step-active { opacity: 1; border-color: #2563eb; box-shadow: 0 0 20px rgba(37, 99, 235, 0.1); }
+        .glass { background: rgba(17, 22, 27, 0.8); border: 1px solid #1b2026; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
 
-    <header class="w-full bg-white border-b border-slate-200 p-4 sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <img src="1000157517.png" alt="Elayon Logo" class="logo-box shadow-sm">
-                <div>
-                    <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Elayon <span class="text-blue-600">Presença</span></h1>
-                    <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Núcleo de Telemetria Cognitiva</p>
-                </div>
-            </div>
-            <div class="text-right hidden sm:block">
-                <p class="text-xs font-bold text-slate-600">Gratos por sua presença.</p>
-                <p class="text-[10px] text-green-500 font-bold">SISTEMA ONLINE</p>
-            </div>
-        </div>
+    <header class="mb-12 text-center">
+        <img src="1000157517.png" alt="Elayon Logo" class="w-16 h-16 mx-auto mb-4 opacity-80">
+        <h1 class="text-xs font-black uppercase tracking-[0.4em] text-blue-500">Avaliação Obrigatória</h1>
     </header>
 
-    <main class="max-w-4xl mx-auto w-full p-6 space-y-8">
+    <main class="w-full max-w-md space-y-6">
         
-        <section class="text-center py-4">
-            <h2 class="text-2xl font-light text-slate-700">Seja bem-vindo ao seu <span class="font-bold">Espelho Operacional</span>.</h2>
-            <p class="text-slate-500 text-sm mt-1">Capture sua frequência ou processe dados externos com precisão.</p>
-        </section>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <div class="card-stark rounded-[2.5rem] p-8 flex flex-col items-center justify-between min-h-[340px]">
-                <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Tempo Real</span>
-                
-                <div class="relative">
-                    <button id="btnRecord" class="w-24 h-24 btn-action rounded-full flex items-center justify-center text-white shadow-xl shadow-blue-200">
-                        <i id="micIcon" class="fas fa-microphone text-3xl"></i>
-                    </button>
-                </div>
-
-                <div class="text-center">
-                    <p id="recStatus" class="text-xs font-bold text-slate-400 italic">Inicie sua fala</p>
-                </div>
-            </div>
-
-            <div class="card-stark rounded-[2.5rem] p-8 flex flex-col items-center justify-between min-h-[340px]">
-                <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Processamento</span>
-                
-                <label for="fileUpload" class="w-full flex-1 mt-4 mb-4 border-2 border-dashed border-slate-100 rounded-[2rem] flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-all">
-                    <input type="file" id="fileUpload" class="hidden" accept="audio/*">
-                    <i class="fas fa-file-import text-3xl text-slate-200 mb-3"></i>
-                    <span class="text-xs font-bold text-slate-400">Carregar Áudio ou Sensores</span>
-                </label>
-
-                <p class="text-[9px] text-slate-300 uppercase font-bold tracking-tighter">WAV, MP3 ou Raw Data</p>
-            </div>
+        <div class="text-center mb-8">
+            <h2 class="text-xl font-light">Sincronize sua <span class="font-bold text-white">Presença</span></h2>
+            <p class="text-slate-500 text-sm mt-2">Conclua as 3 etapas de calibração para liberar o acesso permanente ao sistema real.</p>
         </div>
 
-        <section id="resultsArea" class="card-stark rounded-[2.5rem] p-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-6 border-b border-slate-50">
-                <h3 class="text-xs font-black uppercase tracking-widest text-slate-300 italic">Laudo Gerado com Sucesso</h3>
-                <button id="btnExport" class="px-6 py-3 btn-action text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg">
-                    Exportar para ChatGPT / IA
-                </button>
+        <div class="grid grid-cols-3 gap-3 mb-8">
+            <div id="stepIndicator1" class="h-1.5 bg-blue-600 rounded-full"></div>
+            <div id="stepIndicator2" class="h-1.5 bg-slate-800 rounded-full"></div>
+            <div id="stepIndicator3" class="h-1.5 bg-slate-800 rounded-full"></div>
+        </div>
+
+        <section class="glass rounded-[2rem] p-8 text-center space-y-6">
+            <div id="stepContent">
+                <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Etapa 01 de 03</span>
+                <h3 class="text-lg font-bold mt-2">Teste de Silêncio e Ruído</h3>
+                <p class="text-slate-400 text-xs mt-4 leading-relaxed">
+                    Precisamos mapear o ambiente. Fique em silêncio por 5 segundos enquanto o sensor calibra o fundo.
+                </p>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 min-h-[150px]">
-                    <p id="finalTranscript" class="text-sm text-slate-500 italic leading-relaxed">O rastro da sua consciência aparecerá aqui...</p>
-                </div>
+            <button id="btnAction" class="w-full py-4 bg-white text-black font-black rounded-xl uppercase text-[10px] tracking-widest hover:bg-blue-50 transition-all active:scale-95">
+                Iniciar Calibração
+            </button>
 
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
-                            <span class="text-[9px] text-slate-400 uppercase block font-bold">Ritmo</span>
-                            <span id="valRitmo" class="text-xl font-bold text-blue-600">--</span>
-                        </div>
-                        <div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
-                            <span class="text-[9px] text-slate-400 uppercase block font-bold">Estabilidade</span>
-                            <span id="valEstabilidade" class="text-xl font-bold text-blue-600">--</span>
-                        </div>
-                    </div>
-                    <div class="p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
-                        <span class="text-[9px] text-blue-400 uppercase block font-bold mb-1">Assinatura de Energia</span>
-                        <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                            <div id="barEnergia" class="bg-blue-600 h-full w-0 transition-all duration-1000"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <button class="text-[9px] uppercase tracking-widest text-slate-600 font-bold hover:text-slate-400">
+                <i class="fas fa-undo mr-1"></i> Refazer calibração (Grátis)
+            </button>
         </section>
 
+        <p class="text-center text-[10px] text-slate-700 uppercase tracking-tighter">
+            O acesso ao <strong>Presença Real</strong> será liberado após a conclusão.
+        </p>
     </main>
 
-    <footer class="mt-auto p-10 text-center border-t border-slate-200 bg-white">
-        <p class="text-[10px] text-slate-400 uppercase tracking-[0.3em] font-black">Elayon • Tecnologia ao Serviço da Vida</p>
+    <footer class="mt-20 opacity-30">
+        <p class="text-[9px] uppercase tracking-[0.2em]">Elayon Core v2.0 • Protocolo de Calibração</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="boot-auth.js"></script>
-    <script src="tunnel.js"></script>
-    <script src="cockpit.js"></script>
+    <script>
+        // A ideia aqui no cockpit.js será:
+        // Etapa 1: Silêncio
+        // Etapa 2: Leitura de texto padrão
+        // Etapa 3: Expressão livre (60s)
+        // Final: Gravação no Supabase do status 'calibrado: true' e redirecionamento.
+    </script>
+
 </body>
 </html>
