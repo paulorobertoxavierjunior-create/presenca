@@ -3,169 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ELAYON SPACE | Entrada de Dados</title>
+    <title>ELAYON | CRS Operational</title>
     <style>
         :root {
             --bg-deep: #050f12;
-            --panel-bg: rgba(11, 26, 30, 0.9);
+            --panel-bg: rgba(11, 26, 30, 0.95);
             --neon-mint: #6ec1c8;
-            --mint-glow: rgba(110, 193, 200, 0.2);
-            --border-color: rgba(110, 193, 200, 0.15);
+            --mint-glow: rgba(110, 193, 200, 0.3);
+            --border-color: rgba(110, 193, 200, 0.2);
             --text-main: #d6fff6;
-            --text-muted: #627d82;
-            --ink: #173b42;
+            --accent-warn: #c8a36e;
         }
 
-        * { box-sizing: border-box; transition: all 0.3s ease; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', 'Consolas', monospace; transition: 0.3s; }
         
         body {
-            background-color: var(--bg-deep);
+            background: var(--bg-deep);
+            background-image: radial-gradient(circle at center, #0a2228 0%, #050f12 100%);
             color: var(--text-main);
-            font-family: 'Consolas', 'Courier New', monospace;
             margin: 0;
-            overflow: hidden;
             display: grid;
-            grid-template-rows: 70px 1fr 180px;
+            grid-template-rows: 60px 1fr 140px;
             height: 100vh;
+            overflow: hidden;
         }
 
-        /* --- Header: Logo e Status --- */
-        .top-bar {
-            background: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
+        /* --- Header --- */
+        .topbar {
+            padding: 0 25px; border-bottom: 1px solid var(--border-color);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 30px;
+            background: var(--panel-bg);
+        }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-img { height: 35px; border-radius: 4px; border: 1px solid var(--neon-mint); }
+
+        /* --- Layout Principal --- */
+        .main-grid {
+            display: grid; grid-template-columns: 320px 1fr 300px; gap: 20px; padding: 20px;
         }
 
-        .brand-area { display: flex; align-items: center; gap: 15px; }
-        .logo-img { height: 40px; } /* Ajuste de tamanho da logo */
-        .brand-title { font-size: 1.5rem; letter-spacing: 2px; }
-
-        .status-pill {
-            padding: 5px 15px; border-radius: 20px;
-            border: 1px solid var(--neon-mint); color: var(--neon-mint);
-            font-size: 0.7rem; font-weight: bold; text-transform: uppercase;
+        .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex; flex-direction: column;
         }
 
-        /* --- Main Operacional --- */
-        .main-space {
-            display: grid; grid-template-columns: 1fr 350px; gap: 15px; padding: 15px;
+        /* --- Esquerda: Config & Upload --- */
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 10px; text-transform: uppercase; color: var(--neon-mint); margin-bottom: 5px; }
+        input, select {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color);
+            color: white; padding: 8px; border-radius: 4px; outline: none;
         }
 
-        /* Painel 1: Capturador (O "Space" das imagens) */
-        .capturer-panel {
-            background: var(--panel-bg); border: 1px solid var(--border-color);
-            border-radius: 12px; display: flex; flex-direction: column;
+        .upload-btn {
+            border: 1px dashed var(--neon-mint); padding: 15px; text-align: center;
+            font-size: 11px; cursor: pointer; border-radius: 8px; margin-top: 10px;
+        }
+        .upload-btn:hover { background: var(--mint-glow); }
+
+        /* --- Centro: Recording Core --- */
+        .core-capture {
             justify-content: center; align-items: center; position: relative;
+            background-image: url('IMG-20260218-WA0015.jpg');
+            background-size: cover; background-position: center;
+            box-shadow: inset 0 0 100px #000;
         }
 
-        .mic-core {
-            width: 140px; height: 140px; border-radius: 50%;
+        .record-trigger {
+            width: 120px; height: 120px; border-radius: 50%;
             border: 4px solid var(--neon-mint);
-            color: var(--neon-mint); font-size: 40px; cursor: pointer;
-            box-shadow: 0 0 30px var(--mint-glow); display: flex;
-            justify-content: center; align-items: center; transition: 0.5s;
+            background: rgba(0,0,0,0.6);
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 20px var(--mint-glow);
         }
-        .mic-core:hover { background: var(--neon-mint); color: var(--ink); box-shadow: 0 0 50px var(--neon-mint); }
-        .mic-core.active { background: var(--neon-mint); color: var(--ink); box-shadow: 0 0 60px var(--neon-mint); }
-
-        .instruction-text { margin-top: 25px; color: var(--text-main); text-align: center; max-width: 300px; }
-
-        /* Painel 2: Tendência (As 3 Últimas) */
-        .trend-stack { display: flex; flex-direction: column; gap: 10px; }
-        .trend-card {
-            background: rgba(255,255,255,0.02); border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 15px; font-size: 12px;
-        }
-        .trend-card.current { border-left: 4px solid var(--neon-mint); background: rgba(110, 193, 200, 0.03); }
+        .record-trigger.active { background: #ff4b4b; border-color: #ff4b4b; animation: pulse 1.5s infinite; }
         
-        .label-tendencia { color: var(--neon-mint); font-weight: bold; margin-bottom: 8px; text-transform: uppercase; font-size: 0.6rem; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(255, 75, 75, 0.4); } 100% { box-shadow: 0 0 0 25px rgba(255, 75, 75, 0); } }
 
-        /* --- Footer: Despacho e Ferramentas --- */
-        .footer-tools {
-            background: #000; padding: 15px 30px; display: grid; grid-template-columns: 1fr 280px 200px; gap: 15px;
-            border-top: 1px solid var(--border-color);
+        /* --- Direita: Histórico --- */
+        .session-list { list-style: none; padding: 0; margin-top: 10px; }
+        .session-item {
+            font-size: 11px; padding: 10px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .status-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; background: #1a3a3a; color: var(--neon-mint); }
+
+        /* --- Footer: Ações --- */
+        .action-bar {
+            background: #000; border-top: 1px solid var(--border-color);
+            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; padding: 25px;
         }
 
-        .json-despacho { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; color: #00ff41; font-size: 11px; overflow-y: auto; white-space: pre-wrap; }
-        
-        .upload-zone {
-            border: 2px dashed var(--border-color); border-radius: 8px;
-            display: flex; justify-content: center; align-items: center;
-            text-align: center; font-size: 11px; cursor: pointer; color: var(--text-muted);
+        .btn {
+            height: 100%; border: none; border-radius: 6px; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; font-size: 12px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        
-        .btn-protocolo {
-            background: var(--neon-mint); color: var(--ink); border: none;
-            border-radius: 8px; font-weight: bold; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
+        .btn-save { background: #173b42; color: var(--neon-mint); border: 1px solid var(--neon-mint); }
+        .btn-crs { background: var(--neon-mint); color: #050f12; }
+        .btn-download { background: #222; color: #fff; }
+        .btn-export { background: #c8a36e; color: #000; }
+
+        .btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+
     </style>
 </head>
 <body>
 
-    <header class="top-bar">
-        <div class="brand-area">
-            <img class="logo-img" src="IMG 2025 0610-wa0002.png" alt="ELAYON Logo">
-            <div class="brand-title">ELAYON SPACE</div>
+    <header class="topbar">
+        <div class="logo-area">
+            <img src="IMG-20260218-WA0015.jpg" class="logo-img" alt="Logo">
+            <div style="font-weight: bold; letter-spacing: 1px;">ELAYON <span style="color: var(--neon-mint)">HEALTH</span></div>
         </div>
-        <div>
-            <span class="status-pill">Render Link: ACTIVE</span>
-        </div>
+        <div style="font-size: 11px; color: var(--neon-mint)">PROTOCOL: ACTIVE • SESSÃO: 0042</div>
     </header>
 
-    <main class="main-space">
-        <section class="capturer-panel">
-            <div class="mic-core" onclick="toggleMic()">●</div>
-            <div class="instruction-text">Toque para capturar áudio no Space</div>
+    <main class="main-grid">
+        <aside class="glass-panel">
+            <div class="input-group">
+                <label>ID Paciente</label>
+                <input type="text" placeholder="Ex: 882.10-A">
+            </div>
+            <div class="input-group">
+                <label>Protocolo CRS</label>
+                <select>
+                    <option>Triagem Vocal Rápida</option>
+                    <option>Neurologia Estendida</option>
+                </select>
+            </div>
+            <div class="upload-btn" onclick="document.getElementById('fileIn').click()">
+                <input type="file" id="fileIn" hidden>
+                [+] CARREGAR ÁUDIO EXTERNO
+            </div>
+        </aside>
+
+        <section class="glass-panel core-capture">
+            <div class="record-trigger" id="micBtn" onclick="toggleRecord()">
+                <span id="micIcon" style="font-size: 40px;">●</span>
+            </div>
+            <p id="timer" style="margin-top: 20px; font-family: monospace; letter-spacing: 3px;">00:00:00</p>
+            <div style="font-size: 10px; opacity: 0.7;">ISO-MIC MONITORING ACTIVE</div>
         </section>
 
-        <aside class="trend-stack">
-            <div style="font-size: 10px; opacity: 0.5; text-align: center; margin-bottom: 5px;">HISTÓRICO DE TENDÊNCIA</div>
-            <div class="trend-card current">
-                <div class="label-tendencia">T-0 (Atual)</div>
-                <div>Ritmo: -- | Silêncio: -- | Tokens: 4.2%</div>
+        <aside class="glass-panel">
+            <label>Últimas Sessões</label>
+            <div class="session-list">
+                <div class="session-item">
+                    <span>SESS_041.wav</span>
+                    <span class="status-tag">PROCESSADO</span>
+                </div>
+                <div class="session-item">
+                    <span>SESS_040.wav</span>
+                    <span class="status-tag">CRS_OK</span>
+                </div>
+                <div class="session-item">
+                    <span>SESS_039.wav</span>
+                    <span class="status-tag">LOCAL</span>
+                </div>
             </div>
-            <div class="trend-card">
-                <div class="label-tendencia">T-1 (Anterior)</div>
-                <div>Aguardando dados da sessão anterior...</div>
-            </div>
-            <div class="trend-card">
-                <div class="label-tendencia">T-2 (Antepenúltima)</div>
-                <div>Aguardando dados históricos...</div>
+            <div style="margin-top: auto;">
+                <label>Link de Entrega CRS</label>
+                <div style="font-size: 10px; color: var(--neon-mint); cursor: pointer; text-decoration: underline;">
+                    📥 Baixar_Relatorio_Final_041.pdf
+                </div>
             </div>
         </aside>
     </main>
 
-    <footer class="footer-tools">
-        <div class="json-despacho" id="json-output">
-{
-  "sessao": "active",
-  "meta": { "paciente": "Aguardando" },
-  "crs_data": {}
-}
-        </div>
-
-        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-            <input type="file" id="fileInput" hidden accept="audio/*">
-            DROPAR OU CARREGAR ÁUDIO EXTERNO
-        </div>
-
-        <button class="btn-protocolo">
-            GERAR RELATÓRIO<br/>
-            DE ACESSO
-        </button>
+    <footer class="action-bar">
+        <button class="btn btn-save">💾 Salvar Local</button>
+        <button class="btn btn-download">⬇️ Exportar WAV</button>
+        <button class="btn btn-export">📋 Gerar Relatório</button>
+        <button class="btn btn-crs" onclick="sendToCRS()">🚀 ENVIAR PARA CRS</button>
     </footer>
 
     <script>
-        function toggleMic() {
-            const btn = document.querySelector('.mic-core');
-            btn.classList.toggle('active');
-            if (btn.classList.contains('active')) {
-                document.getElementById('instruction').innerText = "Capturando... Toque para finalizar.";
+        let recording = false;
+        function toggleRecord() {
+            recording = !recording;
+            const btn = document.getElementById('micBtn');
+            const icon = document.getElementById('micIcon');
+            
+            if(recording) {
+                btn.classList.add('active');
+                icon.innerText = "■";
+                icon.style.color = "white";
             } else {
-                document.getElementById('instruction').innerText = "Processando... Gerando JSON.";
+                btn.classList.remove('active');
+                icon.innerText = "●";
+                icon.style.color = "var(--neon-mint)";
+                alert("Gravação finalizada e armazenada temporariamente.");
             }
+        }
+
+        function sendToCRS() {
+            const btn = document.querySelector('.btn-crs');
+            btn.innerText = "ENVIANDO...";
+            setTimeout(() => {
+                btn.innerText = "🚀 ENVIAR PARA CRS";
+                alert("Dados despachados para o Core CRS com sucesso!");
+            }, 1500);
         }
     </script>
 </body>
