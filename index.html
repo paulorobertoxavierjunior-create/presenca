@@ -10,191 +10,121 @@
             --card-bg: #ffffff;
             --primary: #2563eb;
             --danger: #ef4444;
-            --success: #10b981;
             --text-main: #1e293b;
             --text-muted: #64748b;
             --border: #e2e8f0;
         }
 
-        * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
         
         body { 
-            background: var(--bg); color: var(--text-main); margin: 0; 
-            display: grid; grid-template-rows: 60px 1fr 100px; height: 100vh; overflow: hidden;
+            background: var(--bg); color: var(--text-main);
+            display: grid; grid-template-rows: 60px 1fr 120px; height: 100vh; overflow: hidden;
         }
 
+        /* --- Topbar --- */
         header {
-            padding: 0 25px; background: var(--card-bg); border-bottom: 1px solid var(--border);
+            padding: 0 20px; background: var(--card-bg); border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .logo-box { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary); }
-        .status-badge { font-size: 10px; color: var(--success); border: 1px solid var(--success); padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        .brand { font-weight: 700; font-size: 14px; letter-spacing: 0.5px; color: var(--primary); }
 
         /* --- Workspace --- */
-        main { display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 20px; height: 100%; }
+        main { display: grid; grid-template-columns: 300px 1fr; gap: 20px; padding: 20px; align-items: start; }
 
-        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .sidebar { display: flex; flex-direction: column; gap: 15px; }
         .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); padding: 20px; }
         
-        h2 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 15px; }
+        h2 { font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px; }
 
-        /* --- Controle de Mic --- */
-        .mic-control-box { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        /* Botão Mic Real */
+        .mic-box { text-align: center; }
         .btn-mic { 
-            width: 70px; height: 70px; border-radius: 50%; border: none; background: var(--primary); 
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.2); transition: 0.3s;
+            width: 64px; height: 64px; border-radius: 50%; border: none; 
+            background: var(--primary); color: white; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: 0.2s; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
-        .btn-mic.active { background: var(--danger); animation: pulse 1.5s infinite; }
-        .mic-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+        .btn-mic.recording { background: var(--danger); animation: pulse 1.5s infinite; }
+        .status-text { font-size: 11px; margin-top: 10px; font-weight: 600; color: var(--text-muted); }
 
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.4); } 100% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
 
-        /* --- Heatmap Central --- */
-        .heatmap-container { position: relative; background: #000; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
-        canvas { flex: 1; width: 100%; cursor: crosshair; }
-        .heatmap-overlay { position: absolute; top: 15px; left: 15px; pointer-events: none; }
+        /* --- O Heatmap (A Fitinha) --- */
+        .monitor-area { 
+            background: #000; border-radius: 12px; position: relative; 
+            height: 400px; display: flex; align-items: flex-end; overflow: hidden;
+        }
+        #heatmapCanvas { width: 100%; height: 100%; } /* Onde o JS vai desenhar a oscilação */
 
-        /* --- Rodapé Operacional --- */
+        /* --- Footer Cockpit --- */
         footer { 
-            background: var(--card-bg); border-top: 1px solid var(--border); 
-            display: grid; grid-template-columns: 1fr auto; padding: 0 30px; align-items: center;
+            background: var(--card-bg); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 30px;
         }
 
-        .action-group { display: flex; gap: 12px; align-items: center; }
-        .btn { 
-            padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 12px; 
-            cursor: pointer; border: 1px solid transparent; transition: 0.2s;
+        .history { display: flex; gap: 10px; }
+        .file-link { 
+            font-size: 11px; padding: 8px 12px; background: #f1f5f9; 
+            border-radius: 6px; color: var(--primary); text-decoration: none; border: 1px solid var(--border);
         }
-        .btn-save { background: #f1f5f9; color: var(--text-main); }
-        .btn-discard { background: transparent; color: var(--danger); }
+
+        .actions { display: flex; gap: 10px; align-items: center; }
+        .btn { padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); }
         .btn-crs { background: var(--primary); color: white; border: none; }
-        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        .btn-danger { color: var(--danger); background: transparent; }
 
-        /* --- Histórico CRS --- */
-        .crs-history { display: flex; gap: 20px; }
-        .download-pill { 
-            font-size: 11px; color: var(--primary); background: #eff6ff; 
-            padding: 8px 12px; border-radius: 6px; text-decoration: none; font-weight: 500;
-            border: 1px solid #dbeafe;
-        }
-
-        .loader-crs { font-size: 11px; color: var(--primary); font-weight: bold; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
+        #crs-status { font-size: 11px; color: var(--primary); font-weight: 700; display: none; margin-right: 10px; }
 
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-box">
-            <img src="IMG-20260218-WA0015.jpg" style="height:25px; border-radius:4px;" alt="">
-            ELAYON PRESENÇA
-        </div>
-        <div class="status-badge">NÚCLEO OPERACIONAL ATIVO</div>
+        <div class="brand">ELAYON PRESENÇA | <span style="font-weight: 400; color: var(--text-muted);">ESPELHO OPERACIONAL</span></div>
+        <div style="font-size: 10px; font-weight: 800; color: #10b981;">● SISTEMA ONLINE</div>
     </header>
 
     <main>
-        <aside class="sidebar">
-            <section class="card">
+        <div class="sidebar">
+            <section class="card mic-box">
                 <h2>Comando de Voz</h2>
-                <div class="mic-control-box">
-                    <button class="btn-mic" id="micBtn" onclick="toggleMic()">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                        </svg>
-                    </button>
-                    <span class="mic-label" id="micStatus">AGUARDANDO INÍCIO</span>
-                </div>
+                <button class="btn-mic" id="recordBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                </button>
+                <div class="status-text" id="statusLabel">PRONTO PARA CAPTURA</div>
             </section>
 
             <section class="card">
-                <h2>Telemetria em Tempo Real</h2>
-                <div style="font-size: 12px; line-height: 2;">
-                    <div>Volume: <span id="vlm" style="color:var(--primary)">--</span></div>
-                    <div>Estabilidade: <span style="color:var(--success)">88%</span></div>
-                    <div>Frequência: <span style="color:var(--primary)">44.1kHz</span></div>
+                <h2>Telemetria</h2>
+                <div style="font-size: 12px; font-family: monospace;">
+                    <p>RMS: <span id="rms-val" style="color: var(--primary);">--</span></p>
+                    <p>FREQ: <span style="color: var(--primary);">44100Hz</span></p>
                 </div>
             </section>
-        </aside>
+        </div>
 
-        <section class="heatmap-container">
-            <div class="heatmap-overlay">
-                <h2 style="color: white; opacity: 0.5;">Frequência de Captura / CRS Stream</h2>
-            </div>
+        <section class="monitor-area">
             <canvas id="heatmapCanvas"></canvas>
+            <div style="position:absolute; top:10px; left:15px; color:white; font-size:9px; opacity:0.5; letter-spacing:1px;">MONITOR DE INTENSIDADE (OSCILAÇÃO REAL)</div>
         </section>
     </main>
 
     <footer>
-        <div class="crs-history" id="history">
-            <span style="font-size: 11px; color: var(--text-muted); align-self: center; margin-right: 10px;">REUTORNO CRS:</span>
-            <a href="#" class="download-pill">📄 RELATÓRIO_SESSAO_882.pdf</a>
-            <a href="#" class="download-pill">📄 RELATÓRIO_SESSAO_881.pdf</a>
-            <a href="#" class="download-pill">📄 RELATÓRIO_SESSAO_880.pdf</a>
+        <div class="history">
+            <span style="font-size: 10px; color: var(--text-muted); align-self: center; margin-right: 5px;">CRS RECENTES:</span>
+            <a href="#" class="file-link">SESSAO_882.pdf</a>
+            <a href="#" class="file-link">SESSAO_881.pdf</a>
+            <a href="#" class="file-link">SESSAO_880.pdf</a>
         </div>
 
-        <div class="action-group">
-            <span id="crsLoading" class="loader-crs" style="display: none;">REALIZANDO ANÁLISE SIMBÓLICA...</span>
-            <button class="btn btn-discard" onclick="discardSession()">DESCARTAR</button>
-            <button class="btn btn-save" onclick="saveLocal()">SALVAR</button>
-            <button class="btn btn-crs" onclick="sendToCRS()">ENVIAR PARA CRS</button>
+        <div class="actions">
+            <span id="crs-status">REALIZANDO ANÁLISE SIMBÓLICA...</span>
+            <button class="btn btn-danger" id="discardBtn">DESCARTAR</button>
+            <button class="btn" id="saveBtn">SALVAR</button>
+            <button class="btn btn-crs" id="sendCrsBtn">ENVIAR PARA CRS</button>
         </div>
     </footer>
 
-    <script>
-        let recording = false;
-
-        function toggleMic() {
-            recording = !recording;
-            const btn = document.getElementById('micBtn');
-            const status = document.getElementById('micStatus');
-            
-            if(recording) {
-                btn.classList.add('active');
-                status.innerText = "CAPTURANDO FREQUÊNCIA...";
-                status.style.color = "var(--danger)";
-            } else {
-                btn.classList.remove('active');
-                status.innerText = "CAPTURA FINALIZADA";
-                status.style.color = "var(--success)";
-            }
-        }
-
-        function discardSession() {
-            if(confirm("Deseja descartar esta leitura? Os dados não serão recuperados.")) {
-                location.reload();
-            }
-        }
-
-        function saveLocal() {
-            alert("Sessão salva com sucesso no banco local.");
-        }
-
-        function sendToCRS() {
-            const loading = document.getElementById('crsLoading');
-            loading.style.display = "block";
-            
-            // Simulação de retorno
-            setTimeout(() => {
-                loading.style.display = "none";
-                alert("Análise Simbólica Concluída. Arquivo disponível no rodapé.");
-                // Aqui entraria a lógica de "pop" do último e "push" do novo no histórico
-            }, 3000);
-        }
-
-        // Placeholder visual do Heatmap real
-        const canvas = document.getElementById('heatmapCanvas');
-        const ctx = canvas.getContext('2d');
-        function fillHeatmap() {
-            if(recording) {
-                ctx.fillStyle = `rgba(37, 99, 235, ${Math.random()})`;
-                ctx.fillRect(Math.random() * canvas.width, 0, 5, canvas.height);
-            }
-            requestAnimationFrame(fillHeatmap);
-        }
-        fillHeatmap();
-    </script>
-</body>
+    </body>
 </html>
