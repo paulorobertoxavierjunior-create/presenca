@@ -3,71 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ELAYON | Avaliação de Frequência</title>
+    <title>ELAYON | Presença Consciente</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
-        body { background-color: #050607; color: #f4f6f8; font-family: 'Inter', sans-serif; }
-        .step-inactive { opacity: 0.3; filter: grayscale(1); }
-        .step-active { opacity: 1; border-color: #2563eb; box-shadow: 0 0 20px rgba(37, 99, 235, 0.1); }
-        .glass { background: rgba(17, 22, 27, 0.8); border: 1px solid #1b2026; }
+        body { background-color: #050607; color: #f4f6f8; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .glass { background: rgba(10, 11, 13, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
+        .glow-blue { box-shadow: 0 0 40px rgba(37, 99, 235, 0.1); }
+        
+        /* Onda de áudio simbólica */
+        .wave-container { display: flex; align-items: center; gap: 3px; height: 30px; }
+        .wave-bar { width: 3px; height: 100%; background: #2563eb; border-radius: 10px; animation: wave 1.2s ease-in-out infinite; }
+        @keyframes wave { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-6">
+<body class="min-h-screen flex flex-col items-center justify-between p-8">
 
-    <header class="mb-12 text-center">
-        <img src="1000157517.png" alt="Elayon Logo" class="w-16 h-16 mx-auto mb-4 opacity-80">
-        <h1 class="text-xs font-black uppercase tracking-[0.4em] text-blue-500">Avaliação Obrigatória</h1>
+    <header class="w-full max-w-4xl flex justify-between items-center opacity-60">
+        <div class="flex items-center gap-4">
+            <img src="IMG-20260218-WA0016.jpg" alt="Logo" class="w-10 h-10 rounded-lg">
+            <div>
+                <h1 class="text-[10px] font-black uppercase tracking-[0.3em]">Elayon Presença</h1>
+                <p class="text-[9px] text-blue-400">MODO: ESCUTA ATIVA</p>
+            </div>
+        </div>
+        <div id="statusConexao" class="text-[9px] uppercase tracking-widest text-slate-500">
+            <i class="fas fa-circle text-[6px] text-green-500 mr-2"></i> Sincronizado
+        </div>
     </header>
 
-    <main class="w-full max-w-md space-y-6">
+    <main class="w-full max-w-2xl text-center space-y-12">
         
-        <div class="text-center mb-8">
-            <h2 class="text-xl font-light">Sincronize sua <span class="font-bold text-white">Presença</span></h2>
-            <p class="text-slate-500 text-sm mt-2">Conclua as 3 etapas de calibração para liberar o acesso permanente ao sistema real.</p>
-        </div>
-
-        <div class="grid grid-cols-3 gap-3 mb-8">
-            <div id="stepIndicator1" class="h-1.5 bg-blue-600 rounded-full"></div>
-            <div id="stepIndicator2" class="h-1.5 bg-slate-800 rounded-full"></div>
-            <div id="stepIndicator3" class="h-1.5 bg-slate-800 rounded-full"></div>
-        </div>
-
-        <section class="glass rounded-[2rem] p-8 text-center space-y-6">
-            <div id="stepContent">
-                <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Etapa 01 de 03</span>
-                <h3 class="text-lg font-bold mt-2">Teste de Silêncio e Ruído</h3>
-                <p class="text-slate-400 text-xs mt-4 leading-relaxed">
-                    Precisamos mapear o ambiente. Fique em silêncio por 5 segundos enquanto o sensor calibra o fundo.
-                </p>
-            </div>
-
-            <button id="btnAction" class="w-full py-4 bg-white text-black font-black rounded-xl uppercase text-[10px] tracking-widest hover:bg-blue-50 transition-all active:scale-95">
-                Iniciar Calibração
-            </button>
-
-            <button class="text-[9px] uppercase tracking-widest text-slate-600 font-bold hover:text-slate-400">
-                <i class="fas fa-undo mr-1"></i> Refazer calibração (Grátis)
-            </button>
+        <section class="space-y-4">
+            <h2 class="text-2xl font-light tracking-tight text-slate-300">Respeite o seu <span class="text-white font-semibold">Silêncio.</span></h2>
+            <p class="text-slate-500 text-sm italic font-light">"A verdade do pensamento emerge no intervalo entre as palavras."</p>
         </section>
 
-        <p class="text-center text-[10px] text-slate-700 uppercase tracking-tighter">
-            O acesso ao <strong>Presença Real</strong> será liberado após a conclusão.
-        </p>
+        <div class="glass rounded-[2.5rem] p-10 glow-blue relative min-h-[300px] flex flex-col justify-center">
+            <div id="visualizer" class="hidden absolute top-8 left-1/2 -translate-x-1/2 wave-container">
+                <div class="wave-bar" style="animation-delay: 0.1s"></div>
+                <div class="wave-bar" style="animation-delay: 0.2s"></div>
+                <div class="wave-bar" style="animation-delay: 0.3s"></div>
+                <div class="wave-bar" style="animation-delay: 0.4s"></div>
+            </div>
+
+            <p id="textoVivo" class="text-lg md:text-xl text-white font-light leading-relaxed">
+                Clique no botão para iniciar a captação da sua frequência.
+            </p>
+
+            <div id="historicoCurto" class="mt-8 pt-8 border-t border-white/5 space-y-2 opacity-30 text-xs">
+                <p id="ref-2" class="italic italic">...</p>
+                <p id="ref-1" class="italic">...</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-6">
+            <button id="btnCapturar" class="group relative flex items-center justify-center">
+                <div class="absolute inset-0 bg-blue-600 rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-all"></div>
+                <div class="relative w-20 h-20 bg-white rounded-full flex items-center justify-center text-black transition-transform active:scale-90">
+                    <i id="iconMic" class="fas fa-microphone text-xl"></i>
+                </div>
+            </button>
+            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500">Pressione para falar / Ok Ok para enviar</p>
+        </div>
+
     </main>
 
-    <footer class="mt-20 opacity-30">
-        <p class="text-[9px] uppercase tracking-[0.2em]">Elayon Core v2.0 • Protocolo de Calibração</p>
+    <footer class="w-full max-w-4xl grid grid-cols-3 gap-8 opacity-40 pb-4">
+        <div class="text-left border-l border-white/10 pl-4">
+            <span class="block text-[8px] uppercase tracking-widest">Densidade (CRS)</span>
+            <span id="valDensidade" class="text-xs font-mono">0.00</span>
+        </div>
+        <div class="text-center border-l border-white/10 pl-4">
+            <span class="block text-[8px] uppercase tracking-widest">Estabilidade</span>
+            <span id="valEstabilidade" class="text-xs font-mono">0%</span>
+        </div>
+        <div class="text-right border-l border-white/10 pl-4">
+            <span class="block text-[8px] uppercase tracking-widest">Piloto</span>
+            <span class="text-xs font-mono uppercase">Paulo Xavier</span>
+        </div>
     </footer>
 
-    <script>
-        // A ideia aqui no cockpit.js será:
-        // Etapa 1: Silêncio
-        // Etapa 2: Leitura de texto padrão
-        // Etapa 3: Expressão livre (60s)
-        // Final: Gravação no Supabase do status 'calibrado: true' e redirecionamento.
-    </script>
+    <script src="tunnel.js"></script>
+    <script src="presenca.js"></script>
 
 </body>
 </html>
