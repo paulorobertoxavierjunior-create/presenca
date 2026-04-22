@@ -1,213 +1,124 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ELAYON | Espelho Operacional</title>
-    <style>
-        :root {
-            --bg: #f8f9fc;
-            --card-bg: #ffffff;
-            --primary: #2563eb;
-            --danger: #ef4444;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELAYON PRESENÇA | ESPELHO OPERACIONAL</title>
+  <style>
+    :root {
+      --bg: #f8f9fc;
+      --card-bg: #ffffff;
+      --primary: #2563eb;
+      --danger: #ef4444;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
 
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-        
-        body { 
-            background: var(--bg); color: var(--text-main);
-            display: grid; grid-template-rows: 60px 1fr 100px; height: 100vh; overflow: hidden;
-        }
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+    
+    body { 
+      background: var(--bg); color: var(--text-main);
+      display: grid; grid-template-rows: 60px 1fr 100px; height: 100vh; overflow: hidden;
+    }
 
-        /* --- Topbar --- */
-        header {
-            padding: 0 20px; background: var(--card-bg); border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .brand { font-weight: 700; font-size: 14px; letter-spacing: 0.5px; color: var(--primary); }
+    header {
+      padding: 0 20px; background: var(--card-bg); border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .brand { font-weight: 700; font-size: 14px; letter-spacing: 0.5px; color: var(--primary); }
 
-        /* --- Workspace --- */
-        main { display: grid; grid-template-columns: 280px 1fr; gap: 15px; padding: 15px; align-items: start; }
+    main { display: grid; grid-template-columns: 280px 1fr; gap: 15px; padding: 15px; align-items: start; }
 
-        .sidebar { display: flex; flex-direction: column; gap: 12px; }
-        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); padding: 15px; }
-        
-        h2 { font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 1px; }
+    .sidebar { display: flex; flex-direction: column; gap: 12px; }
+    .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); padding: 15px; }
+    
+    h2 { font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 1px; }
 
-        /* Botão Mic Real */
-        .mic-box { text-align: center; }
-        .btn-mic { 
-            width: 60px; height: 60px; border-radius: 50%; border: none; 
-            background: var(--primary); color: white; cursor: pointer;
-            display: inline-flex; align-items: center; justify-content: center;
-            transition: 0.2s; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-        }
-        .btn-mic.recording { background: var(--danger); animation: pulse 1.5s infinite; }
-        .status-text { font-size: 11px; margin-top: 8px; font-weight: 600; color: var(--text-muted); }
+    .mic-box { text-align: center; }
+    .btn-mic { 
+      width: 60px; height: 60px; border-radius: 50%; border: none; 
+      background: var(--primary); color: white; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: 0.2s; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-mic.recording { background: var(--danger); animation: pulse 1.5s infinite; }
+    .status-text { font-size: 11px; margin-top: 8px; font-weight: 600; color: var(--text-muted); }
 
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.4); } 100% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.4); } 100% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
 
-        /* --- O Gráfico --- */
-        .monitor-area { 
-            background: #000; border-radius: 12px; position: relative; 
-            height: 400px; display: flex; align-items: flex-end; overflow: hidden;
-        }
-        #heatmapCanvas { width: 100%; height: 100%; }
+    .monitor-area { 
+      background: #050c12; border-radius: 12px; position: relative; 
+      height: 400px; display: flex; align-items: flex-end; overflow: hidden;
+    }
+    #heatmapCanvas { width: 100%; height: 100%; }
 
-        /* --- Footer Cockpit --- */
-        footer { 
-            background: var(--card-bg); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
-        }
+    footer { 
+      background: var(--card-bg); border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+    }
 
-        .history { display: flex; gap: 8px; align-items: center; }
-        .file-link { 
-            font-size: 10px; padding: 6px 10px; background: #f1f5f9; 
-            border-radius: 6px; color: var(--primary); text-decoration: none; border: 1px solid var(--border);
-        }
+    .history { display: flex; gap: 8px; align-items: center; }
+    .file-link { 
+      font-size: 10px; padding: 6px 10px; background: #f1f5f9; 
+      border-radius: 6px; color: var(--primary); text-decoration: none; border: 1px solid var(--border);
+    }
 
-        .actions { display: flex; gap: 6px; align-items: center; }
-        .btn { padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); }
-        .btn-crs { background: var(--primary); color: white; border: none; }
-        .btn-danger { color: var(--danger); background: transparent; }
+    .actions { display: flex; gap: 6px; align-items: center; }
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); }
+    .btn-crs { background: var(--primary); color: white; border: none; }
+    .btn-danger { color: var(--danger); background: transparent; }
 
-        #crs-status { font-size: 10px; color: var(--primary); font-weight: 700; display: none; margin-right: 8px; }
-
-    </style>
+    #crs-status { font-size: 10px; color: var(--primary); font-weight: 700; display: none; margin-right: 8px; }
+  </style>
 </head>
 <body>
+  <header>
+    <div class="brand">ELAYON PRESENÇA | <span style="font-weight: 400; color: var(--text-muted);">ESPELHO OPERACIONAL</span></div>
+    <div style="font-size: 10px; font-weight: 800; color: #10b981;">● SISTEMA ONLINE</div>
+  </header>
 
-    <header>
-        <div class="brand">ELAYON PRESENÇA | <span style="font-weight: 400; color: var(--text-muted);">ESPELHO OPERACIONAL</span></div>
-        <div style="font-size: 10px; font-weight: 800; color: #10b981;">● SISTEMA ONLINE</div>
-    </header>
+  <main>
+    <div class="sidebar">
+      <section class="card mic-box">
+        <h2>Comando de Voz</h2>
+        <button class="btn-mic" id="recordBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+        </button>
+        <div class="status-text" id="statusLabel">PRONTO PARA CAPTURA</div>
+      </section>
 
-    <main>
-        <div class="sidebar">
-            <section class="card mic-box">
-                <h2>Comando de Voz</h2>
-                <button class="btn-mic" id="recordBtn">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-                </button>
-                <div class="status-text" id="statusLabel">PRONTO PARA CAPTURA</div>
-            </section>
-
-            <section class="card">
-                <h2>Telemetria</h2>
-                <div style="font-size: 11px; font-family: monospace;">
-                    <p>RMS: <span id="rms-val" style="color: var(--primary);">--</span></p>
-                    <p>FREQ: <span style="color: var(--primary);">44100Hz</span></p>
-                </div>
-            </section>
+      <section class="card">
+        <h2>Telemetria</h2>
+        <div style="font-size: 11px; font-family: monospace;">
+          <p>RMS: <span id="rms-val" style="color: var(--primary);">--</span></p>
+          <p>FREQ: <span style="color: var(--primary);">44100Hz</span></p>
         </div>
+      </section>
+    </div>
 
-        <section class="monitor-area">
-            <canvas id="heatmapCanvas"></canvas>
-            <div style="position:absolute; top:10px; left:15px; color:white; font-size:9px; opacity:0.5; letter-spacing:1px;">MONITOR DE INTENSIDADE (OSCILAÇÃO REAL)</div>
-        </section>
-    </main>
+    <section class="monitor-area">
+      <canvas id="heatmapCanvas"></canvas>
+      <div style="position:absolute; top:10px; left:15px; color:white; font-size:9px; opacity:0.5; letter-spacing:1px;">MONITOR DE INTENSIDADE (OSCILAÇÃO REAL)</div>
+    </section>
+  </main>
 
-    <footer>
-        <div class="history">
-            <span style="font-size: 9px; color: var(--text-muted); margin-right: 5px;">CRS RECENTES:</span>
-            <a href="#" class="file-link">SESSAO_882.pdf</a>
-            <a href="#" class="file-link">SESSAO_881.pdf</a>
-            <a href="#" class="file-link">SESSAO_880.pdf</a>
-        </div>
+  <footer>
+    <div class="history">
+      <span style="font-size: 9px; color: var(--text-muted); margin-right: 5px;">CRS RECENTES:</span>
+      <a href="#" class="file-link">SESSAO_882.pdf</a>
+      <a href="#" class="file-link">SESSAO_881.pdf</a>
+      <a href="#" class="file-link">SESSAO_880.pdf</a>
+    </div>
 
-        <div class="actions">
-            <span id="crs-status">REALIZANDO ANÁLISE...</span>
-            <button class="btn btn-danger" id="discardBtn">DESCARTAR</button>
-            <button class="btn" id="saveBtn">SALVAR</button>
-            <button class="btn btn-crs" id="sendCrsBtn">ENVIAR PARA CRS</button>
-        </div>
-    </footer>
+    <div class="actions">
+      <span id="crs-status">REALIZANDO ANÁLISE...</span>
+      <button class="btn btn-danger" id="discardBtn">DESCARTAR</button>
+      <button class="btn" id="saveBtn">SALVAR</button>
+      <button class="btn btn-crs" id="sendCrsBtn">ENVIAR PARA CRS</button>
+    </div>
+  </footer>
 
-    <script>
-        const canvas = document.getElementById('heatmapCanvas');
-        const ctx = canvas.getContext('2d');
-        const recordBtn = document.getElementById('recordBtn');
-        const statusLabel = document.getElementById('statusLabel');
-        const rmsVal = document.getElementById('rms-val');
-
-        // Ajusta tamanho do canvas
-        function resizeCanvas() {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        let isRecording = false;
-        let dataArray = [];
-        let animationId;
-
-        // Simulação de dados para o gráfico
-        function generateWave() {
-            const values = [];
-            for (let i = 0; i < 100; i++) {
-                // Cria uma onda aleatória com picos e vales
-                values.push(Math.random() * canvas.height * 0.8);
-            }
-            return values;
-        }
-
-        function draw() {
-            // Limpa canvas
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            if (isRecording) {
-                // Adiciona novos dados à direita
-                const newData = generateWave();
-                dataArray.push(...newData);
-                
-                // Mantém apenas o que cabe na tela, removendo da esquerda
-                const maxPoints = canvas.width;
-                if (dataArray.length > maxPoints) {
-                    dataArray = dataArray.slice(-maxPoints);
-                }
-
-                // Desenha a linha
-                ctx.beginPath();
-                ctx.strokeStyle = '#2563eb';
-                ctx.lineWidth = 2;
-                ctx.lineCap = 'round';
-
-                dataArray.forEach((val, i) => {
-                    const x = i;
-                    const y = canvas.height - val;
-                    if (i === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                });
-                ctx.stroke();
-
-                // Atualiza RMS
-                const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-                rmsVal.textContent = (avg / 10).toFixed(1);
-            }
-
-            animationId = requestAnimationFrame(draw);
-        }
-
-        // Controle de gravação
-        recordBtn.addEventListener('click', () => {
-            isRecording = !isRecording;
-            if (isRecording) {
-                recordBtn.classList.add('recording');
-                statusLabel.textContent = 'CAPTURANDO...';
-                dataArray = [];
-            } else {
-                recordBtn.classList.remove('recording');
-                statusLabel.textContent = 'PRONTO PARA CAPTURA';
-            }
-        });
-
-        draw();
-    </script>
-
+  <script src="script.js"></script>
 </body>
 </html>
