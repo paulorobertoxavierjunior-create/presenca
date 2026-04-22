@@ -2,176 +2,171 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ELAYON SPACE | Entrada de Dados</title>
     <style>
         :root {
-            --neon: #6ec1c8;
             --bg-deep: #050f12;
-            --panel: rgba(11, 26, 30, 0.8);
-            --border: rgba(110, 193, 200, 0.2);
-            --ink: #d6fff6;
+            --panel-bg: rgba(11, 26, 30, 0.9);
+            --neon-mint: #6ec1c8;
+            --mint-glow: rgba(110, 193, 200, 0.2);
+            --border-color: rgba(110, 193, 200, 0.15);
+            --text-main: #d6fff6;
+            --text-muted: #627d82;
+            --ink: #173b42;
         }
 
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        
         body {
-            background: var(--bg-deep);
-            color: var(--ink);
-            font-family: 'Consolas', monospace;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Consolas', 'Courier New', monospace;
             margin: 0;
+            overflow: hidden;
             display: grid;
-            grid-template-rows: 60px 1fr 220px;
+            grid-template-rows: 70px 1fr 180px;
             height: 100vh;
         }
 
-        /* --- Header Operacional --- */
-        header {
+        /* --- Header: Logo e Status --- */
+        .top-bar {
+            background: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; border-bottom: 1px solid var(--border);
-            background: var(--panel);
+            padding: 0 30px;
         }
 
-        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 11px; border: 1px solid var(--neon); color: var(--neon); }
+        .brand-area { display: flex; align-items: center; gap: 15px; }
+        .logo-img { height: 40px; } /* Ajuste de tamanho da logo */
+        .brand-title { font-size: 1.5rem; letter-spacing: 2px; }
 
-        /* --- Área Central: O "Microfone" do Space --- */
-        .capture-zone {
-            display: grid; grid-template-columns: 1fr 350px; gap: 20px; padding: 20px;
+        .status-pill {
+            padding: 5px 15px; border-radius: 20px;
+            border: 1px solid var(--neon-mint); color: var(--neon-mint);
+            font-size: 0.7rem; font-weight: bold; text-transform: uppercase;
         }
 
-        .main-recorder {
-            background: var(--panel); border: 1px solid var(--border);
-            border-radius: 16px; display: flex; flex-direction: column;
+        /* --- Main Operacional --- */
+        .main-space {
+            display: grid; grid-template-columns: 1fr 350px; gap: 15px; padding: 15px;
+        }
+
+        /* Painel 1: Capturador (O "Space" das imagens) */
+        .capturer-panel {
+            background: var(--panel-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; display: flex; flex-direction: column;
             justify-content: center; align-items: center; position: relative;
         }
 
-        .mic-btn {
-            width: 120px; height: 120px; border-radius: 50%;
-            background: transparent; border: 4px solid var(--neon);
-            color: var(--neon); font-size: 40px; cursor: pointer;
-            box-shadow: 0 0 20px var(--border); transition: 0.3s;
+        .mic-core {
+            width: 140px; height: 140px; border-radius: 50%;
+            border: 4px solid var(--neon-mint);
+            color: var(--neon-mint); font-size: 40px; cursor: pointer;
+            box-shadow: 0 0 30px var(--mint-glow); display: flex;
+            justify-content: center; align-items: center; transition: 0.5s;
         }
-        .mic-btn.active { background: var(--neon); color: var(--bg-deep); box-shadow: 0 0 40px var(--neon); }
+        .mic-core:hover { background: var(--neon-mint); color: var(--ink); box-shadow: 0 0 50px var(--neon-mint); }
+        .mic-core.active { background: var(--neon-mint); color: var(--ink); box-shadow: 0 0 60px var(--neon-mint); }
 
-        /* --- Módulo de Tendência (As 3 Últimas) --- */
+        .instruction-text { margin-top: 25px; color: var(--text-main); text-align: center; max-width: 300px; }
+
+        /* Painel 2: Tendência (As 3 Últimas) */
         .trend-stack { display: flex; flex-direction: column; gap: 10px; }
-        .audio-slot {
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-            padding: 12px; border-radius: 8px; font-size: 12px;
+        .trend-card {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 15px; font-size: 12px;
         }
-        .slot-label { color: var(--neon); font-size: 10px; margin-bottom: 5px; text-transform: uppercase; }
-        .slot-current { border-left: 4px solid var(--neon); background: rgba(110, 193, 200, 0.05); }
-
-        /* --- Black Box: Despacho Render --- */
-        footer {
-            background: #000; padding: 20px; display: grid; grid-template-columns: 1fr 300px; gap: 20px;
-            border-top: 1px solid var(--border);
-        }
-
-        .json-viewer { font-size: 12px; color: #0f0; overflow-y: auto; white-space: pre-wrap; }
+        .trend-card.current { border-left: 4px solid var(--neon-mint); background: rgba(110, 193, 200, 0.03); }
         
-        .upload-area {
-            border: 2px dashed var(--border); border-radius: 12px;
+        .label-tendencia { color: var(--neon-mint); font-weight: bold; margin-bottom: 8px; text-transform: uppercase; font-size: 0.6rem; }
+
+        /* --- Footer: Despacho e Ferramentas --- */
+        .footer-tools {
+            background: #000; padding: 15px 30px; display: grid; grid-template-columns: 1fr 280px 200px; gap: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .json-despacho { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; color: #00ff41; font-size: 11px; overflow-y: auto; white-space: pre-wrap; }
+        
+        .upload-zone {
+            border: 2px dashed var(--border-color); border-radius: 8px;
             display: flex; justify-content: center; align-items: center;
-            text-align: center; font-size: 12px; cursor: pointer;
+            text-align: center; font-size: 11px; cursor: pointer; color: var(--text-muted);
+        }
+        
+        .btn-protocolo {
+            background: var(--neon-mint); color: var(--ink); border: none;
+            border-radius: 8px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
-<header>
-    <div style="font-weight: bold; letter-spacing: 2px;">ELAYON // SPACE_CAPTURER</div>
-    <div id="connection-status"><span class="status-pill">RENDER CONNECTED</span></div>
-</header>
-
-<main class="capture-zone">
-    <section class="main-recorder">
-        <button id="micTrigger" class="mic-btn" onclick="toggleMic()">●</button>
-        <p id="instruction" style="margin-top: 20px;">Toque para capturar áudio no Space</p>
-        <div id="visualizer" style="width: 80%; height: 60px; margin-top: 10px;"></div>
-    </section>
-
-    <aside class="trend-stack">
-        <div style="font-size: 10px; opacity: 0.5; margin-bottom: 5px;">TENDÊNCIA (ÚLTIMAS 3)</div>
-        <div class="audio-slot slot-current" id="slot-0">
-            <div class="slot-label">Atual (Em processamento)</div>
-            <div class="data-row">Ritmo: -- | Silêncio: --</div>
+    <header class="top-bar">
+        <div class="brand-area">
+            <img class="logo-img" src="IMG 2025 0610-wa0002.png" alt="ELAYON Logo">
+            <div class="brand-title">ELAYON SPACE</div>
         </div>
-        <div class="audio-slot" id="slot-1">
-            <div class="slot-label">Anterior</div>
-            <div id="data-1">Aguardando dados...</div>
+        <div>
+            <span class="status-pill">Render Link: ACTIVE</span>
         </div>
-        <div class="audio-slot" id="slot-2">
-            <div class="slot-label">Antepenúltimo</div>
-            <div id="data-2">Aguardando dados...</div>
-        </div>
-    </aside>
-</main>
+    </header>
 
-<footer>
-    <div class="json-viewer" id="json-output">
-// Aguardando despacho para Render...
+    <main class="main-space">
+        <section class="capturer-panel">
+            <div class="mic-core" onclick="toggleMic()">●</div>
+            <div class="instruction-text">Toque para capturar áudio no Space</div>
+        </section>
+
+        <aside class="trend-stack">
+            <div style="font-size: 10px; opacity: 0.5; text-align: center; margin-bottom: 5px;">HISTÓRICO DE TENDÊNCIA</div>
+            <div class="trend-card current">
+                <div class="label-tendencia">T-0 (Atual)</div>
+                <div>Ritmo: -- | Silêncio: -- | Tokens: 4.2%</div>
+            </div>
+            <div class="trend-card">
+                <div class="label-tendencia">T-1 (Anterior)</div>
+                <div>Aguardando dados da sessão anterior...</div>
+            </div>
+            <div class="trend-card">
+                <div class="label-tendencia">T-2 (Antepenúltima)</div>
+                <div>Aguardando dados históricos...</div>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="footer-tools">
+        <div class="json-despacho" id="json-output">
 {
-  "op": "IDENTIFY",
-  "status": "ready"
+  "sessao": "active",
+  "meta": { "paciente": "Aguardando" },
+  "crs_data": {}
 }
-    </div>
-    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-        CARREGAR ÁUDIO EXTERNO
-        <input type="file" id="fileInput" hidden accept="audio/*">
-    </div>
-</footer>
+        </div>
 
-<script>
-    let sessionBuffer = []; // Armazena as 3 últimas análises
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" hidden accept="audio/*">
+            DROPAR OU CARREGAR ÁUDIO EXTERNO
+        </div>
 
-    function toggleMic() {
-        const btn = document.getElementById('micTrigger');
-        btn.classList.toggle('active');
-        if(btn.classList.contains('active')) {
-            // Lógica de Captura Inicia
-            startCRS();
-        } else {
-            // Finaliza e despacha
-            stopCRS();
-        }
-    }
+        <button class="btn-protocolo">
+            GERAR RELATÓRIO<br/>
+            DE ACESSO
+        </button>
+    </footer>
 
-    function processarNovaAnalise(novaMetrica) {
-        // 1. Adiciona no topo do array
-        sessionBuffer.unshift(novaMetrica);
-        
-        // 2. Mantém apenas as 3 últimas
-        if(sessionBuffer.length > 3) sessionBuffer.pop();
-
-        // 3. Atualiza os Slots na Interface
-        for(let i = 0; i < 3; i++) {
-            const slot = document.getElementById(`data-${i}` || `slot-${i}`);
-            if(sessionBuffer[i]) {
-                const d = sessionBuffer[i];
-                if(i === 0) {
-                   document.querySelector('#slot-0 .data-row').innerText = `Ritmo: ${d.ritmo}% | Silêncio: ${d.silencio}ms`;
-                } else {
-                   document.getElementById(`data-${i}`).innerText = `Ritmo: ${d.ritmo}% | Silêncio: ${d.silencio}ms`;
-                }
+    <script>
+        function toggleMic() {
+            const btn = document.querySelector('.mic-core');
+            btn.classList.toggle('active');
+            if (btn.classList.contains('active')) {
+                document.getElementById('instruction').innerText = "Capturando... Toque para finalizar.";
+            } else {
+                document.getElementById('instruction').innerText = "Processando... Gerando JSON.";
             }
         }
-
-        // 4. Despacha JSON para Render
-        const payload = {
-            timestamp: new Date().toISOString(),
-            tendencia: sessionBuffer,
-            token_usage: "4.2%"
-        };
-        document.getElementById('json-output').innerText = JSON.stringify(payload, null, 2);
-    }
-
-    // Simulação de fechamento de ciclo
-    function stopCRS() {
-        // Aqui o CRS geraria os dados reais. Simulando:
-        processarNovaAnalise({
-            ritmo: Math.floor(Math.random() * 100),
-            silencio: Math.floor(Math.random() * 500)
-        });
-    }
-</script>
-
+    </script>
 </body>
 </html>
