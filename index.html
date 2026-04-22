@@ -1,140 +1,263 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>ELAYON CRS Cockpit</title>
-
-<style>
-body {
-  margin: 0;
-  background: #050c12;
-  color: #7fffd4;
-  font-family: monospace;
-}
-
-.container {
-  padding: 20px;
-}
-
-/* HEADER */
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  height: 50px;
-}
-
-.status {
-  color: #00ff9f;
-}
-
-/* BOTÃO */
-.mic-btn {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  background: #0ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  cursor: pointer;
-  box-shadow: 0 0 20px #0ff;
-}
-
-/* PAINEL */
-.panel {
-  margin-top: 20px;
-  border: 1px solid #0ff;
-  padding: 15px;
-}
-
-/* BARRA */
-.bar {
-  height: 10px;
-  background: #022;
-  margin-top: 5px;
-  position: relative;
-}
-
-.bar-fill {
-  height: 100%;
-  width: 0%;
-  background: #0ff;
-}
-
-/* SLOTS */
-.slots {
-  display: flex;
-  gap: 10px;
-}
-
-.slot {
-  flex: 1;
-  border: 1px solid #0ff;
-  padding: 10px;
-}
-
-/* JSON */
-pre {
-  background: black;
-  padding: 10px;
-  color: #0f0;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELAYON PRESENÇA | COCKPIT OPERACIONAL</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            elayon: {
+              bg: '#f8f9fc',
+              panel: '#ffffff',
+              border: '#e2e8f0',
+              primary: '#2563eb',
+              success: '#10b981',
+              warning: '#f59e0b',
+              danger: '#ef4444',
+              muted: '#64748b'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Consolas', 'monospace']
+          },
+          animation: {
+            'pulse-slow': 'pulse 2s infinite',
+            'blink': 'blink 1s infinite'
+          },
+          keyframes: {
+            blink: {
+              '0%, 100%': { opacity: 1 },
+              '50%': { opacity: 0.4 }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(8px);
+      }
+      .text-gradient {
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .bar {
+        width: 3px;
+        background: linear-gradient(to top, #2563eb, #10b981);
+        border-radius: 2px;
+        transition: height 0.1s ease;
+      }
+    }
+  </style>
 </head>
+<body class="bg-elayon-bg text-slate-800 min-h-screen font-sans overflow-hidden">
+  <div class="container max-w-5xl mx-auto px-4 py-6 relative z-10">
+    
+    <!-- HEADER -->
+    <header class="text-center mb-8 pb-6 border-b border-elayon-border">
+      <h1 class="text-4xl font-bold tracking-wider text-gradient bg-gradient-to-r from-blue-600 to-cyan-500">
+        ELAYON PRESENÇA
+      </h1>
+      <h2 class="text-lg font-mono opacity-70 mt-2">COCKPIT OPERACIONAL</h2>
+      
+      <div class="flex items-center justify-center gap-4 mt-4 text-xs font-mono">
+        <span class="text-green-500 animate-pulse">● ONLINE</span>
+        <span class="text-elayon-muted">COCKPIT CALIBRADO</span>
+        <span class="text-elayon-muted">SISTEMAS DE ESCUTA SÍMBOLICA</span>
+        <span class="text-blue-500">ATUALIZADO</span>
+      </div>
+    </header>
 
-<body>
+    <main class="space-y-6">
+      
+      <!-- SEÇÃO MIC E VISUALIZADOR -->
+      <section class="glass-panel rounded-2xl p-6 shadow-lg">
+        <div class="flex flex-col items-center">
+          
+          <!-- BOTÃO MIC -->
+          <button id="btnMic" class="w-20 h-20 rounded-full bg-elayon-primary text-white text-2xl flex items-center justify-center transition-all duration-300 shadow-lg shadow-blue-500/30 active:scale-95 mb-4">
+            <i class="fas fa-microphone"></i>
+          </button>
+          <p id="statusMic" class="text-sm text-elayon-muted mb-6">MICROFONE PRONTO</p>
 
-<div class="container">
+          <!-- VISUALIZADOR PEQUENO -->
+          <div class="bg-black/5 rounded-xl p-4 h-24 w-full max-w-md flex items-end justify-center gap-1 relative">
+            <div class="absolute top-2 left-3 text-[10px] font-mono opacity-40">MONITOR DE ONDA</div>
+            <div id="visualizer" class="flex items-end gap-1 h-12"></div>
+          </div>
 
-  <div class="header">
-    <img src="IMG-20260218-WA0015.jpg" class="logo">
-    <div id="status" class="status">offline</div>
+          <!-- TEMPO DECORRIDO -->
+          <div id="timerDisplay" class="font-mono text-2xl font-bold text-elayon-primary mt-4">
+            00:00
+          </div>
+        </div>
+      </section>
+
+      <!-- BOTÕES DE AÇÃO -->
+      <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button id="btnPause" class="glass-panel rounded-xl p-4 flex items-center justify-center gap-2 hover:bg-white/50 transition">
+          <i class="fas fa-pause text-yellow-500"></i>
+          <span>PAUSAR</span>
+        </button>
+
+        <button id="btnCancel" class="glass-panel rounded-xl p-4 flex items-center justify-center gap-2 hover:bg-white/50 transition">
+          <i class="fas fa-times text-red-500"></i>
+          <span>CANCELAR</span>
+        </button>
+
+        <button id="btnSave" class="glass-panel rounded-xl p-4 flex items-center justify-center gap-2 hover:bg-white/50 transition">
+          <i class="fas fa-save text-blue-500"></i>
+          <span>SALVAR</span>
+        </button>
+
+        <button id="btnAnalyse" class="glass-panel rounded-xl p-4 flex items-center justify-center gap-2 hover:bg-white/50 transition border border-green-500/50">
+          <i class="fas fa-brain text-green-500"></i>
+          <span>ANÁLISE ELAYON</span>
+        </button>
+      </section>
+
+      <!-- ÁREA DE SAÍDA / RELATÓRIO -->
+      <section class="glass-panel rounded-2xl p-6 hidden" id="reportSection">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+          <i class="fas fa-file-chart-column text-elayon-primary"></i>
+          RELATÓRIO FINAL
+        </h3>
+        <div class="bg-black/5 rounded-lg p-4 font-mono text-sm min-h-[120px] whitespace-pre-line" id="reportContent">
+          Gerando análise...
+        </div>
+        <div class="mt-4 flex gap-3">
+          <button id="btnExport" class="btn-action">
+            <i class="fas fa-download"></i> EXPORTAR
+          </button>
+        </div>
+      </section>
+
+    </main>
   </div>
 
-  <!-- SENSOR -->
-  <div class="panel">
-    <div class="mic-btn" onclick="toggleMic()">🎤</div>
-  </div>
+  <script>
+    // === ELEMENTOS ===
+    const btnMic = document.getElementById('btnMic');
+    const statusMic = document.getElementById('statusMic');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const visualizer = document.getElementById('visualizer');
+    
+    let isRecording = false;
+    let startTime;
+    let intervalTimer;
+    let bars = [];
 
-  <!-- ESPELHO -->
-  <div class="panel">
-    <h3>Espelho Operacional</h3>
+    // Inicializar barras do visualizador
+    function initVisualizer() {
+      visualizer.innerHTML = "";
+      for(let i=0; i<20; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = '4px';
+        visualizer.appendChild(bar);
+      }
+      bars = document.querySelectorAll('.bar');
+    }
+    initVisualizer();
 
-    Intensidade
-    <div class="bar"><div id="barVolume" class="bar-fill"></div></div>
+    // Simulação de animação das barras
+    function animateBars() {
+      if(!isRecording) return;
+      bars.forEach(bar => {
+        const height = Math.floor(Math.random() * 40) + 4;
+        bar.style.height = height + 'px';
+      });
+      requestAnimationFrame(animateBars);
+    }
 
-    Ritmo
-    <div class="bar"><div id="barRitmo" class="bar-fill"></div></div>
+    // Timer
+    function updateTimer() {
+      const diff = Math.floor((Date.now() - startTime) / 1000);
+      const min = Math.floor(diff / 60).toString().padStart(2,'0');
+      const sec = (diff % 60).toString().padStart(2,'0');
+      timerDisplay.textContent = `${min}:${sec}`;
+    }
 
-    Silêncio
-    <div class="bar"><div id="barSilencio" class="bar-fill"></div></div>
+    // Liga/Desliga MIC
+    btnMic.addEventListener('click', () => {
+      if(!isRecording) {
+        // INICIAR
+        isRecording = true;
+        btnMic.classList.remove('bg-elayon-primary');
+        btnMic.classList.add('bg-red-500');
+        btnMic.innerHTML = '<i class="fas fa-stop"></i>';
+        statusMic.textContent = "CAPTURANDO... FALE 'OK OK' PARA PARAR";
+        startTime = Date.now();
+        intervalTimer = setInterval(updateTimer, 1000);
+        animateBars();
+        
+        // Simulação de reconhecimento "OK OK"
+        setTimeout(() => {
+          if(isRecording) {
+            stopRecording();
+            alert("Comando 'OK OK' detectado! Gravação finalizada.");
+          }
+        }, 8000); // exemplo: para depois de 8s simulando o comando
 
-    <p id="estado">estado: --</p>
-  </div>
+      } else {
+        // PARAR MANUAL
+        stopRecording();
+      }
+    });
 
-  <!-- FIFO -->
-  <div class="panel">
-    <h3>Tendência CRS</h3>
-    <div class="slots">
-      <div class="slot" id="s0">T-0</div>
-      <div class="slot" id="s1">T-1</div>
-      <div class="slot" id="s2">T-2</div>
-    </div>
-  </div>
+    function stopRecording() {
+      isRecording = false;
+      clearInterval(intervalTimer);
+      btnMic.classList.remove('bg-red-500');
+      btnMic.classList.add('bg-elayon-primary');
+      btnMic.innerHTML = '<i class="fas fa-microphone"></i>';
+      statusMic.textContent = "MICROFONE PRONTO";
+      bars.forEach(bar => bar.style.height = '4px');
+    }
 
-  <!-- JSON -->
-  <div class="panel">
-    <h3>CRS JSON</h3>
-    <pre id="json"></pre>
-  </div>
+    // Botões extras
+    document.getElementById('btnPause').addEventListener('click', () => {
+      alert("Função Pausar");
+    });
 
-</div>
+    document.getElementById('btnCancel').addEventListener('click', () => {
+      stopRecording();
+      timerDisplay.textContent = "00:00";
+      alert("Gravação cancelada");
+    });
 
-<script src="app.js"></script>
+    document.getElementById('btnSave').addEventListener('click', () => {
+      alert("Arquivo salvo na sessão");
+    });
+
+    document.getElementById('btnAnalyse').addEventListener('click', () => {
+      document.getElementById('reportSection').classList.remove('hidden');
+      document.getElementById('reportContent').textContent = 
+`=== RELATÓRIO ELAYON ===
+Sessão analisada com sucesso.
+- Arquivo 1: base_01.wav
+- Arquivo 2: base_02.wav
+- Arquivo 3: base_03.wav ✅ (ATUAL)
+
+Ênfase aplicada na última captura.
+Dados enviados ao núcleo...`;
+    });
+
+    document.getElementById('btnExport').addEventListener('click', () => {
+      alert("Exportando arquivo...");
+    });
+
+  </script>
 </body>
 </html>
