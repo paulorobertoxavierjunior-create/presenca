@@ -2,112 +2,176 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ELAYON | Cockpit de Presença</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>ELAYON SPACE | Entrada de Dados</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;900&family=JetBrains+Mono:wght@400;700&display=swap');
-        body { background: #050607; color: #f4f6f8; font-family: 'Inter', sans-serif; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .glass { background: rgba(17, 22, 27, 0.8); border: 1px solid #1b2026; }
-        .active-glow { box-shadow: 0 0 30px rgba(37, 99, 235, 0.15); border-color: rgba(37, 99, 235, 0.4); }
-        .token-bar { height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; }
-        .token-fill { height: 100%; background: #2563eb; width: 100%; transition: width 0.5s ease; }
+        :root {
+            --neon: #6ec1c8;
+            --bg-deep: #050f12;
+            --panel: rgba(11, 26, 30, 0.8);
+            --border: rgba(110, 193, 200, 0.2);
+            --ink: #d6fff6;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--ink);
+            font-family: 'Consolas', monospace;
+            margin: 0;
+            display: grid;
+            grid-template-rows: 60px 1fr 220px;
+            height: 100vh;
+        }
+
+        /* --- Header Operacional --- */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; border-bottom: 1px solid var(--border);
+            background: var(--panel);
+        }
+
+        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 11px; border: 1px solid var(--neon); color: var(--neon); }
+
+        /* --- Área Central: O "Microfone" do Space --- */
+        .capture-zone {
+            display: grid; grid-template-columns: 1fr 350px; gap: 20px; padding: 20px;
+        }
+
+        .main-recorder {
+            background: var(--panel); border: 1px solid var(--border);
+            border-radius: 16px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; position: relative;
+        }
+
+        .mic-btn {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: transparent; border: 4px solid var(--neon);
+            color: var(--neon); font-size: 40px; cursor: pointer;
+            box-shadow: 0 0 20px var(--border); transition: 0.3s;
+        }
+        .mic-btn.active { background: var(--neon); color: var(--bg-deep); box-shadow: 0 0 40px var(--neon); }
+
+        /* --- Módulo de Tendência (As 3 Últimas) --- */
+        .trend-stack { display: flex; flex-direction: column; gap: 10px; }
+        .audio-slot {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            padding: 12px; border-radius: 8px; font-size: 12px;
+        }
+        .slot-label { color: var(--neon); font-size: 10px; margin-bottom: 5px; text-transform: uppercase; }
+        .slot-current { border-left: 4px solid var(--neon); background: rgba(110, 193, 200, 0.05); }
+
+        /* --- Black Box: Despacho Render --- */
+        footer {
+            background: #000; padding: 20px; display: grid; grid-template-columns: 1fr 300px; gap: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .json-viewer { font-size: 12px; color: #0f0; overflow-y: auto; white-space: pre-wrap; }
+        
+        .upload-area {
+            border: 2px dashed var(--border); border-radius: 12px;
+            display: flex; justify-content: center; align-items: center;
+            text-align: center; font-size: 12px; cursor: pointer;
+        }
     </style>
 </head>
-<body class="min-h-screen p-4 flex flex-col items-center">
+<body>
 
-    <header class="w-full max-w-5xl flex justify-between items-center mb-10 p-4">
-        <div class="flex items-center gap-4">
-            <img src="IMG-20250610-WA0002.jpg" class="w-12 h-12 rounded-xl border border-white/10">
-            <div>
-                <h1 class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Cockpit Elayon</h1>
-                <div class="flex items-center gap-2 mt-1">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <span class="text-[9px] mono uppercase text-slate-500">Link Render: Ativo</span>
-                </div>
-            </div>
+<header>
+    <div style="font-weight: bold; letter-spacing: 2px;">ELAYON // SPACE_CAPTURER</div>
+    <div id="connection-status"><span class="status-pill">RENDER CONNECTED</span></div>
+</header>
+
+<main class="capture-zone">
+    <section class="main-recorder">
+        <button id="micTrigger" class="mic-btn" onclick="toggleMic()">●</button>
+        <p id="instruction" style="margin-top: 20px;">Toque para capturar áudio no Space</p>
+        <div id="visualizer" style="width: 80%; height: 60px; margin-top: 10px;"></div>
+    </section>
+
+    <aside class="trend-stack">
+        <div style="font-size: 10px; opacity: 0.5; margin-bottom: 5px;">TENDÊNCIA (ÚLTIMAS 3)</div>
+        <div class="audio-slot slot-current" id="slot-0">
+            <div class="slot-label">Atual (Em processamento)</div>
+            <div class="data-row">Ritmo: -- | Silêncio: --</div>
         </div>
+        <div class="audio-slot" id="slot-1">
+            <div class="slot-label">Anterior</div>
+            <div id="data-1">Aguardando dados...</div>
+        </div>
+        <div class="audio-slot" id="slot-2">
+            <div class="slot-label">Antepenúltimo</div>
+            <div id="data-2">Aguardando dados...</div>
+        </div>
+    </aside>
+</main>
+
+<footer>
+    <div class="json-viewer" id="json-output">
+// Aguardando despacho para Render...
+{
+  "op": "IDENTIFY",
+  "status": "ready"
+}
+    </div>
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+        CARREGAR ÁUDIO EXTERNO
+        <input type="file" id="fileInput" hidden accept="audio/*">
+    </div>
+</footer>
+
+<script>
+    let sessionBuffer = []; // Armazena as 3 últimas análises
+
+    function toggleMic() {
+        const btn = document.getElementById('micTrigger');
+        btn.classList.toggle('active');
+        if(btn.classList.contains('active')) {
+            // Lógica de Captura Inicia
+            startCRS();
+        } else {
+            // Finaliza e despacha
+            stopCRS();
+        }
+    }
+
+    function processarNovaAnalise(novaMetrica) {
+        // 1. Adiciona no topo do array
+        sessionBuffer.unshift(novaMetrica);
         
-        <div class="w-48 text-right">
-            <div class="flex justify-between text-[8px] uppercase tracking-widest mb-1">
-                <span>Tokens Disponíveis</span>
-                <span id="tokenCount" class="mono text-blue-400">1000</span>
-            </div>
-            <div class="token-bar"><div id="tokenBar" class="token-fill"></div></div>
-        </div>
-    </header>
+        // 2. Mantém apenas as 3 últimas
+        if(sessionBuffer.length > 3) sessionBuffer.pop();
 
-    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-12 gap-6">
-        
-        <div class="md:col-span-8 space-y-6">
-            <section id="displayPrincipal" class="glass rounded-[2rem] p-8 min-h-[350px] flex flex-col justify-between transition-all">
-                <div id="visualizer" class="h-8 flex items-center gap-1 opacity-20">
-                    </div>
-                
-                <div class="space-y-4">
-                    <p id="textoVivo" class="text-2xl font-light leading-relaxed text-slate-300">
-                        Pronto para captar...
-                    </p>
-                </div>
+        // 3. Atualiza os Slots na Interface
+        for(let i = 0; i < 3; i++) {
+            const slot = document.getElementById(`data-${i}` || `slot-${i}`);
+            if(sessionBuffer[i]) {
+                const d = sessionBuffer[i];
+                if(i === 0) {
+                   document.querySelector('#slot-0 .data-row').innerText = `Ritmo: ${d.ritmo}% | Silêncio: ${d.silencio}ms`;
+                } else {
+                   document.getElementById(`data-${i}`).innerText = `Ritmo: ${d.ritmo}% | Silêncio: ${d.silencio}ms`;
+                }
+            }
+        }
 
-                <div class="flex justify-between items-end border-t border-white/5 pt-6">
-                    <div class="mono text-[10px] text-slate-600">
-                        LATÊNCIA: <span id="latencia" class="text-blue-500">0ms</span>
-                    </div>
-                    <button id="btnMain" class="w-16 h-16 bg-white text-black rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl">
-                        <i id="mainIcon" class="fas fa-microphone text-xl"></i>
-                    </button>
-                </div>
-            </section>
+        // 4. Despacha JSON para Render
+        const payload = {
+            timestamp: new Date().toISOString(),
+            tendencia: sessionBuffer,
+            token_usage: "4.2%"
+        };
+        document.getElementById('json-output').innerText = JSON.stringify(payload, null, 2);
+    }
 
-            <section class="grid grid-cols-2 gap-4">
-                <div class="glass rounded-2xl p-4 opacity-40">
-                    <span class="text-[8px] uppercase font-bold text-slate-500 block mb-2">Ref. Anterior (n-1)</span>
-                    <p id="ref-1" class="text-[10px] mono truncate italic">Aguardando fala...</p>
-                </div>
-                <div class="glass rounded-2xl p-4 opacity-40">
-                    <span class="text-[8px] uppercase font-bold text-slate-500 block mb-2">Ref. Retrasada (n-2)</span>
-                    <p id="ref-2" class="text-[10px] mono truncate italic">Aguardando fala...</p>
-                </div>
-            </section>
-        </div>
+    // Simulação de fechamento de ciclo
+    function stopCRS() {
+        // Aqui o CRS geraria os dados reais. Simulando:
+        processarNovaAnalise({
+            ritmo: Math.floor(Math.random() * 100),
+            silencio: Math.floor(Math.random() * 500)
+        });
+    }
+</script>
 
-        <aside class="md:col-span-4 space-y-6">
-            <div class="glass rounded-[2rem] p-6 space-y-8">
-                <h3 class="text-[10px] font-black uppercase tracking-widest text-blue-500 border-b border-white/5 pb-4">Análise CRS</h3>
-                
-                <div class="space-y-6">
-                    <div>
-                        <span class="block text-[9px] uppercase text-slate-500 mb-2">Densidade de Ritmo</span>
-                        <div class="text-2xl mono" id="statDensidade">0.00</div>
-                    </div>
-                    <div>
-                        <span class="block text-[9px] uppercase text-slate-500 mb-2">Estabilidade Mental</span>
-                        <div class="text-2xl mono" id="statEstabilidade">0%</div>
-                    </div>
-                    <div>
-                        <span class="block text-[9px] uppercase text-slate-500 mb-2">Sincronia</span>
-                        <div id="statusSync" class="text-[10px] font-bold uppercase py-1 px-3 bg-slate-800 text-slate-400 rounded-full inline-block">
-                            Offline
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <button id="btnEnviarArquivo" class="w-full py-4 border border-white/10 rounded-xl text-[9px] uppercase font-bold tracking-widest hover:bg-white/5 transition-all">
-                <i class="fas fa-file-upload mr-2"></i> Carregar Áudio Externo
-            </button>
-        </aside>
-
-    </main>
-
-    <footer class="mt-12 opacity-30 text-[9px] uppercase tracking-widest mono">
-        Elayon Cockpit — v2.5.0-Alpha • CRS Interface
-    </footer>
-
-    <script src="tunnel.js"></script>
-    <script src="cockpit-real.js"></script>
 </body>
 </html>
