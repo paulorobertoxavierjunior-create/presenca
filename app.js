@@ -1,128 +1,150 @@
-const canvas = document.getElementById("heatmapCanvas");
-const ctx = canvas.getContext("2d");
-const recordBtn = document.getElementById("recordBtn");
-const statusLabel = document.getElementById("statusLabel");
-const rmsVal = document.getElementById("rms-val");
+let audioCtx, analyser, stream;
+let dataArray;
 
-let stream = null;
-let audioContext = null;
-let analyser = null;
-let dataArray = null;
-let freqArray = null;
 let running = false;
-let animId = null;
 
-function fitCanvas() {
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = Math.floor(rect.width * devicePixelRatio);
-  canvas.height = Math.floor(rect.height * devicePixelRatio);
-}
-fitCanvas();
-window.addEventListener("resize", fitCanvas);
+let volumes = [];
+let pauses = [];
+let lastSound = 0;
 
-function clearCanvas() {
-  ctx.fillStyle = "#050c12";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-clearCanvas();
+let sessions = [];
 
-function clamp(v, min, max) {
-  return Math.max(min, Math.min(max, v));
+// ====================
+function toggleMic() {
+  if (!running) start();
+  else stop();
 }
 
-function rmsFromTimeDomain(arr) {
-  let sum = 0;
-  for (let i = 0; i < arr.length; i++) {
-    const v = (arr[i] - 128) / 128;
-    sum += v * v;
-  }
-  return Math.sqrt(sum / arr.length);
+// ====================
+async function start() {
+  stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+  audioCtx = new AudioContext();
+  const source = audioCtx.createMediaStreamSource(stream);
+
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 256;
+
+  source.connect(analyser);
+
+  dataArray = new Uint8Array(analyser.fftSize);
+
+  running = true;
+  lastSound = performance.now();
+
+  document.getElementById("status").innerText = "ouvindo";
+
+  loop();
 }
 
-function averageBand(arr, start, end) {
-  let sum = 0;
-  let count = 0;
-  for (let i = start; i < end; i++) {
-    sum += arr[i];
-    count++;
-  }
-  return count ? sum / count : 0;
+// ====================
+function stop() {
+  running = false;
+
+  const session = gerarSessao();
+  sessions.unshift(session);
+  if (sessions.length > 3) sessions.pop();
+
+  atualizarUI();
+
+  document.getElementById("status").innerText = "parado";
 }
 
-function colorForValue(v) {
-  const n = clamp(v, 0, 100) / 100;
-  const r = Math.floor(255 * n);
-  const g = Math.floor(80 + (170 * n));
-  const b = Math.floor(255 - (160 * n));
-  return `rgb(${r},${g},${b})`;
-}
-
-function drawColumn(graves, medios, agudos, ruido) {
-  const image = ctx.getImageData(1, 0, canvas.width - 1, canvas.height);
-  ctx.putImageData(image, 0, 0);
-
-  const bands = [
-    { value: agudos, yStart: 0.00, yEnd: 0.25 },
-    { value: medios, yStart: 0.25, yEnd: 0.55 },
-    { value: graves, yStart: 0.55, yEnd: 0.82 },
-    { value: ruido,  yStart: 0.82, yEnd: 1.00 }
-  ];
-
-  bands.forEach(band => {
-    const y1 = Math.floor(canvas.height * band.yStart);
-    const y2 = Math.floor(canvas.height * band.yEnd);
-    ctx.fillStyle = colorForValue(band.value);
-    ctx.fillRect(canvas.width - 1, y1, 1, y2 - y1);
-  });
-}
-
-async function ligarMic() {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const source = audioContext.createMediaStreamSource(stream);
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
-    analyser.smoothingTimeConstant = 0.75;
-    source.connect(analyser);
-    dataArray = new Uint8Array(analyser.fftSize);
-    freqArray = new Uint8Array(analyser.frequencyBinCount);
-    statusLabel.textContent = "MICROFONE LIGADO";
-  } catch (err) {
-    statusLabel.textContent = "ERRO NO MICROFONE";
-  }
-}
-
+// ====================
 function loop() {
-  if (!running || !analyser) return;
+  if (!running) return;
 
   analyser.getByteTimeDomainData(dataArray);
-  analyser.getByteFrequencyData(freqArray);
 
-  const rms = rmsFromTimeDomain(dataArray);
-  const volume = Math.round(clamp(rms * 140, 0, 100));
+  let sum = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    let v = (dataArray[i] - 128) / 128;
+    sum += v * v;
+  }
 
-  const graves = Math.round(clamp(averageBand(freqArray, 2, 12) / 2.55, 0, 100));
-  const medios = Math.round(clamp(averageBand(freqArray, 12, 40) / 2.55, 0, 100));
-  const agudos = Math.round(clamp(averageBand(freqArray, 40, 90) / 2.55, 0, 100));
-  const ruido = Math.round(clamp(averageBand(freqArray, 90, freqArray.length) / 2.55, 0, 100));
+  let rms = Math.sqrt(sum / dataArray.length);
+  let volume = Math.round(rms * 140);
 
-  rmsVal.textContent = volume;
-  drawColumn(graves, medios, agudos, ruido);
-  animId = requestAnimationFrame(loop);
+  volumes.push(volume);
+
+  const now = performance.now();
+
+  if (volume > 10) {
+    const pausa = now - lastSound;
+    if (pausa > 200) pauses.push(pausa);
+    lastSound = now;
+  }
+
+  atualizarBarras(volume);
+
+  requestAnimationFrame(loop);
 }
 
-recordBtn.addEventListener("click", async () => {
-  if (!running) {
-    if (!analyser) await ligarMic();
-    running = true;
-    recordBtn.classList.add("recording");
-    statusLabel.textContent = "CAPTURANDO...";
-    loop();
-  } else {
-    running = false;
-    if (animId) cancelAnimationFrame(animId);
-    recordBtn.classList.remove("recording");
-    statusLabel.textContent = "PRONTO PARA CAPTURA";
+// ====================
+function gerarSessao() {
+  const ritmo = calcRitmo(volumes);
+  const silencio = calcSilencio(volumes);
+  const hesitacao = pauses.filter(p => p > 1200).length;
+
+  const estado = classificarEstado(ritmo, silencio, hesitacao);
+
+  volumes = [];
+  pauses = [];
+
+  return { ritmo, silencio, hesitacao, estado };
+}
+
+// ====================
+function calcRitmo(v) {
+  let osc = 0;
+  for (let i = 1; i < v.length; i++) {
+    osc += Math.abs(v[i] - v[i - 1]);
   }
-});
+  return Math.round(osc / v.length);
+}
+
+function calcSilencio(v) {
+  return Math.round((v.filter(x => x < 8).length / v.length) * 100);
+}
+
+function classificarEstado(r, s, h) {
+  if (h > 2) return "reflexão";
+  if (r > 20) return "fluxo";
+  if (s > 50) return "hesitação";
+  return "neutro";
+}
+
+// ====================
+function atualizarBarras(volume) {
+  document.getElementById("barVolume").style.width = volume + "%";
+}
+
+// ====================
+function atualizarUI() {
+
+  for (let i = 0; i < 3; i++) {
+    const s = sessions[i];
+    const el = document.getElementById("s" + i);
+
+    if (!s) {
+      el.innerText = "vazio";
+      continue;
+    }
+
+    el.innerText =
+      `R:${s.ritmo}\nS:${s.silencio}%\nH:${s.hesitacao}\n${s.estado}`;
+  }
+
+  const json = {
+    tipo: "CRS",
+    sessoes: sessions
+  };
+
+  document.getElementById("json").innerText =
+    JSON.stringify(json, null, 2);
+
+  if (sessions[0]) {
+    document.getElementById("estado").innerText =
+      "estado: " + sessions[0].estado;
+  }
+}
