@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELAYON | Hub de Presença</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #000; color: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .stark-panel { background: rgba(15, 23, 42, 0.6); backdrop-blur: 12px; border: 1px solid rgba(51, 65, 85, 0.5); }
+        .glow-blue { box-shadow: 0 0 20px rgba(37, 99, 235, 0.2); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center">
+
+    <header class="w-full max-w-5xl p-6 flex justify-between items-center z-10">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center glow-blue">
+                <i class="fas fa-microchip text-white text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-black tracking-widest uppercase italic">Elayon Core</h1>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Sistema de Captura Ativo</span>
+                </div>
+            </div>
+        </div>
+        <div id="userBadge" class="flex flex-col items-end">
+            <span id="userName" class="text-[11px] font-bold text-blue-400 uppercase">Aguardando Piloto</span>
+            <span id="credits" class="text-[9px] text-slate-500 font-mono">CREDITS: --</span>
+        </div>
+    </header>
+
+    <main class="w-full max-w-4xl px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <section class="stark-panel rounded-3xl p-8 flex flex-col items-center justify-between text-center min-h-[400px]">
+            <div class="w-full text-left mb-6">
+                <span class="text-[10px] text-blue-500 font-black uppercase tracking-[0.2em]">Entrada 01</span>
+                <h2 class="text-xl font-bold">Captura Biométrica</h2>
+            </div>
+
+            <div id="micContainer" class="relative group">
+                <div class="absolute -inset-4 bg-blue-600/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                <button id="btnRecord" class="relative w-28 h-28 bg-blue-600 rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-all">
+                    <i id="micIcon" class="fas fa-microphone text-3xl text-white"></i>
+                </button>
+            </div>
+
+            <div class="mt-8 space-y-2">
+                <p id="recStatus" class="text-sm font-medium text-slate-300 italic">"Pronto para ouvir sua frequência..."</p>
+                <div id="vumeter" class="h-1 w-32 bg-slate-800 rounded-full mx-auto overflow-hidden">
+                    <div id="vulevel" class="h-full bg-blue-500 w-0 transition-all duration-75"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="stark-panel rounded-3xl p-8 flex flex-col items-center justify-between text-center min-h-[400px]">
+            <div class="w-full text-left mb-6">
+                <span class="text-[10px] text-purple-500 font-black uppercase tracking-[0.2em]">Entrada 02</span>
+                <h2 class="text-xl font-bold">Carga de Sistema</h2>
+            </div>
+
+            <label for="fileUpload" class="w-full flex-1 border-2 border-dashed border-slate-700 rounded-2xl flex flex-col items-center justify-center p-6 hover:border-purple-500/50 hover:bg-purple-500/5 cursor-pointer transition-all">
+                <input type="file" id="fileUpload" class="hidden" accept="audio/*">
+                <i class="fas fa-cloud-upload-alt text-4xl text-slate-600 mb-4"></i>
+                <span class="text-sm font-bold text-slate-400">Arraste áudio bruto ou sensores</span>
+                <span class="text-[10px] text-slate-600 mt-1 uppercase">WAV, MP3, RAW DATA</span>
+            </label>
+
+            <button id="btnUpload" class="mt-6 w-full py-3 bg-slate-800 hover:bg-purple-900/40 text-slate-300 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
+                Processar Ingestão
+            </button>
+        </section>
+
+        <section id="resultsArea" class="md:col-span-2 stark-panel rounded-3xl p-8 opacity-50 pointer-events-none transition-all duration-700">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-sm font-black uppercase tracking-widest text-blue-400">Laudo de Simbiose Gerado</h3>
+                <div id="processingTag" class="hidden flex items-center gap-2 text-xs text-yellow-500 italic">
+                    <i class="fas fa-cog animate-spin"></i> Sincronizando com CRS...
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5 min-h-[100px]">
+                        <p id="finalTranscript" class="text-sm text-slate-400 leading-relaxed italic">O resultado da sua presença aparecerá aqui...</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-blue-600/5 p-4 rounded-xl border border-blue-500/20">
+                        <span class="text-[10px] uppercase text-blue-500 font-bold block mb-2">Impressão Cognitiva</span>
+                        <div id="statsGrid" class="space-y-2">
+                            <div class="flex justify-between text-xs"><span class="text-slate-500">Ritmo:</span> <span id="valRitmo" class="font-mono">--</span></div>
+                            <div class="flex justify-between text-xs"><span class="text-slate-500">Energia:</span> <span id="valEnergia" class="font-mono">--</span></div>
+                            <div class="flex justify-between text-xs"><span class="text-slate-500">Estabilidade:</span> <span id="valEstabilidade" class="font-mono">--</span></div>
+                        </div>
+                    </div>
+                    
+                    <button id="btnExport" class="w-full py-4 bg-white text-black font-black rounded-xl uppercase text-xs tracking-[0.2em] shadow-xl hover:scale-[1.02] transition-all">
+                        Injetar em minha IA
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="boot-auth.js"></script>
+    <script src="tunnel.js"></script>
+    <script src="cockpit.js"></script>
+</body>
+</html>
