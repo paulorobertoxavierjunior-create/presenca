@@ -364,17 +364,29 @@ async function confirmarEnvio() {
     }
 
     document.getElementById('ovEnvio').classList.add('on');
-    log('info', 'Iniciando transmissão CRS...');
+    log('info', 'Extraindo métricas da consciência...');
+
+    // --- CONEXÃO COM A LÓGICA DO SEU APP.JS ---
+    // Aqui usamos os dados reais que o seu loop capturou
+    const ritmo = calcRitmo(S.volHistory || []);
+    const silencio = calcSilencio(S.volHistory || []);
+    const hesitacao = (S.pausas || []).filter(p => p > 1200).length;
 
     const payload = {
         duration_sec: S.segundos || 5,
-        silence_pct: 30, // Aqui você pode injetar a lógica real do analisador
-        pause_count: 2,
-        oscillation_pct: 15,
-        spectrum_snapshot: { graves: 40, medios: 50, agudos: 10 }
+        silence_pct: silencio,      // AGORA É REAL
+        pause_count: hesitacao,     // AGORA É REAL
+        oscillation_pct: ritmo,     // AGORA É REAL
+        stability_pct: 100 - ritmo, 
+        spectrum_snapshot: { 
+            graves: 40, 
+            medios: 50, 
+            agudos: 10 
+        }
     };
 
     try {
+        log('info', 'Transmitindo ao Núcleo no Render...');
         const res = await fetch(`${CRS_URL}/api/crs/analisar`, {
             method: 'POST',
             headers: {
@@ -386,14 +398,14 @@ async function confirmarEnvio() {
 
         const data = await res.json();
         if (data.ok) {
-            log('ok', 'Análise concluída com sucesso.');
-            exibirRelatorio(data);
+            log('ok', 'Sincronização concluída.');
+            exibirRelatorio(data); // Mostra o diagnóstico na tela
         } else {
-            log('err', `Erro: ${data.error}`);
+            log('err', `Núcleo recusou: ${data.error}`);
             toast(data.error);
         }
     } catch (e) {
-        log('err', 'Falha de conexão com o Render.');
+        log('err', 'Falha crítica: O Núcleo não respondeu.');
     } finally {
         document.getElementById('ovEnvio').classList.remove('on');
     }
