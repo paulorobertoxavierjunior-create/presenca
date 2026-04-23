@@ -8,7 +8,7 @@ let dataArray;
 let running = false;
 
 let volumes = [];
-let pauses = [];
+let pauses = []; 
 let lastSound = 0;
 let sessions = [];
 
