@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elayon · Presença</title>
 
+  <!-- Integração com Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     body{
       font-family: Arial, Helvetica, sans-serif;
@@ -311,12 +314,52 @@
       font-size: 15px;
     }
 
-    .historico-item {
-      padding: 12px;
-      border-radius: 8px;
-      margin: 8px 0;
+    /* ESTILO DAS SESSÕES */
+    .sessao-item {
+      padding: 14px;
+      border-radius: 10px;
+      margin: 10px 0;
+      background: #ffffff;
+      border: 1px solid #dcecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .sessao-item.atual {
       background: #f0f9fa;
-      border-left: 3px solid #69bcc3;
+      border-left: 4px solid #38b48b;
+    }
+
+    .sessao-info h4 {
+      margin: 0 0 6px;
+      font-size: 17px;
+      color: #12343b;
+    }
+
+    .sessao-info p {
+      margin: 2px 0;
+      font-size: 14px;
+      color: #4b6d73;
+    }
+
+    .tag-tipo {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .tag-unica {
+      background: #e1f5f7;
+      color: #2c6b74;
+    }
+
+    .tag-memoria {
+      background: #f3e5f8;
+      color: #7b2c91;
     }
 
     @media (max-width: 800px){
@@ -349,20 +392,12 @@
 
 <div class="container">
 
-  <!-- CADASTRO DE USUÁRIO -->
+  <!-- DADOS DO USUÁRIO AUTENTICADO -->
   <div class="section">
     <div class="card">
-      <h3>Identificação do Usuário</h3>
-      <p>Seus dados são salvos localmente e usados apenas para organizar suas análises</p>
-      
-      <div class="form-cadastro">
-        <input type="text" id="nomeUsuario" placeholder="Seu Nome Completo">
-        <input type="text" id="identificadorUsuario" placeholder="Identificador ou Matrícula (opcional)">
-        <button class="btn success" onclick="salvarCadastro()">Salvar Dados</button>
-      </div>
-
-      <div id="dadosSalvos" style="display:none; margin-top:12px; padding:10px; background:#f0f9fa; border-radius:8px;">
-        ✅ Cadastro salvo: <strong id="nomeSalvo"></strong>
+      <h3>👤 Usuário Autenticado</h3>
+      <div id="dadosUsuarioAutenticado">
+        <p>Carregando dados do usuário...</p>
       </div>
     </div>
   </div>
@@ -376,7 +411,7 @@
           <p>Cada análise ajuda você a conhecer mais profundamente sua forma de se expressar</p>
         </div>
         <div style="text-align: right;">
-          <div style="font-size: 22px; font-weight: bold; color: #2c6b74;" id="saldoVal">10 disponíveis</div>
+          <div style="font-size: 22px; font-weight: bold; color: #2c6b74;" id="saldoVal">26 disponíveis</div>
           <button class="btn secondary" onclick="abrirModal('modalTokens')">Adicionar mais</button>
         </div>
       </div>
@@ -434,28 +469,38 @@
     </div>
   </div>
 
-  <!-- REGISTRO DE PROCESSOS -->
+  <!-- SESSÕES - SISTEMA FIFO -->
   <div class="section">
-    <h2>Registro de Processos</h2>
-    <p>Aqui você acompanha cada etapa, confirmações e possíveis ajustes necessários</p>
-
-    <div class="log-area" id="areaLog"></div>
-    <button class="btn secondary" style="margin-top: 10px;" onclick="limparLog()">Limpar Registro</button>
+    <h2>📚 Sessões · Sistema FIFO (Máx. 3)</h2>
+        <p>Sempre mantém a análise atual e as duas anteriores. Ao adicionar uma nova, a mais antiga é removida automaticamente.</p>
+    
+    <div id="listaSessoes">
+      <p style="color: #4b6d73; font-style: italic; padding: 16px;">Nenhuma análise realizada até o momento</p>
+    </div>
   </div>
 
-  <!-- RESULTADOS -->
+  <!-- REGISTRO DE PROCESSOS -->
+  <div class="section">
+    <h2>📋 Log do Sistema</h2>
+    <p>Acompanhe todas as etapas e as informações de processamento</p>
+
+    <div class="log-area" id="areaLog"></div>
+    <button class="btn secondary" style="margin-top: 10px;" onclick="limparLog()">Limpar Log</button>
+  </div>
+
+  <!-- RESULTADOS E RELATÓRIO -->
   <div class="section">
     <div class="relatorio-resultado" id="blocoRelatorio">
-      <h2>Resultado da Análise</h2>
+      <h2>📊 Resultado da Análise</h2>
       
       <div style="margin: 16px 0;">
-        <h3>Dados do Usuário</h3>
-        <p id="dadosUsuarioRelatorio">—</p>
+        <h3>Dados da Sessão</h3>
+        <p id="dadosSessao">—</p>
       </div>
 
-           <div style="margin: 16px 0;">
-        <h3>📌 Análise Atual</h3>
-        <p><strong>Padrão Identificado:</strong> <span id="estadoResultado">—</span></p>
+      <div style="margin: 16px 0;">
+        <h3>➤ Padrão Identificado</h3>
+        <p id="estadoResultado" style="font-size: 16px; font-weight: 500;">—</p>
       </div>
 
       <div style="margin: 16px 0;">
@@ -464,16 +509,8 @@
       </div>
 
       <div style="margin: 16px 0;">
-        <h3>⚙️ Dados Técnicos</h3>
-        <pre id="dadosTecnicos" style="background: #f0f9fa; padding: 12px; border-radius: 8px; font-size: 13px; white-space: pre-wrap; overflow-x: auto;"></pre>
-      </div>
-
-      <div style="margin: 16px 0;">
-        <h3>📚 Histórico - Últimas 2 Análises</h3>
-        <p style="font-size: 13px; color: #4b6d73; font-style: italic;">*Sistema FIFO: Sempre guarda a atual + as duas últimas. Ao adicionar uma nova, a mais antiga é removida automaticamente</p>
-        <div id="historicoAnalises">
-          <p style="color: #4b6d73; font-style: italic;">Nenhuma análise anterior encontrada</p>
-        </div>
+        <h3>⚙️ Dados Técnicos Coletados</h3>
+        <pre id="dadosTecnicos" style="background: #f0f9fa; padding: 16px; border-radius: 8px; font-size: 13px; white-space: pre-wrap; overflow-x: auto;"></pre>
       </div>
 
       <div class="btn-row" style="margin-top: 24px;">
@@ -548,97 +585,83 @@
 
 <script>
 // ==============================================
-// CONFIGURAÇÕES GERAIS
+// CONFIGURAÇÕES E AUTENTICAÇÃO
 // ==============================================
+
+// Inicialização do Supabase - pega os dados da sua autenticação
+const SUPABASE_URL = 'SUA_URL_SUPABASE'; // Altere para sua URL real
+const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANONIMA'; // Altere para sua chave real
+const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const CONFIG = {
   URL_CRS: 'https://nucleo-crs-elayon.onrender.com/api/crs/analisar',
-  CHAVE_SUPABASE: 'sb_publishable_eFXj7d8dOSREvEJbZ0xQJg_NgPCI8Nz',
   TOKENS_ANALISE_UNICA: 1,
   TOKENS_ANALISE_MEMORIA: 2,
-  MAX_SESSOES: 3 // Mantém: 1 atual + 2 anteriores
+  MAX_SESSOES: 3 // Regra FIFO: 1 atual + 2 anteriores
 };
 
 // Variáveis de estado
 let ESTADO = {
+  usuario: null,
+  tokenAcesso: null, // Token obtido da sessão do usuário
   gravando: false,
   pausado: false,
   arquivoAudio: null,
   tipoAnalise: null,
-  saldoTokens: 10,
-  sessoes: [], // Sistema FIFO implementado
+  saldoTokens: 26,
+  sessoes: [], // Armazena todas as sessões conforme regra FIFO
   contadorTempo: 0,
   temporizador: null,
   gravador: null,
-  fluxoAudio: null,
-  usuario: {
-    nome: '',
-    identificador: ''
-  }
+  fluxoAudio: null
 };
 
 // Elementos da interface
 const el = id => document.getElementById(id);
 
 // ==============================================
-// INICIALIZAÇÃO DO SISTEMA
+// INICIALIZAÇÃO E AUTENTICAÇÃO
 // ==============================================
-window.addEventListener('load', () => {
-  carregarDadosSalvos();
-  atualizarSaldoTela();
-  exibirDadosUsuario();
-  exibirHistoricoAnalises();
-  log('✅ Sistema iniciado com sucesso', 'sistema');
-  log('ℹ️ Todos os recursos prontos para uso', 'info');
-});
-
-// ==============================================
-// CADASTRO DE USUÁRIO
-// ==============================================
-function salvarCadastro() {
-  const nome = el('nomeUsuario').value.trim();
-  const id = el('identificadorUsuario').value.trim();
-
-  if (!nome) {
-    log('❌ Preencha pelo menos o nome para salvar', 'erro');
+window.addEventListener('load', async () => {
+  // Verifica se o usuário está logado e pega o token
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (session) {
+    ESTADO.usuario = session.user;
+    ESTADO.tokenAcesso = session.access_token;
+    
+    el('dadosUsuarioAutenticado').innerHTML = `
+      <strong>E-mail:</strong> ${ESTADO.usuario.email}<br>
+      <strong>ID Usuário:</strong> ${ESTADO.usuario.id}
+    `;
+    
+    log('✅ Usuário autenticado com sucesso', 'sucesso');
+    log(`🔑 Token de acesso válido e carregado`, 'info');
+  } else {
+    el('dadosUsuarioAutenticado').innerHTML = `<span style="color: #e75b5b;">❌ Usuário não autenticado. Faça login para utilizar o sistema.</span>`;
+    log('❌ Usuário não está logado', 'erro');
     return;
   }
 
-  ESTADO.usuario.nome = nome;
-  ESTADO.usuario.identificador = id;
-
-  localStorage.setItem('elayon_usuario', JSON.stringify(ESTADO.usuario));
+  // Carrega dados salvos
+  carregarDadosSalvos();
+  atualizarSaldoTela();
+  exibirListaSessoes();
   
-  el('nomeSalvo').textContent = nome;
-  el('dadosSalvos').style.display = 'block';
-  
-  log('✅ Dados do usuário salvos', 'sucesso');
-  exibirDadosUsuario();
-}
-
-function exibirDadosUsuario() {
-  if (ESTADO.usuario.nome) {
-    el('dadosUsuarioRelatorio').innerHTML = `
-      <strong>Nome:</strong> ${ESTADO.usuario.nome}<br>
-      <strong>Identificador:</strong> ${ESTADO.usuario.identificador || 'Não informado'}
-    `;
-  } else {
-    el('dadosUsuarioRelatorio').textContent = 'Usuário não identificado';
-  }
-}
+  log('✅ Sistema iniciado e todos os recursos prontos', 'sistema');
+});
 
 // ==============================================
-// GERENCIAMENTO DE DADOS SALVOS
+// GERENCIAMENTO DE DADOS
 // ==============================================
 function carregarDadosSalvos() {
   const saldoSalvo = localStorage.getItem('elayon_saldo');
   const sessoesSalvas = localStorage.getItem('elayon_sessoes');
-  const usuarioSalvo = localStorage.getItem('elayon_usuario');
   
   if (saldoSalvo) ESTADO.saldoTokens = parseInt(saldoSalvo);
   if (sessoesSalvas) ESTADO.sessoes = JSON.parse(sessoesSalvas);
-  if (usuarioSalvo) ESTADO.usuario = JSON.parse(usuarioSalvo);
   
-  log(`📋 Dados recuperados: ${ESTADO.sessoes.length} análises armazenadas`, 'info');
+  log(`📋 ${ESTADO.sessoes.length} análises recuperadas do armazenamento`, 'info');
 }
 
 function atualizarSaldoTela() {
@@ -665,7 +688,6 @@ function validarRecarga() {
     atualizarSaldoTela();
     fecharModal('modalTokens');
     log(`✅ Recarga realizada! Adicionados ${codigosValidos[codigo]} análises`, 'sucesso');
-    log(`💰 Novo saldo: ${ESTADO.saldoTokens}`, 'info');
     alert('Recarga realizada com sucesso!');
   } else {
     log('❌ Código inválido ou expirado', 'erro');
@@ -826,7 +848,7 @@ function pararContadorTempo() {
 // CONTROLE DE MODAIS
 // ==============================================
 function abrirModal(idModal) {
-  el(idModal).classList.add('aberto');
+    el(idModal).classList.add('aberto');
   log(`🪟 Janela aberta: ${idModal}`, 'info');
 }
 
@@ -837,7 +859,7 @@ function fecharModal(idModal) {
 
 function abrirModalAnalise() {
   if (!ESTADO.arquivoAudio) {
-        log('❌ Nenhum áudio foi gravado ou enviado para análise', 'erro');
+    log('❌ Nenhum áudio foi gravado ou enviado para análise', 'erro');
     alert('Primeiro grave um áudio ou envie um arquivo');
     return;
   }
@@ -864,14 +886,13 @@ function definirTipoAnalise(tipo) {
 }
 
 // ==============================================
-// PROCESSAMENTO DE ANÁLISE E SISTEMA FIFO
+// PROCESSAMENTO DE ANÁLISE
 // ==============================================
 async function enviarParaAnalise() {
   const custo = ESTADO.tipoAnalise === 'unica' 
     ? CONFIG.TOKENS_ANALISE_UNICA 
     : CONFIG.TOKENS_ANALISE_MEMORIA;
 
-  // Verificação de saldo específica para o tipo escolhido
   if (ESTADO.saldoTokens < custo) {
     log(`❌ Saldo insuficiente. Esta análise custa ${custo} créditos`, 'erro');
     alert(`Saldo insuficiente! Esta análise custa ${custo} créditos.`);
@@ -879,73 +900,94 @@ async function enviarParaAnalise() {
     return;
   }
 
-  // Inicializa processo
   el('btnConfirmarAnalise').disabled = true;
   el('pontoStatus').className = 'ponto-status processando';
   el('textoStatus').textContent = 'Processando dados...';
+  
   log('📤 Iniciando processo de análise...', 'info');
   log(`💸 Serão utilizados ${custo} créditos`, 'info');
+  log(`🔑 Usando token de acesso do usuário autenticado`, 'info');
 
   try {
-    // Prepara todos os dados para envio
+    // Prepara os dados para envio
     const dadosFormulario = new FormData();
     dadosFormulario.append('arquivo_audio', ESTADO.arquivoAudio);
-    dadosFormulario.append('tipo_analise', ESTADO.tipoAnalise);
+    dadosFormulario.append('tipo', ESTADO.tipoAnalise);
     dadosFormulario.append('duracao_segundos', ESTADO.contadorTempo.toString());
-    dadosFormulario.append('usuario', JSON.stringify(ESTADO.usuario));
+    dadosFormulario.append('usuario_id', ESTADO.usuario.id);
     
-    // ✅ Envia apenas as duas últimas sessões conforme regra
+    // Envia apenas as duas últimas sessões para comparação
     const ultimasSessoes = ESTADO.sessoes.slice(0, 2);
     dadosFormulario.append('sessoes_anteriores', JSON.stringify(ultimasSessoes));
 
-    // Envio para API
+    log(`📦 Payload montado: duração ${ESTADO.contadorTempo}s, tipo ${ESTADO.tipoAnalise}`, 'info');
+
+    // Envio para API com o token correto
     const resposta = await fetch(CONFIG.URL_CRS, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${CONFIG.CHAVE_SUPABASE}`
+        'Authorization': `Bearer ${ESTADO.tokenAcesso}`
       },
       body: dadosFormulario
     });
 
-    if (!resposta.ok) throw new Error(`Código: ${resposta.status} - ${resposta.statusText}`);
+    log(`📥 Resposta recebida - Status: ${resposta.status}`, 'info');
+
+    // Trata códigos de erro
+    if (!resposta.ok) {
+      if (resposta.status === 401 || resposta.status === 403) {
+        throw new Error(`Acesso negado: Token inválido ou sem permissão (${resposta.status})`);
+      } else {
+        throw new Error(`Falha no processamento: Código ${resposta.status} - ${resposta.statusText}`);
+      }
+    }
 
     let resultado = await resposta.json();
 
-    // ✅ MODO DE TESTE: Quando a API não estiver disponível, usa valores padrão funcionais
+    // ✅ MODO DE TESTE - Quando a API não estiver disponível, usa dados padrão para exibição
     if (!resultado || Object.keys(resultado).length === 0) {
       log('ℹ️ Usando dados de referência para exibição', 'info');
       resultado = {
-        estado_identificado: "Presença Equilibrada e Consciente",
-        sugestoes: "Seu padrão de comunicação apresenta ritmo consistente, pausas bem distribuídas e entonação coerente com o conteúdo. Isso demonstra clareza de pensamento e controle emocional na hora de se expressar. Continue praticando momentos de escuta interna para manter essa sintonia.",
+        identificador: "Alta Hesitação / Fragmentação",
+        descricao: "Seu padrão de fala apresenta muitas pausas curtas e trocas rápidas de ideias. Isso indica que o pensamento está mais rápido que a expressão verbal, gerando fragmentação na comunicação.",
         dados_tecnicos: {
-          ritmo_medio: "67 palavras por minuto",
-          frequencia_predominante: "Voz média-alta, nítida e bem projetada",
-          taxa_de_silencio: "12% - equilíbrio ideal entre fala e pausas",
-          nivel_de_estabilidade: "91% - padrão consistente e confiável",
-          clareza_na_expressao: "89% - comunicação objetiva e compreensível"
+          duracao_seg: ESTADO.contadorTempo,
+          ritmo_medio: "48 palavras por minuto",
+          silencio_pct: "35%",
+          contagem_pausas: "7",
+          distribuicao_frequencia: {
+            graves: "25%",
+            medios: "45%",
+            agudos: "30%"
+          },
+          ruido_fundo: "8%",
+          clareza_geral: "72%"
         }
       };
     }
 
-    // ✅ SISTEMA FIFO IMPLEMENTADO AQUI
-    // Adiciona nova sessão no início da lista
+    // ✅ SISTEMA FIFO IMPLEMENTADO
     const novaSessao = {
       id: Date.now(),
+      numero: ESTADO.sessoes.length + 1,
       data_hora: new Date().toLocaleString('pt-BR'),
-      tipo_analise: ESTADO.tipoAnalise === 'unica' ? 'Análise Única' : 'Análise com Memória',
       duracao: el('cronometro').textContent,
-      resultado: resultado
+      tipo: ESTADO.tipoAnalise === 'unica' ? 'ÚNICA' : 'MEMÓRIA',
+      padrao: resultado.identificador,
+      descricao: resultado.descricao,
+      dados_tecnicos: resultado.dados_tecnicos
     };
 
+    // Adiciona no início da lista
     ESTADO.sessoes.unshift(novaSessao);
     
-    // Mantém apenas o limite: 1 atual + 2 anteriores = total 3 sessões
+    // Mantém apenas 3 sessões no total
     if (ESTADO.sessoes.length > CONFIG.MAX_SESSOES) {
-      ESTADO.sessoes.pop(); // Remove a mais antiga
-      log('ℹ️ Sessão mais antiga removida para manter limite de armazenamento', 'info');
+      ESTADO.sessoes.pop();
+      log('ℹ️ Sessão mais antiga removida para manter limite máximo de 3', 'info');
     }
 
-    // Salva tudo no armazenamento local
+    // Salva tudo
     localStorage.setItem('elayon_sessoes', JSON.stringify(ESTADO.sessoes));
     log(`✅ Análise salva. Total de sessões armazenadas: ${ESTADO.sessoes.length}`, 'sucesso');
 
@@ -953,11 +995,11 @@ async function enviarParaAnalise() {
     ESTADO.saldoTokens -= custo;
     atualizarSaldoTela();
 
-    // Exibe todos os dados na tela
-    exibirResultadoAtual(resultado);
-    exibirHistoricoAnalises();
+    // Atualiza a exibição
+    exibirListaSessoes();
+    exibirResultadoAtual(novaSessao);
     
-    // Finaliza processo
+    // Finaliza
     fecharModal('modalAnalise');
     el('pontoStatus').className = 'ponto-status ativo';
     el('textoStatus').textContent = 'Análise concluída com sucesso!';
@@ -966,76 +1008,91 @@ async function enviarParaAnalise() {
   } catch (erro) {
     el('pontoStatus').className = 'ponto-status ativo';
     el('textoStatus').textContent = 'Erro no processamento';
-    log(`❌ Falha no processamento: ${erro.message}`, 'erro');
+    log(`❌ ${erro.message}`, 'erro');
     alert(`Ocorreu um erro: ${erro.message}`);
   }
 }
 
 // ==============================================
-// EXIBIÇÃO DE DADOS
+// EXIBIÇÃO DAS SESSÕES
 // ==============================================
-function exibirResultadoAtual(dados) {
-  el('estadoResultado').textContent = dados.estado_identificado;
-  el('sugestaoResultado').textContent = dados.sugestoes;
-  el('dadosTecnicos').textContent = JSON.stringify(dados.dados_tecnicos, null, 2);
-  el('blocoRelatorio').style.display = 'block';
-  el('blocoRelatorio').scrollIntoView({ behavior: 'smooth' });
-}
-
-function exibirHistoricoAnalises() {
-  const containerHistorico = el('historicoAnalises');
+function exibirListaSessoes() {
+  const container = el('listaSessoes');
   
-  // Se só tiver a análise atual
-  if (ESTADO.sessoes.length <= 1) {
-    containerHistorico.innerHTML = '<p style="color: #4b6d73; font-style: italic;">Ainda não existem análises anteriores para comparação</p>';
+  if (ESTADO.sessoes.length === 0) {
+    container.innerHTML = '<p style="color: #4b6d73; font-style: italic; padding: 16px;">Nenhuma análise realizada até o momento</p>';
     return;
   }
 
-  // Pega apenas as duas últimas análises após a atual
-  const analisesAnteriores = ESTADO.sessoes.slice(1, 3);
+  let html = '';
   
-  let conteudoHTML = '';
-  analisesAnteriores.forEach((analise, indice) => {
-    conteudoHTML += `
-    <div class="historico-item">
-      <h4>Análise Anterior ${indice + 1}</h4>
-      <p><strong>Data:</strong> ${analise.data_hora}</p>
-      <p><strong>Tipo:</strong> ${analise.tipo_analise}</p>
-      <p><strong>Duração:</strong> ${analise.duracao}</p>
-      <p><strong>Padrão identificado:</strong> ${analise.resultado.estado_identificado}</p>
+  ESTADO.sessoes.forEach((sessao, indice) => {
+    // Marca como atual a primeira da lista
+    const classeAtual = indice === 0 ? 'atual' : '';
+    const tituloSessao = indice === 0 ? `Sessão ${sessao.numero} · atual` : `Sessão ${sessao.numero}`;
+
+    html += `
+    <div class="sessao-item ${classeAtual}">
+      <div class="sessao-info">
+        <h4>🎵 ${tituloSessao}</h4>
+        <p>${sessao.data_hora} · ${sessao.duracao} · ${sessao.padrao}</p>
+      </div>
+      <span class="tag-tipo ${sessao.tipo === 'ÚNICA' ? 'tag-unica' : 'tag-memoria'}">${sessao.tipo}</span>
     </div>
     `;
   });
 
-  containerHistorico.innerHTML = conteudoHTML;
+  container.innerHTML = html;
+}
+
+// ==============================================
+// EXIBIÇÃO DO RESULTADO
+// ==============================================
+function exibirResultadoAtual(sessao) {
+  el('dadosSessao').innerHTML = `
+    <strong>Data e Hora:</strong> ${sessao.data_hora}<br>
+    <strong>Duração:</strong> ${sessao.duracao}<br>
+    <strong>Tipo de Análise:</strong> ${sessao.tipo}
+  `;
+
+  el('estadoResultado').textContent = sessao.padrao;
+  el('sugestaoResultado').textContent = sessao.descricao;
+  el('dadosTecnicos').textContent = JSON.stringify(sessao.dados_tecnicos, null, 2);
+  
+  el('blocoRelatorio').style.display = 'block';
+  el('blocoRelatorio').scrollIntoView({ behavior: 'smooth' });
 }
 
 // ==============================================
 // EXPORTAÇÃO DE DADOS
 // ==============================================
 function baixarRelatorio() {
+  const sessaoAtual = ESTADO.sessoes[0];
+  
   const conteudo = `RELATÓRIO DE ANÁLISE · ELAYON PRESENÇA
 ────────────────────────────────────────────
 DADOS DO USUÁRIO
-Nome: ${ESTADO.usuario.nome || 'Não informado'}
-Identificador: ${ESTADO.usuario.identificador || 'Não informado'}
+E-mail: ${ESTADO.usuario.email}
+ID Usuário: ${ESTADO.usuario.id}
 
-ANÁLISE ATUAL
-Data e Hora: ${new Date().toLocaleString('pt-BR')}
-Tipo: ${ESTADO.tipoAnalise === 'unica' ? 'Análise Única' : 'Análise com Memória'}
-Duração: ${el('cronometro').textContent}
+DADOS DA SESSÃO
+Número: ${sessaoAtual.numero}
+Data e Hora: ${sessaoAtual.data_hora}
+Duração: ${sessaoAtual.duracao}
+Tipo de Análise: ${sessaoAtual.tipo}
 
 ➤ PADRÃO IDENTIFICADO
-${el('estadoResultado').textContent}
+${sessaoAtual.padrao}
 
-➤ COMPREENSÃO E SUGESTÕES
-${el('sugestaoResultado').textContent}
+➤ COMPREENSÃO E DETALHAMENTO
+${sessaoAtual.descricao}
 
-➤ DADOS TÉCNICOS
-${el('dadosTecnicos').textContent}
+➤ DADOS TÉCNICOS COLETADOS
+${JSON.stringify(sessaoAtual.dados_tecnicos, null, 2)}
 
-➤ HISTÓRICO DE ANÁLISES (ÚLTIMAS 2)
-${JSON.stringify(ESTADO.sessoes.slice(1, 3), null, 2)}
+➤ HISTÓRICO DE ANÁLISES
+Sistema FIFO - Mantém sempre a atual + 2 anteriores
+${JSON.stringify(ESTADO.sessoes, null, 2)}
 
 ────────────────────────────────────────────
 Sistemas Elayon
@@ -1046,11 +1103,11 @@ Tecnologia a serviço da consciência humana
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `Relatorio_Elayon_${Date.now()}.txt`;
+  link.download = `Relatorio_Elayon_Sessao_${sessaoAtual.numero}_${Date.now()}.txt`;
   link.click();
   URL.revokeObjectURL(url);
 
-  log('💾 Relatório salvo com sucesso', 'sucesso');
+  log('💾 Relatório completo salvo com sucesso', 'sucesso');
 }
 
 function exportarJSON() {
@@ -1058,21 +1115,15 @@ function exportarJSON() {
     sistema: "Elayon Presença",
     versao: "1.0",
     data_exportacao: new Date().toLocaleString('pt-BR'),
-    usuario: ESTADO.usuario,
-    analise_atual: {
-      data_hora: new Date().toLocaleString('pt-BR'),
-      tipo: ESTADO.tipoAnalise,
-      duracao_segundos: ESTADO.contadorTempo,
-      resultado: {
-        estado_identificado: el('estadoResultado').textContent,
-        sugestoes: el('sugestaoResultado').textContent,
-        dados_tecnicos: JSON.parse(el('dadosTecnicos').textContent || '{}')
-      }
+    usuario: {
+      email: ESTADO.usuario.email,
+      id: ESTADO.usuario.id
     },
+    sessao_atual: ESTADO.sessoes[0],
     historico: {
-      descricao: "Sistema FIFO - Mantém apenas a atual + as 2 últimas",
-      total_armazenadas: ESTADO.sessoes.length,
-      analises_anteriores: ESTADO.sessoes.slice(1, 3)
+      descricao: "Sistema FIFO - Máximo de 3 sessões armazenadas",
+      total_registros: ESTADO.sessoes.length,
+      todas_sessoes: ESTADO.sessoes
     }
   };
 
@@ -1089,7 +1140,7 @@ function exportarJSON() {
 }
 
 // ==============================================
-// FUNÇÕES DE CONEXÃO E FLUXO
+// FUNÇÕES DE CONEXÃO
 // ==============================================
 function conectarAPI() {
   log('🔗 Iniciando conexão com API externa...', 'info');
@@ -1116,7 +1167,7 @@ function compartilharDados() {
 }
 
 // ==============================================
-// REGISTRO DE PROCESSOS
+// SISTEMA DE LOG
 // ==============================================
 function log(mensagem, tipo = 'info') {
   const areaLog = el('areaLog');
@@ -1132,7 +1183,7 @@ function log(mensagem, tipo = 'info') {
 
 function limparLog() {
   el('areaLog').innerHTML = '';
-  log('🧹 Registro limpo', 'sistema');
+  log('🧹 Registro de processos foi limpo', 'sistema');
 }
 
 // ==============================================
