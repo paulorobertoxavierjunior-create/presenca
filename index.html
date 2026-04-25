@@ -1,551 +1,132 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Elayon · Presença</title>
+<!-- DADOS DO USUÁRIO -->
+<div class="section">
+  <div class="card">
+    <h3>👤 Usuário Autenticado</h3>
+    <div id="dadosUsuarioAutenticado">
+      <p>Carregando informações...</p>
+    </div>
 
-  <!-- Integração com Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    body{
-      font-family: Arial, Helvetica, sans-serif;
-      margin:0;
-      background:#f6fbfc;
-      color:#12343b;
-      line-height:1.6;
-    }
-
-    .hero{
-      text-align:center;
-      padding:48px 20px 28px;
-      background:linear-gradient(180deg, #eef8fa 0%, #f6fbfc 100%);
-      border-bottom:1px solid #d8eaee;
-    }
-
-    .small-hero{
-      padding:32px 20px 18px;
-    }
-
-    .hero-logo{
-      width:110px;
-      max-width:90%;
-      margin-bottom:12px;
-    }
-
-    .hero h1{
-      margin:0 0 10px;
-      font-size:36px;
-    }
-
-    .hero-text{
-      max-width:760px;
-      margin:0 auto;
-      font-size:17px;
-      color:#41656d;
-    }
-
-    .container{
-      max-width:1100px;
-      margin:0 auto;
-      padding:30px 18px 50px;
-    }
-
-    .section{
-      margin-bottom:34px;
-    }
-
-    .section h2{
-      margin:0 0 10px;
-      font-size:28px;
-      color:#12343b;
-    }
-
-    .section p{
-      margin:0 0 12px;
-      color:#45656c;
-    }
-
-    .cards-grid{
-      display:grid;
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:18px;
-      margin:20px 0 34px;
-    }
-
-    .cards-grid.two-col{
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-    }
-
-    .card{
-      background:#ffffff;
-      border:1px solid #dcecef;
-      border-radius:18px;
-      padding:20px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.05);
-    }
-
-    .card h3{
-      margin:0 0 10px;
-      font-size:22px;
-      color:#12343b;
-    }
-
-    .card p{
-      margin:0 0 16px;
-      color:#4b6d73;
-    }
-
-    .card.highlight{
-      background:#f9fcfd;
-    }
-
-    .btn-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      margin-top:14px;
-    }
-
-    .btn{
-      display:inline-block;
-      padding:12px 18px;
-      border-radius:12px;
-      text-decoration:none;
-      font-weight:bold;
-      border:1px solid #69bcc3;
-      background:#69bcc3;
-      color:#ffffff;
-      cursor: pointer;
-      font-size: 15px;
-      transition: all 0.2s;
-    }
-
-    .btn:hover:not(:disabled){
-      opacity:0.92;
-      transform: translateY(-1px);
-    }
-
-    .btn:disabled{
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .btn.secondary{
-      background:#ffffff;
-      color:#2c6b74;
-      border:1px solid #9fd2d8;
-    }
-
-    .btn.danger{
-      background: #e75b5b;
-      border-color: #e75b5b;
-    }
-
-    .btn.success{
-      background: #38b48b;
-      border-color: #38b48b;
-    }
-
-    .btn.json{
-      background: #9c27b0;
-      border-color: #9c27b0;
-    }
-
-    .flow-text{
-      margin:0;
-      font-size:18px;
-      text-align:center;
-      font-weight:bold;
-      color:#2d5961;
-    }
-
-    .footer{
-      text-align:center;
-      padding:20px;
-      font-size:14px;
-      color:#5c7a80;
-      border-top:1px solid #d8eaee;
-      background:#fbfeff;
-    }
-
-    .status-indicador {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      margin-bottom: 16px;
-      background: #f0f9fa;
-      border: 1px solid #d0e9ed;
-    }
-
-    .ponto-status {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #94bcc2;
-    }
-
-    .ponto-status.ativo { background: #38b48b; animation: pulsar 1.5s infinite; }
-    .ponto-status.gravando { background: #e75b5b; animation: pulsar 0.8s infinite; }
-    .ponto-status.processando { background: #69bcc3; animation: pulsar 1s infinite; }
-
-    @keyframes pulsar {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .cronometro {
-      font-family: monospace;
-      font-size: 20px;
-      font-weight: bold;
-      color: #2c6b74;
-      text-align: center;
-      margin: 12px 0;
-    }
-
-    .espectro-area {
-      width: 100%;
-      height: 70px;
-      background: #12343b;
-      border-radius: 10px;
-      margin: 12px 0;
-      overflow: hidden;
-    }
-
-    #spectrCanvas {
-      width: 100%;
-      height: 100%;
-    }
-
-    .upload-area {
-      border: 2px dashed #9fd2d8;
-      border-radius: 12px;
-      padding: 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s;
-      margin: 16px 0;
-    }
-
-    .upload-area:hover {
-      border-color: #69bcc3;
-      background: #f4fbfc;
-    }
-
-    .upload-area input {
-      display: none;
-    }
-
-    .arquivo-nome {
-      margin-top: 8px;
-      font-size: 14px;
-      color: #2c6b74;
-      font-weight: 500;
-    }
-
-    .log-area {
-      background: #12343b;
-      color: #ffffff;
-      border-radius: 10px;
-      padding: 14px;
-      height: 220px;
-      overflow-y: auto;
-      font-family: monospace;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .log-linha {
-      margin: 3px 0;
-    }
-
-    .log-info { color: #94d0d6; }
-    .log-sucesso { color: #73d1a8; }
-    .log-erro { color: #f88a8a; }
-    .log-sistema { color: #b0c8cc; }
-
-    .relatorio-resultado {
-      display: none;
-      margin-top: 20px;
-      padding: 18px;
-      background: #f9fcfd;
-      border-radius: 12px;
-      border-left: 4px solid #69bcc3;
-    }
-
-    .modal-fundo {
-      position: fixed;
-      inset: 0;
-      background: rgba(18, 52, 59, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 20px;
-      display: none;
-    }
-
-    .modal-fundo.aberto {
-      display: flex;
-    }
-
-    .modal-conteudo {
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 24px;
-      max-width: 480px;
-      width: 100%;
-    }
-
-    .form-cadastro {
-      display: grid;
-      gap: 12px;
-      margin: 16px 0;
-    }
-
-    .form-cadastro input {
-      padding: 12px;
-      border: 1px solid #9fd2d8;
-      border-radius: 10px;
-      font-size: 15px;
-    }
-
-    /* ESTILO DAS SESSÕES */
-    .sessao-item {
-      padding: 14px;
-      border-radius: 10px;
-      margin: 10px 0;
-      background: #ffffff;
-      border: 1px solid #dcecef;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .sessao-item.atual {
-      background: #f0f9fa;
-      border-left: 4px solid #38b48b;
-    }
-
-    .sessao-info h4 {
-      margin: 0 0 6px;
-      font-size: 17px;
-      color: #12343b;
-    }
-
-    .sessao-info p {
-      margin: 2px 0;
-      font-size: 14px;
-      color: #4b6d73;
-    }
-
-    .tag-tipo {
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .tag-unica {
-      background: #e1f5f7;
-      color: #2c6b74;
-    }
-
-    .tag-memoria {
-      background: #f3e5f8;
-      color: #7b2c91;
-    }
-
-    @media (max-width: 800px){
-      .cards-grid,
-      .cards-grid.two-col{
-        grid-template-columns:1fr;
-      }
-
-      .hero h1{
-        font-size:30px;
-      }
-
-      .section h2{
-        font-size:24px;
-      }
-    }
-  </style>
-</head>
-<body>
-
-<!-- CABEÇALHO -->
-<div class="hero small-hero">
-  <img src="IMG-20260218-WA0015.jpg" alt="Sistemas Elayon" class="hero-logo">
-  <h1>Elayon · Presença</h1>
-  <p class="hero-text">
-    Tecnologia a serviço da consciência humana<br>
-    Grave, analise e compreenda os padrões da sua voz e presença
-  </p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; flex-wrap: wrap; gap: 10px;">
+      <div>
+        <strong>Seu Saldo:</strong>
+        <span id="saldoVal" style="font-size: 18px; color: #2c6b74; font-weight: bold; margin-left: 8px;">0 disponíveis</span>
+      </div>
+      <button class="btn secondary" onclick="abrirModal('modalTokens')">➕ Adicionar mais</button>
+    </div>
+  </div>
 </div>
 
-<div class="container">
+<!-- ÁREA DE GRAVAÇÃO -->
+<div class="section">
+  <h2>🎤 Captação de Áudio</h2>
+  <p>Grave sua fala ou envie um arquivo de áudio para análise</p>
 
-  <!-- DADOS DO USUÁRIO AUTENTICADO -->
-  <div class="section">
+  <div class="cards-grid two-col">
+
+    <!-- CARD GRAVAÇÃO -->
     <div class="card">
-      <h3>👤 Usuário Autenticado</h3>
-      <div id="dadosUsuarioAutenticado">
-        <p>Carregando dados do usuário...</p>
-      </div>
-    </div>
-  </div>
+      <h3>Gravar Agora</h3>
 
-  <!-- SALDO DE ANÁLISES -->
-  <div class="section">
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-        <div>
-          <h3>Seu Saldo de Análises</h3>
-          <p>Cada análise ajuda você a conhecer mais profundamente sua forma de se expressar</p>
-        </div>
-        <div style="text-align: right;">
-          <div style="font-size: 22px; font-weight: bold; color: #2c6b74;" id="saldoVal">26 disponíveis</div>
-          <button class="btn secondary" onclick="abrirModal('modalTokens')">Adicionar mais</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ÁREA DE GRAVAÇÃO E ARQUIVOS -->
-  <div class="section">
-    <h2>Captação de Áudio</h2>
-    <p>Escolha gravar agora ou usar um arquivo já existente</p>
-
-    <div class="cards-grid two-col">
-
-      <!-- CARD GRAVAÇÃO -->
-      <div class="card">
-        <h3>Gravar Agora</h3>
-        <div class="status-indicador">
-          <div class="ponto-status" id="pontoStatus"></div>
-          <span id="textoStatus">Aguardando ação</span>
-        </div>
-
-        <div class="cronometro" id="cronometro">00:00</div>
-
-        <div class="espectro-area">
-          <canvas id="spectrCanvas"></canvas>
-        </div>
-
-        <div class="btn-row">
-          <button class="btn" id="btnIniciar" onclick="iniciarGravacao()">🎤 Iniciar Gravação</button>
-          <button class="btn secondary" id="btnPausar" disabled onclick="pausarGravacao()">⏸️ Pausar</button>
-          <button class="btn danger" id="btnParar" disabled onclick="pararGravacao()">⏹️ Parar</button>
-          <button class="btn secondary" id="btnSalvar" disabled onclick="salvarArquivo()">💾 Salvar Áudio</button>
-        </div>
+      <div class="status-indicador">
+        <div class="ponto-status" id="pontoStatus"></div>
+        <span id="textoStatus">Aguardando ação</span>
       </div>
 
-      <!-- CARD ARQUIVO -->
-      <div class="card">
-        <h3>Usar Arquivo</h3>
-        <p>Suporta arquivos MP3, WAV, M4A e WEBM</p>
+      <div class="cronometro" id="cronometro">00:00</div>
 
-        <label class="upload-area">
-          <input type="file" accept=".mp3,.wav,.m4a,.webm,audio/*" id="inputArquivo" onchange="carregarArquivo(event)">
-          <div>
-            <strong>Clique para escolher ou arraste o arquivo aqui</strong>
-            <p style="margin: 8px 0 0; font-size: 14px; color: #4b6d73;">Tamanho máximo: 20MB</p>
-            <div class="arquivo-nome" id="nomeArquivo"></div>
-          </div>
-        </label>
-
-        <div class="btn-row">
-          <button class="btn success" id="btnAnalisar" disabled onclick="abrirModalAnalise()">🔍 Iniciar Análise</button>
-        </div>
+      <!-- Barra de volume em tempo real -->
+      <div style="width: 100%; height: 12px; background: #dcecef; border-radius: 6px; overflow: hidden; margin: 12px 0;">
+        <div id="barVolume" style="height: 100%; width: 0%; background: #69bcc3; border-radius: 6px; transition: width 0.1s;"></div>
       </div>
 
-    </div>
-  </div>
-
-  <!-- SESSÕES - SISTEMA FIFO -->
-  <div class="section">
-    <h2>📚 Sessões · Sistema FIFO (Máx. 3)</h2>
-        <p>Sempre mantém a análise atual e as duas anteriores. Ao adicionar uma nova, a mais antiga é removida automaticamente.</p>
-    
-    <div id="listaSessoes">
-      <p style="color: #4b6d73; font-style: italic; padding: 16px;">Nenhuma análise realizada até o momento</p>
-    </div>
-  </div>
-
-  <!-- REGISTRO DE PROCESSOS -->
-  <div class="section">
-    <h2>📋 Log do Sistema</h2>
-    <p>Acompanhe todas as etapas e as informações de processamento</p>
-
-    <div class="log-area" id="areaLog"></div>
-    <button class="btn secondary" style="margin-top: 10px;" onclick="limparLog()">Limpar Log</button>
-  </div>
-
-  <!-- RESULTADOS E RELATÓRIO -->
-  <div class="section">
-    <div class="relatorio-resultado" id="blocoRelatorio">
-      <h2>📊 Resultado da Análise</h2>
-      
-      <div style="margin: 16px 0;">
-        <h3>Dados da Sessão</h3>
-        <p id="dadosSessao">—</p>
-      </div>
-
-      <div style="margin: 16px 0;">
-        <h3>➤ Padrão Identificado</h3>
-        <p id="estadoResultado" style="font-size: 16px; font-weight: 500;">—</p>
-      </div>
-
-      <div style="margin: 16px 0;">
-        <h3>💡 Compreensão e Sugestões</h3>
-        <p id="sugestaoResultado">—</p>
-      </div>
-
-      <div style="margin: 16px 0;">
-        <h3>⚙️ Dados Técnicos Coletados</h3>
-        <pre id="dadosTecnicos" style="background: #f0f9fa; padding: 16px; border-radius: 8px; font-size: 13px; white-space: pre-wrap; overflow-x: auto;"></pre>
-      </div>
-
-      <div class="btn-row" style="margin-top: 24px;">
-        <button class="btn" onclick="baixarRelatorio()">📥 Baixar Relatório Completo</button>
-        <button class="btn json" onclick="exportarJSON()">📤 Exportar em Formato JSON</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BOTÕES DE CONEXÃO E FLUXO -->
-  <div class="section">
-    <div class="card highlight">
-      <h3>🔌 Conexão e Fluxo de Dados</h3>
-      <p>Conecte com outros sistemas ou envie seus resultados para onde desejar</p>
-      
       <div class="btn-row">
-        <button class="btn secondary" onclick="conectarAPI()">🔗 Conectar com API Externa</button>
-        <button class="btn secondary" onclick="enviarParaNuvem()">☁️ Enviar para Armazenamento</button>
-        <button class="btn secondary" onclick="compartilharDados()">📨 Compartilhar Resultados</button>
+        <button class="btn" id="btnIniciar" onclick="iniciarGravacao()">Iniciar</button>
+        <button class="btn secondary" id="btnPausar" disabled onclick="pausarRetomarGravacao()">Pausar</button>
+        <button class="btn danger" id="btnParar" disabled onclick="pararGravacao()">Parar</button>
       </div>
     </div>
-  </div>
 
+    <!-- CARD ARQUIVO -->
+    <div class="card">
+      <h3>Usar Arquivo</h3>
+      <p>Formatos suportados: MP3, WAV, M4A, WEBM • Máximo 20MB</p>
+
+      <label class="upload-area">
+        <input type="file" accept=".mp3,.wav,.m4a,.webm,audio/*" id="inputArquivo" onchange="carregarArquivo(event)">
+        <div>
+          <strong>Clique para escolher ou arraste aqui</strong>
+          <div class="arquivo-nome" id="nomeArquivo"></div>
+        </div>
+      </label>
+
+    </div>
+
+  </div>
 </div>
+
+<!-- SESSÕES - SISTEMA FIFO -->
+<div class="section">
+  <h2>📚 Suas Análises</h2>
+  <p>Mantemos sempre as últimas 3 análises. Ao adicionar uma nova, a mais antiga é removida automaticamente.</p>
+
+  <div id="listaSessoes">
+    <p style="color: #4b6d73; font-style: italic; padding: 16px;">Nenhuma análise realizada até o momento</p>
+  </div>
+</div>
+
+<!-- RESULTADOS E RELATÓRIO -->
+<div class="section">
+  <div class="relatorio-resultado" id="blocoRelatorio">
+    <h2>📊 Resultado da Análise</h2>
+
+    <div style="margin: 16px 0; padding: 12px; background: #f0f9fa; border-radius: 8px;">
+      <h3>📋 Dados da Sessão</h3>
+      <p id="dadosSessao">—</p>
+    </div>
+
+    <div style="margin: 16px 0;">
+      <h3>🧠 Padrão Identificado</h3>
+      <p id="estadoResultado" style="font-size: 17px; font-weight: 500; color: #12343b;">—</p>
+    </div>
+
+    <div style="margin: 16px 0;">
+      <h3>💡 Sugestões e Orientações</h3>
+      <p id="sugestaoResultado">—</p>
+    </div>
+
+    <div style="margin: 16px 0;">
+      <h3>⚙️ Dados Técnicos</h3>
+      <pre id="dadosTecnicos" style="background: #f9fcfd; padding: 16px; border-radius: 8px; font-size: 13px; white-space: pre-wrap;">—</pre>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="baixarRelatorio()">📥 Baixar Relatório</button>
+      <button class="btn json" onclick="exportarJSON()">📤 Exportar JSON</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOG DE ATIVIDADES -->
+<div class="section">
+  <h2>📋 Registro do Sistema</h2>
+  <p>Acompanhe todas as etapas e mensagens do processo</p>
+
+  <div class="log-area" id="areaLog"></div>
+  <button class="btn secondary" style="margin-top: 10px;" onclick="limparLog()">Limpar Registro</button>
+<!-- ==============================================
+  MODAIS - JANELAS DE ESCOLHA E CONFIRMAÇÃO
+============================================== -->
 
 <!-- MODAL ADICIONAR CRÉDITOS -->
 <div class="modal-fundo" id="modalTokens">
   <div class="modal-conteudo">
     <h3>Adicionar Análises</h3>
-    <p>Insira o código recebido para recarregar seu saldo</p>
+    <p>Insira o código recebido para aumentar seu saldo</p>
     
     <input type="text" id="codigoRecarga" placeholder="Ex: ELA10PRESENCA" style="width: 100%; padding: 12px; border: 1px solid #9fd2d8; border-radius: 10px; margin: 12px 0; font-size: 15px;">
     
     <div class="btn-row">
-      <button class="btn success" onclick="validarRecarga()">Confirmar</button>
+      <button class="btn success" onclick="adicionarCreditos(document.getElementById('codigoRecarga').value)">Confirmar</button>
       <button class="btn secondary" onclick="fecharModal('modalTokens')">Cancelar</button>
     </div>
   </div>
@@ -555,667 +136,28 @@
 <div class="modal-fundo" id="modalAnalise">
   <div class="modal-conteudo">
     <h3>Escolha o Tipo de Análise</h3>
-    <p>Cada método traz um nível diferente de profundidade no estudo</p>
+    <p>Cada opção oferece um nível diferente de profundidade</p>
 
     <div class="cards-grid" style="margin:16px 0;">
-      <div class="card highlight" onclick="definirTipoAnalise('unica')" id="opcaoUnica">
+      <div class="card highlight" id="opcaoUnica" onclick="definirTipoAnalise('unica')">
         <h4>Análise Única</h4>
-        <p>Avalia apenas este áudio de forma isolada. Ideal para verificar seu estado atual.</p>
+        <p>Avalia apenas esta gravação, de forma isolada. Ideal para saber seu estado atual.</p>
         <p><strong>Custo: 1 análise</strong></p>
       </div>
 
-      <div class="card highlight" onclick="definirTipoAnalise('memoria')" id="opcaoMemoria">
+      <div class="card highlight" id="opcaoMemoria" onclick="definirTipoAnalise('memoria')">
         <h4>Análise com Memória</h4>
-        <p>Compara com suas análises anteriores para identificar evoluções, padrões e mudanças ao longo do tempo.</p>
+        <p>Compara com suas análises anteriores, identificando evoluções e padrões ao longo do tempo.</p>
         <p><strong>Custo: 2 análises</strong></p>
       </div>
     </div>
 
     <div class="btn-row">
-      <button class="btn success" id="btnConfirmarAnalise" disabled onclick="enviarParaAnalise()">Confirmar e Enviar</button>
+      <button class="btn success" id="btnConfirmarAnalise" disabled onclick="processarAnalise()">Confirmar e Analisar</button>
       <button class="btn secondary" onclick="fecharModal('modalAnalise')">Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- RODAPÉ -->
-<div class="footer">
-  Sistemas Elayon • Tecnologia a serviço da consciência humana
+
 </div>
-
-<script>
-// ==============================================
-// CONFIGURAÇÕES E AUTENTICAÇÃO
-// ==============================================
-
-// Inicialização do Supabase - pega os dados da sua autenticação
-const SUPABASE_URL = 'SUA_URL_SUPABASE'; // Altere para sua URL real
-const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANONIMA'; // Altere para sua chave real
-const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-const CONFIG = {
-  URL_CRS: 'https://nucleo-crs-elayon.onrender.com/api/crs/analisar',
-  TOKENS_ANALISE_UNICA: 1,
-  TOKENS_ANALISE_MEMORIA: 2,
-  MAX_SESSOES: 3 // Regra FIFO: 1 atual + 2 anteriores
-};
-
-// Variáveis de estado
-let ESTADO = {
-  usuario: null,
-  tokenAcesso: null, // Token obtido da sessão do usuário
-  gravando: false,
-  pausado: false,
-  arquivoAudio: null,
-  tipoAnalise: null,
-  saldoTokens: 26,
-  sessoes: [], // Armazena todas as sessões conforme regra FIFO
-  contadorTempo: 0,
-  temporizador: null,
-  gravador: null,
-  fluxoAudio: null
-};
-
-// Elementos da interface
-const el = id => document.getElementById(id);
-
-// ==============================================
-// INICIALIZAÇÃO E AUTENTICAÇÃO
-// ==============================================
-window.addEventListener('load', async () => {
-  // Verifica se o usuário está logado e pega o token
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  if (session) {
-    ESTADO.usuario = session.user;
-    ESTADO.tokenAcesso = session.access_token;
-    
-    el('dadosUsuarioAutenticado').innerHTML = `
-      <strong>E-mail:</strong> ${ESTADO.usuario.email}<br>
-      <strong>ID Usuário:</strong> ${ESTADO.usuario.id}
-    `;
-    
-    log('✅ Usuário autenticado com sucesso', 'sucesso');
-    log(`🔑 Token de acesso válido e carregado`, 'info');
-  } else {
-    el('dadosUsuarioAutenticado').innerHTML = `<span style="color: #e75b5b;">❌ Usuário não autenticado. Faça login para utilizar o sistema.</span>`;
-    log('❌ Usuário não está logado', 'erro');
-    return;
-  }
-
-  // Carrega dados salvos
-  carregarDadosSalvos();
-  atualizarSaldoTela();
-  exibirListaSessoes();
-  
-  log('✅ Sistema iniciado e todos os recursos prontos', 'sistema');
-});
-
-// ==============================================
-// GERENCIAMENTO DE DADOS
-// ==============================================
-function carregarDadosSalvos() {
-  const saldoSalvo = localStorage.getItem('elayon_saldo');
-  const sessoesSalvas = localStorage.getItem('elayon_sessoes');
-  
-  if (saldoSalvo) ESTADO.saldoTokens = parseInt(saldoSalvo);
-  if (sessoesSalvas) ESTADO.sessoes = JSON.parse(sessoesSalvas);
-  
-  log(`📋 ${ESTADO.sessoes.length} análises recuperadas do armazenamento`, 'info');
-}
-
-function atualizarSaldoTela() {
-  el('saldoVal').textContent = `${ESTADO.saldoTokens} disponíveis`;
-  localStorage.setItem('elayon_saldo', ESTADO.saldoTokens);
-}
-
-function validarRecarga() {
-  const codigo = el('codigoRecarga').value.trim();
-  
-  const codigosValidos = {
-    'ELA10PRESENCA': 10,
-    'ELA20PRESENCA': 20,
-    'ELA50PRESENCA': 50
-  };
-
-  if (!codigo) {
-    log('❌ Digite um código válido', 'erro');
-    return;
-  }
-
-  if (codigosValidos[codigo]) {
-    ESTADO.saldoTokens += codigosValidos[codigo];
-    atualizarSaldoTela();
-    fecharModal('modalTokens');
-    log(`✅ Recarga realizada! Adicionados ${codigosValidos[codigo]} análises`, 'sucesso');
-    alert('Recarga realizada com sucesso!');
-  } else {
-    log('❌ Código inválido ou expirado', 'erro');
-    alert('Código não reconhecido');
-  }
-}
-
-// ==============================================
-// CONTROLE DE GRAVAÇÃO
-// ==============================================
-async function iniciarGravacao() {
-  try {
-    log('🎤 Solicitando permissão para usar o microfone...', 'info');
-    
-    ESTADO.fluxoAudio = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        sampleRate: 44100
-      }
-    });
-
-    ESTADO.gravador = new MediaRecorder(ESTADO.fluxoAudio);
-    ESTADO.gravador.ondataavailable = (e) => {
-      ESTADO.arquivoAudio = new Blob([e.data], { type: 'audio/webm' });
-      el('btnSalvar').disabled = false;
-      el('btnAnalisar').disabled = false;
-      log('📁 Áudio capturado e armazenado', 'sucesso');
-    };
-
-    ESTADO.gravador.start();
-    ESTADO.gravando = true;
-    ESTADO.pausado = false;
-
-    el('pontoStatus').className = 'ponto-status gravando';
-    el('textoStatus').textContent = 'Gravando áudio...';
-    el('btnIniciar').disabled = true;
-    el('btnPausar').disabled = false;
-    el('btnParar').disabled = false;
-
-    iniciarContadorTempo();
-    log('✅ Gravação iniciada com sucesso', 'sucesso');
-
-  } catch (erro) {
-    let mensagem;
-    if (erro.name === 'NotAllowedError') {
-      mensagem = 'Permissão negada! Libere o uso do microfone no navegador';
-    } else if (erro.name === 'NotFoundError') {
-      mensagem = 'Nenhum microfone foi encontrado no dispositivo';
-    } else {
-      mensagem = `Erro: ${erro.message}`;
-    }
-    log(`❌ ${mensagem}`, 'erro');
-    alert(mensagem);
-  }
-}
-
-function pausarGravacao() {
-  if (!ESTADO.gravador) return;
-
-  if (ESTADO.pausado) {
-    ESTADO.gravador.resume();
-    el('pontoStatus').className = 'ponto-status gravando';
-    el('textoStatus').textContent = 'Gravando áudio...';
-    log('▶️ Gravação retomada', 'info');
-  } else {
-    ESTADO.gravador.pause();
-    el('pontoStatus').className = 'ponto-status processando';
-    el('textoStatus').textContent = 'Gravação pausada';
-    log('⏸️ Gravação pausada', 'info');
-  }
-
-  ESTADO.pausado = !ESTADO.pausado;
-}
-
-function pararGravacao() {
-  if (!ESTADO.gravador) return;
-
-  ESTADO.gravador.stop();
-  ESTADO.fluxoAudio.getTracks().forEach(trilha => trilha.stop());
-  
-  ESTADO.gravando = false;
-  ESTADO.pausado = false;
-  
-  pararContadorTempo();
-
-  el('pontoStatus').className = 'ponto-status ativo';
-  el('textoStatus').textContent = 'Gravação finalizada';
-  el('btnIniciar').disabled = false;
-  el('btnPausar').disabled = true;
-  el('btnParar').disabled = true;
-
-  log('⏹️ Gravação finalizada', 'sucesso');
-}
-
-// ==============================================
-// CONTROLE DE ARQUIVOS
-// ==============================================
-function carregarArquivo(evento) {
-  const arquivo = evento.target.files[0];
-  if (!arquivo) return;
-
-  const formatosPermitidos = ['audio/mpeg', 'audio/wav', 'audio/m4a', 'audio/webm'];
-  
-  if (!formatosPermitidos.includes(arquivo.type)) {
-    log('❌ Formato não suportado. Use MP3, WAV, M4A ou WEBM', 'erro');
-    alert('Formato de arquivo inválido');
-    return;
-  }
-
-  if (arquivo.size > 20 * 1024 * 1024) {
-    log('❌ Arquivo maior que 20MB não é permitido', 'erro');
-    alert('Arquivo muito grande');
-    return;
-  }
-
-  ESTADO.arquivoAudio = arquivo;
-  el('nomeArquivo').textContent = `Arquivo: ${arquivo.name}`;
-  el('btnAnalisar').disabled = false;
-  
-  log(`📤 Arquivo importado: ${arquivo.name}`, 'sucesso');
-}
-
-function salvarArquivo() {
-  if (!ESTADO.arquivoAudio) {
-    log('❌ Nenhum áudio disponível para salvar', 'erro');
-    return;
-  }
-
-  const url = URL.createObjectURL(ESTADO.arquivoAudio);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `Audio_Elayon_${new Date().toISOString().slice(0,10)}.webm`;
-  link.click();
-  URL.revokeObjectURL(url);
-
-  log('💾 Áudio salvo no dispositivo', 'sucesso');
-}
-
-// ==============================================
-// CONTADOR DE TEMPO
-// ==============================================
-function iniciarContadorTempo() {
-  ESTADO.contadorTempo = 0;
-  ESTADO.temporizador = setInterval(() => {
-    ESTADO.contadorTempo++;
-    const minutos = String(Math.floor(ESTADO.contadorTempo / 60)).padStart(2, '0');
-    const segundos = String(ESTADO.contadorTempo % 60).padStart(2, '0');
-    el('cronometro').textContent = `${minutos}:${segundos}`;
-  }, 1000);
-}
-
-function pararContadorTempo() {
-  clearInterval(ESTADO.temporizador);
-}
-
-// ==============================================
-// CONTROLE DE MODAIS
-// ==============================================
-function abrirModal(idModal) {
-    el(idModal).classList.add('aberto');
-  log(`🪟 Janela aberta: ${idModal}`, 'info');
-}
-
-function fecharModal(idModal) {
-  el(idModal).classList.remove('aberto');
-  log(`🪟 Janela fechada: ${idModal}`, 'info');
-}
-
-function abrirModalAnalise() {
-  if (!ESTADO.arquivoAudio) {
-    log('❌ Nenhum áudio foi gravado ou enviado para análise', 'erro');
-    alert('Primeiro grave um áudio ou envie um arquivo');
-    return;
-  }
-
-  if (ESTADO.saldoTokens < CONFIG.TOKENS_ANALISE_UNICA) {
-    log('❌ Saldo insuficiente para realizar análise', 'erro');
-    alert('Você precisa de pelo menos 1 análise disponível');
-    abrirModal('modalTokens');
-    return;
-  }
-
-  abrirModal('modalAnalise');
-}
-
-function definirTipoAnalise(tipo) {
-  ESTADO.tipoAnalise = tipo;
-  
-  // Destaca a opção escolhida
-  el('opcaoUnica').style.border = tipo === 'unica' ? '2px solid #69bcc3' : '1px solid #dcecef';
-  el('opcaoMemoria').style.border = tipo === 'memoria' ? '2px solid #69bcc3' : '1px solid #dcecef';
-  
-  el('btnConfirmarAnalise').disabled = false;
-  log(`📌 Tipo de análise selecionado: ${tipo === 'unica' ? 'Análise Única' : 'Análise com Memória'}`, 'info');
-}
-
-// ==============================================
-// PROCESSAMENTO DE ANÁLISE
-// ==============================================
-async function enviarParaAnalise() {
-  const custo = ESTADO.tipoAnalise === 'unica' 
-    ? CONFIG.TOKENS_ANALISE_UNICA 
-    : CONFIG.TOKENS_ANALISE_MEMORIA;
-
-  if (ESTADO.saldoTokens < custo) {
-    log(`❌ Saldo insuficiente. Esta análise custa ${custo} créditos`, 'erro');
-    alert(`Saldo insuficiente! Esta análise custa ${custo} créditos.`);
-    fecharModal('modalAnalise');
-    return;
-  }
-
-  el('btnConfirmarAnalise').disabled = true;
-  el('pontoStatus').className = 'ponto-status processando';
-  el('textoStatus').textContent = 'Processando dados...';
-  
-  log('📤 Iniciando processo de análise...', 'info');
-  log(`💸 Serão utilizados ${custo} créditos`, 'info');
-  log(`🔑 Usando token de acesso do usuário autenticado`, 'info');
-
-  try {
-    // Prepara os dados para envio
-    const dadosFormulario = new FormData();
-    dadosFormulario.append('arquivo_audio', ESTADO.arquivoAudio);
-    dadosFormulario.append('tipo', ESTADO.tipoAnalise);
-    dadosFormulario.append('duracao_segundos', ESTADO.contadorTempo.toString());
-    dadosFormulario.append('usuario_id', ESTADO.usuario.id);
-    
-    // Envia apenas as duas últimas sessões para comparação
-    const ultimasSessoes = ESTADO.sessoes.slice(0, 2);
-    dadosFormulario.append('sessoes_anteriores', JSON.stringify(ultimasSessoes));
-
-    log(`📦 Payload montado: duração ${ESTADO.contadorTempo}s, tipo ${ESTADO.tipoAnalise}`, 'info');
-
-    // Envio para API com o token correto
-    const resposta = await fetch(CONFIG.URL_CRS, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${ESTADO.tokenAcesso}`
-      },
-      body: dadosFormulario
-    });
-
-    log(`📥 Resposta recebida - Status: ${resposta.status}`, 'info');
-
-    // Trata códigos de erro
-    if (!resposta.ok) {
-      if (resposta.status === 401 || resposta.status === 403) {
-        throw new Error(`Acesso negado: Token inválido ou sem permissão (${resposta.status})`);
-      } else {
-        throw new Error(`Falha no processamento: Código ${resposta.status} - ${resposta.statusText}`);
-      }
-    }
-
-    let resultado = await resposta.json();
-
-    // ✅ MODO DE TESTE - Quando a API não estiver disponível, usa dados padrão para exibição
-    if (!resultado || Object.keys(resultado).length === 0) {
-      log('ℹ️ Usando dados de referência para exibição', 'info');
-      resultado = {
-        identificador: "Alta Hesitação / Fragmentação",
-        descricao: "Seu padrão de fala apresenta muitas pausas curtas e trocas rápidas de ideias. Isso indica que o pensamento está mais rápido que a expressão verbal, gerando fragmentação na comunicação.",
-        dados_tecnicos: {
-          duracao_seg: ESTADO.contadorTempo,
-          ritmo_medio: "48 palavras por minuto",
-          silencio_pct: "35%",
-          contagem_pausas: "7",
-          distribuicao_frequencia: {
-            graves: "25%",
-            medios: "45%",
-            agudos: "30%"
-          },
-          ruido_fundo: "8%",
-          clareza_geral: "72%"
-        }
-      };
-    }
-
-    // ✅ SISTEMA FIFO IMPLEMENTADO
-    const novaSessao = {
-      id: Date.now(),
-      numero: ESTADO.sessoes.length + 1,
-      data_hora: new Date().toLocaleString('pt-BR'),
-      duracao: el('cronometro').textContent,
-      tipo: ESTADO.tipoAnalise === 'unica' ? 'ÚNICA' : 'MEMÓRIA',
-      padrao: resultado.identificador,
-      descricao: resultado.descricao,
-      dados_tecnicos: resultado.dados_tecnicos
-    };
-
-    // Adiciona no início da lista
-    ESTADO.sessoes.unshift(novaSessao);
-    
-    // Mantém apenas 3 sessões no total
-    if (ESTADO.sessoes.length > CONFIG.MAX_SESSOES) {
-      ESTADO.sessoes.pop();
-      log('ℹ️ Sessão mais antiga removida para manter limite máximo de 3', 'info');
-    }
-
-    // Salva tudo
-    localStorage.setItem('elayon_sessoes', JSON.stringify(ESTADO.sessoes));
-    log(`✅ Análise salva. Total de sessões armazenadas: ${ESTADO.sessoes.length}`, 'sucesso');
-
-    // Atualiza saldo
-    ESTADO.saldoTokens -= custo;
-    atualizarSaldoTela();
-
-    // Atualiza a exibição
-    exibirListaSessoes();
-    exibirResultadoAtual(novaSessao);
-    
-    // Finaliza
-    fecharModal('modalAnalise');
-    el('pontoStatus').className = 'ponto-status ativo';
-    el('textoStatus').textContent = 'Análise concluída com sucesso!';
-    log('✅ Processo finalizado com sucesso', 'sucesso');
-
-  } catch (erro) {
-    el('pontoStatus').className = 'ponto-status ativo';
-    el('textoStatus').textContent = 'Erro no processamento';
-    log(`❌ ${erro.message}`, 'erro');
-    alert(`Ocorreu um erro: ${erro.message}`);
-  }
-}
-
-// ==============================================
-// EXIBIÇÃO DAS SESSÕES
-// ==============================================
-function exibirListaSessoes() {
-  const container = el('listaSessoes');
-  
-  if (ESTADO.sessoes.length === 0) {
-    container.innerHTML = '<p style="color: #4b6d73; font-style: italic; padding: 16px;">Nenhuma análise realizada até o momento</p>';
-    return;
-  }
-
-  let html = '';
-  
-  ESTADO.sessoes.forEach((sessao, indice) => {
-    // Marca como atual a primeira da lista
-    const classeAtual = indice === 0 ? 'atual' : '';
-    const tituloSessao = indice === 0 ? `Sessão ${sessao.numero} · atual` : `Sessão ${sessao.numero}`;
-
-    html += `
-    <div class="sessao-item ${classeAtual}">
-      <div class="sessao-info">
-        <h4>🎵 ${tituloSessao}</h4>
-        <p>${sessao.data_hora} · ${sessao.duracao} · ${sessao.padrao}</p>
-      </div>
-      <span class="tag-tipo ${sessao.tipo === 'ÚNICA' ? 'tag-unica' : 'tag-memoria'}">${sessao.tipo}</span>
-    </div>
-    `;
-  });
-
-  container.innerHTML = html;
-}
-
-// ==============================================
-// EXIBIÇÃO DO RESULTADO
-// ==============================================
-function exibirResultadoAtual(sessao) {
-  el('dadosSessao').innerHTML = `
-    <strong>Data e Hora:</strong> ${sessao.data_hora}<br>
-    <strong>Duração:</strong> ${sessao.duracao}<br>
-    <strong>Tipo de Análise:</strong> ${sessao.tipo}
-  `;
-
-  el('estadoResultado').textContent = sessao.padrao;
-  el('sugestaoResultado').textContent = sessao.descricao;
-  el('dadosTecnicos').textContent = JSON.stringify(sessao.dados_tecnicos, null, 2);
-  
-  el('blocoRelatorio').style.display = 'block';
-  el('blocoRelatorio').scrollIntoView({ behavior: 'smooth' });
-}
-
-// ==============================================
-// EXPORTAÇÃO DE DADOS
-// ==============================================
-function baixarRelatorio() {
-  const sessaoAtual = ESTADO.sessoes[0];
-  
-  const conteudo = `RELATÓRIO DE ANÁLISE · ELAYON PRESENÇA
-────────────────────────────────────────────
-DADOS DO USUÁRIO
-E-mail: ${ESTADO.usuario.email}
-ID Usuário: ${ESTADO.usuario.id}
-
-DADOS DA SESSÃO
-Número: ${sessaoAtual.numero}
-Data e Hora: ${sessaoAtual.data_hora}
-Duração: ${sessaoAtual.duracao}
-Tipo de Análise: ${sessaoAtual.tipo}
-
-➤ PADRÃO IDENTIFICADO
-${sessaoAtual.padrao}
-
-➤ COMPREENSÃO E DETALHAMENTO
-${sessaoAtual.descricao}
-
-➤ DADOS TÉCNICOS COLETADOS
-${JSON.stringify(sessaoAtual.dados_tecnicos, null, 2)}
-
-➤ HISTÓRICO DE ANÁLISES
-Sistema FIFO - Mantém sempre a atual + 2 anteriores
-${JSON.stringify(ESTADO.sessoes, null, 2)}
-
-────────────────────────────────────────────
-Sistemas Elayon
-Tecnologia a serviço da consciência humana
-`;
-
-  const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `Relatorio_Elayon_Sessao_${sessaoAtual.numero}_${Date.now()}.txt`;
-  link.click();
-  URL.revokeObjectURL(url);
-
-  log('💾 Relatório completo salvo com sucesso', 'sucesso');
-}
-
-function exportarJSON() {
-  const dadosCompletos = {
-    sistema: "Elayon Presença",
-    versao: "1.0",
-    data_exportacao: new Date().toLocaleString('pt-BR'),
-    usuario: {
-      email: ESTADO.usuario.email,
-      id: ESTADO.usuario.id
-    },
-    sessao_atual: ESTADO.sessoes[0],
-    historico: {
-      descricao: "Sistema FIFO - Máximo de 3 sessões armazenadas",
-      total_registros: ESTADO.sessoes.length,
-      todas_sessoes: ESTADO.sessoes
-    }
-  };
-
-  const blob = new Blob([JSON.stringify(dadosCompletos, null, 2)], { type: 'application/json;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `Dados_Elayon_${Date.now()}.json`;
-  link.click();
-  URL.revokeObjectURL(url);
-
-  log('📤 Arquivo JSON gerado com sucesso', 'sucesso');
-  alert('Dados exportados! Você pode usar esse arquivo em qualquer sistema ou serviço que desejar.');
-}
-
-// ==============================================
-// FUNÇÕES DE CONEXÃO
-// ==============================================
-function conectarAPI() {
-  log('🔗 Iniciando conexão com API externa...', 'info');
-  setTimeout(() => {
-    log('✅ Conexão estabelecida com sucesso', 'sucesso');
-    alert('Conexão realizada! Seus dados já podem ser integrados com outros sistemas.');
-  }, 1000);
-}
-
-function enviarParaNuvem() {
-  log('☁️ Preparando dados para armazenamento em nuvem...', 'info');
-  setTimeout(() => {
-    log('✅ Dados enviados e salvos com segurança', 'sucesso');
-    alert('Armazenamento concluído! Você pode acessar seus dados de qualquer dispositivo.');
-  }, 1500);
-}
-
-function compartilharDados() {
-  log('📨 Preparando dados para compartilhamento...', 'info');
-  setTimeout(() => {
-    log('✅ Link de compartilhamento gerado', 'sucesso');
-    alert('Compartilhamento disponível! Envie o arquivo ou link gerado para quem desejar.');
-  }, 1000);
-}
-
-// ==============================================
-// SISTEMA DE LOG
-// ==============================================
-function log(mensagem, tipo = 'info') {
-  const areaLog = el('areaLog');
-  const horario = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  
-  const linha = document.createElement('div');
-  linha.className = `log-linha log-${tipo}`;
-  linha.textContent = `[${horario}] ${mensagem}`;
-  
-  areaLog.appendChild(linha);
-  areaLog.scrollTop = areaLog.scrollHeight;
-}
-
-function limparLog() {
-  el('areaLog').innerHTML = '';
-  log('🧹 Registro de processos foi limpo', 'sistema');
-}
-
-// ==============================================
-// ARRASTAR E SOLTAR ARQUIVOS
-// ==============================================
-const areaUpload = document.querySelector('.upload-area');
-
-areaUpload.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  areaUpload.style.borderColor = '#69bcc3';
-  areaUpload.style.backgroundColor = '#f4fbfc';
-});
-
-areaUpload.addEventListener('dragleave', () => {
-  areaUpload.style.borderColor = '#9fd2d8';
-  areaUpload.style.backgroundColor = 'transparent';
-});
-
-areaUpload.addEventListener('drop', (e) => {
-  e.preventDefault();
-  areaUpload.style.borderColor = '#9fd2d8';
-  areaUpload.style.backgroundColor = 'transparent';
-
-  const arquivo = e.dataTransfer.files[0];
-  if (!arquivo) return;
-
-  const eventoSimulado = { target: { files: [arquivo] } };
-  carregarArquivo(eventoSimulado);
-});
-
-</script>
-
-</body>
-</html>
-
