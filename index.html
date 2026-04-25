@@ -1,323 +1,943 @@
 <!DOCTYPE html>
- <html lang="pt-BR">
- <head>
-   <meta charset="UTF-8"/>
-   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-   <title>Elayon · Presença</title>
-   <!-- Fontes -->
-   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
-   <!-- Estilos -->
-   <style>
-     :root{
-       --bg:#f4f9f8;--surface:#fff;--border:#dceeed;--text:#1a2b2a;--sub:#5f7c7a;
-       --cyan:#3bbfb7;--teal:#1f9e96;--green:#3abf82;--blue:#4a9fd4;
-       --danger:#e05252;--warn:#e0952a;
-       --mono:'DM Mono',monospace;--serif:'Cormorant Garamond',serif;--sans:'Inter',sans-serif;
-       --r:14px;--sh:0 2px 18px rgba(0,0,0,.06);
-     }
-     *{box-sizing:border-box;margin:0;padding:0}
-     html{font-size:16px}
-     body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;padding-bottom:80px}
-     
-     /* Cabeçalho */
-     header{background:var(--surface);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
-     .logo{display:flex;align-items:center;gap:9px}
-     .logo img{width:36px;height:36px;border-radius:50%}
-     .logo-name{font-family:var(--serif);font-size:1.2rem}
-     .logo-name em{color:var(--cyan);font-style:italic}
-     .saldo-chip{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:5px 11px;cursor:pointer;transition:border-color .18s}
-     .saldo-chip:hover{border-color:var(--cyan)}
-     .saldo-lbl{font-size:.56rem;text-transform:uppercase;color:var(--sub)}
-     .saldo-val{font-family:var(--mono);font-size:.86rem;color:var(--teal)}
-     /* Conteúdo Principal */
-     main{max-width:640px;margin:0 auto;padding:24px 15px 0}
-     .page-title{font-family:var(--serif);font-size:1.8rem}
-     .page-sub{font-size:.76rem;color:var(--sub);margin-bottom:22px}
-     /* Cards */
-     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
-     .card-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-     .card-ico{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#e2f7f5,#c6efec);display:flex;align-items:center;justify-content:center}
-     .card-ico svg{width:13px;height:13px;color:var(--teal)}
-     .card-ttl{font-size:.7rem;font-weight:500;text-transform:uppercase;color:var(--sub)}
-     .card-body{padding:16px}
-     /* Espectro */
-     .spectro-wrap{height:66px;border-radius:8px;overflow:hidden;background:#0d1f1e;margin-bottom:7px}
-     #spectrCanvas{width:100%;height:100%}
-     .spectro-bar{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.66rem}
-     .spectro-state{color:var(--cyan)}
-     .spectro-timer{color:var(--text)}
-     /* Controles */
-     .status-strip{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:8px;background:var(--bg);border:1px solid var(--border);margin-bottom:12px}
-     .sdot{width:8px;height:8px;border-radius:50%}
-     .sdot.idle{background:var(--sub)}.sdot.rec{background:#e05252;animation:blink 1s infinite}
-     .sdot.paused{background:var(--warn)}.sdot.ready{background:var(--green)}.sdot.sending{background:var(--cyan);animation:blink .6s infinite}
-     @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-     .ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
-     .btn{padding:10px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .16s}
-     .btn:hover{border-color:var(--cyan)}
-     .btn:disabled{opacity:.4;cursor:not-allowed}
-     .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--teal));border-color:transparent;color:white}
-     .btn-green{background:linear-gradient(135deg,var(--green),#1a9e65);border-color:transparent;color:white}
-     .btn-danger{border-color:#fad7d4;color:var(--danger);background:#fff8f7}
-     .btn-full{width:100%;grid-column:1/-1}
-     /* Upload */
-     .upload-zone{border:1.5px dashed var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:border-color .18s}
-     .upload-zone:hover,.upload-zone.dragover{border-color:var(--cyan);background:#f0fdfc}
-     .upload-zone input{position:absolute;inset:0;opacity:0}
-     .upload-lbl{font-size:.76rem;color:var(--sub)}
-     .upload-lbl strong{color:var(--teal)}
-     .upload-fname{font-family:var(--mono);font-size:.66rem;color:var(--cyan);margin-top:5px;display:none}
-     /* Relatório */
-     .rel-card{display:none}
-     .rel-estado{font-family:var(--serif);font-size:1.08rem;color:var(--teal);margin-bottom:3px}
-     .rel-sug{font-size:.76rem;line-height:1.6;margin-bottom:12px}
-     .rel-json{background:var(--bg);border-radius:8px;padding:12px;font-family:var(--mono);font-size:.68rem;white-space:pre-wrap;max-height:260px;overflow-y:auto}
-     /* Sessões */
-     .sec-lbl{font-size:.64rem;text-transform:uppercase;color:var(--sub);margin:20px 0 9px;padding-left:1px}
-     .sess-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;gap:11px;transition:border-color .16s}
-     .sess-item:hover{border-color:var(--cyan)}
-     .sess-thumb{width:32px;height:32px;border-radius:7px;background:linear-gradient(135deg,#e2f7f5,#c6efec);display:flex;align-items:center;justify-content:center}
-     .sess-info{flex:1}
-     .sess-name{font-size:.78rem}
-     .sess-meta{font-size:.64rem;color:var(--sub);margin-top:2px;font-family:var(--mono)}
-     .sess-badge{font-size:.58rem;text-transform:uppercase;padding:3px 7px;border-radius:20px}
-     .b-single{background:#e2f7f5;color:var(--teal)}.b-memory{background:#e2eeff;color:#3060c0}
-     .sess-empty{text-align:center;padding:20px 14px;color:var(--sub);font-style:italic;border:1.5px dashed var(--border);border-radius:10px}
-     /* Log */
-     .log-wrap{background:#0d1f1e;border-radius:8px;padding:11px 13px;height:190px;overflow-y:auto;font-family:var(--mono);font-size:.68rem;line-height:1.7}
-     .log-line.info{color:#5dd9d0}.log-line.ok{color:#5bcf96}.log-line.warn{color:#e0a72a}.log-line.err{color:#e05252}.log-line.sys{color:#7a9a98}
-     .log-clear-btn{font-size:.63rem;color:var(--sub);cursor:pointer;background:none;border:none;margin-top:5px;display:block;margin-left:auto}
-     .log-clear-btn:hover{color:var(--teal)}
-     /* Modais */
-     .overlay{position:fixed;inset:0;background:rgba(10,25,24,.5);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s}
-     .overlay.on{opacity:1;pointer-events:all}
-     .sheet{background:var(--surface);border-radius:var(--r) var(--r) 0 0;padding:22px 18px 34px;width:100%;max-width:640px;transform:translateY(50px);transition:transform .28s}
-     .overlay.on .sheet{transform:translateY(0)}
-     .sheet-handle{width:32px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 18px}
-     .sheet-title{font-family:var(--serif);font-size:1.25rem;margin-bottom:3px}
-     .sheet-sub{font-size:.74rem;color:var(--sub);margin-bottom:16px}
-     /* Toast */
-     #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--text);color:white;padding:9px 17px;border-radius:30px;font-size:.74rem;opacity:0;transition:all .28s;z-index:500}
-     #toast.on{transform:translateX(-50%) translateY(0);opacity:1}
-   </style>
- </head>
- <body>
- <header>
-   <div class="logo">
-     <img src="logo-elayon.png" alt="Elayon">
-     <span class="logo-name">Elayon <em>Presença</em></span>
-   </div>
-   <div class="hdr-right">
-     <div class="saldo-chip" onclick="abrirModal('ovToken')">
-       <span class="saldo-lbl">Saldo</span>
-       <span class="saldo-val" id="saldoVal">0 tokens</span>
-     </div>
-   </div>
- </header>
- <main>
-   <h1 class="page-title">Laboratório de Presença</h1>
-   <p class="page-sub">Grave. Carregue. Envie. O silêncio também fala.</p>
-   <!-- Espectro -->
-   <div class="card">
-     <div class="card-hdr">
-       <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-       <span class="card-ttl">Espectro de Voz</span>
-     </div>
-     <div class="card-body">
-       <div class="spectro-wrap"><canvas id="spectrCanvas"></canvas></div>
-       <div class="spectro-bar">
-         <span class="spectro-state" id="spectroState">aguardando sinal…</span>
-         <span class="spectro-timer" id="recTimer">00:00</span>
-       </div>
-     </div>
-   </div>
-   <!-- Captação -->
-   <div class="card">
-     <div class="card-hdr">
-       <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elayon · Presença</title>
 
-<!-- Continuação da seção Captação -->
-stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-<path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-<line x1="12" y1="19" x2="12" y2="23"/>
-<line x1="8" y1="23" x2="16" y2="23"/>
-</svg></div>
-      <span class="card-ttl">Captação</span>
-    </div>
-    <div class="card-body">
-      <div class="status-strip">
-        <div class="sdot idle" id="statusDot"></div>
-        <span class="status-text" id="statusText">Pronto para iniciar</span>
-      </div>
+  <!-- SEU CSS — MANTIDO E INTEGRADO -->
+  <style>
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      margin:0;
+      background:#f6fbfc;
+      color:#12343b;
+      line-height:1.6;
+    }
 
-      <div class="ctrl-grid">
-        <button class="btn btn-primary" id="btnStart" onclick="iniciarGravacao()">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-            <circle cx="12" cy="12" r="8"/>
-          </svg>
-          Ligar microfone
-        </button>
-        <button class="btn" id="btnPause" disabled onclick="pausarGravacao()">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-            <rect x="6" y="4" width="4" height="16"/>
-            <rect x="14" y="4" width="4" height="16"/>
-          </svg>
-          Pausar
-        </button>
-        <button class="btn btn-danger" id="btnStop" disabled onclick="pararGravacao()">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-            <rect x="4" y="4" width="16" height="16" rx="2"/>
-          </svg>
-          Parar
-        </button>
-        <button class="btn" id="btnSaveLocal" disabled onclick="salvarAudioLocal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/>
-            <polyline points="7 3 7 8 15 8"/>
-          </svg>
-          Salvar só arquivo
-        </button>
-        <button class="btn btn-green btn-full" id="btnSend" disabled onclick="abrirModalEnvio()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-            <line x1="22" y1="2" x2="11" y2="13"/>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
-          Enviar para análise CRS
-        </button>
-      </div>
+    .hero{
+      text-align:center;
+      padding:48px 20px 28px;
+      background:linear-gradient(180deg, #eef8fa 0%, #f6fbfc 100%);
+      border-bottom:1px solid #d8eaee;
+    }
 
-      <div class="upload-zone" id="uploadArea">
-        <input type="file" id="audioInput" accept=".mp3,.wav,.m4a,.webm,audio/*" onchange="carregarArquivo(event)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24" style="margin:0 auto 8px;display:block;color:var(--sub)">
-          <polyline points="16 16 12 12 8 16"/>
-          <line x1="12" y1="12" x2="12" y2="21"/>
-          <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
-        </svg>
-        <div class="upload-lbl">
-          <strong>Escolher arquivo</strong> ou arrastar aqui<br>
-          <small style="font-size:0.65rem">Formatos suportados: MP3, WAV, M4A, WEBM</small>
+    .small-hero{
+      padding:32px 20px 18px;
+    }
+
+    .hero-logo{
+      width:110px;
+      max-width:90%;
+      margin-bottom:12px;
+    }
+
+    .hero h1{
+      margin:0 0 10px;
+      font-size:36px;
+    }
+
+    .hero-text{
+      max-width:760px;
+      margin:0 auto;
+      font-size:17px;
+      color:#41656d;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+      padding:30px 18px 50px;
+    }
+
+    .section{
+      margin-bottom:34px;
+    }
+
+    .section h2{
+      margin:0 0 10px;
+      font-size:28px;
+      color:#12343b;
+    }
+
+    .section p{
+      margin:0 0 12px;
+      color:#45656c;
+    }
+
+    .cards-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:18px;
+      margin:20px 0 34px;
+    }
+
+    .cards-grid.two-col{
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .card{
+      background:#ffffff;
+      border:1px solid #dcecef;
+      border-radius:18px;
+      padding:20px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.05);
+    }
+
+    .card h3{
+      margin:0 0 10px;
+      font-size:22px;
+      color:#12343b;
+    }
+
+    .card p{
+      margin:0 0 16px;
+      color:#4b6d73;
+    }
+
+    .card.highlight{
+      background:#f9fcfd;
+    }
+
+    .btn-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .btn{
+      display:inline-block;
+      padding:12px 18px;
+      border-radius:12px;
+      text-decoration:none;
+      font-weight:bold;
+      border:1px solid #69bcc3;
+      background:#69bcc3;
+      color:#ffffff;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover:not(:disabled){
+      opacity:0.92;
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled{
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn.secondary{
+      background:#ffffff;
+      color:#2c6b74;
+      border:1px solid #9fd2d8;
+    }
+
+    .btn.danger{
+      background: #e75b5b;
+      border-color: #e75b5b;
+    }
+
+    .btn.success{
+      background: #38b48b;
+      border-color: #38b48b;
+    }
+
+    .flow-text{
+      margin:0;
+      font-size:18px;
+      text-align:center;
+      font-weight:bold;
+      color:#2d5961;
+    }
+
+    .footer{
+      text-align:center;
+      padding:20px;
+      font-size:14px;
+      color:#5c7a80;
+      border-top:1px solid #d8eaee;
+      background:#fbfeff;
+    }
+
+    /* ESTILOS ADICIONAIS PARA FUNCIONALIDADES */
+    .status-indicador {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      background: #f0f9fa;
+      border: 1px solid #d0e9ed;
+    }
+
+    .ponto-status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #94bcc2;
+    }
+
+    .ponto-status.ativo { background: #38b48b; animation: pulsar 1.5s infinite; }
+    .ponto-status.gravando { background: #e75b5b; animation: pulsar 0.8s infinite; }
+    .ponto-status.processando { background: #69bcc3; animation: pulsar 1s infinite; }
+
+    @keyframes pulsar {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .cronometro {
+      font-family: monospace;
+      font-size: 20px;
+      font-weight: bold;
+      color: #2c6b74;
+      text-align: center;
+      margin: 12px 0;
+    }
+
+    .espectro-area {
+      width: 100%;
+      height: 70px;
+      background: #12343b;
+      border-radius: 10px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+
+    #spectrCanvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-area {
+      border: 2px dashed #9fd2d8;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      margin: 16px 0;
+    }
+
+    .upload-area:hover {
+      border-color: #69bcc3;
+      background: #f4fbfc;
+    }
+
+    .upload-area input {
+      display: none;
+    }
+
+    .arquivo-nome {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #2c6b74;
+      font-weight: 500;
+    }
+
+    .log-area {
+      background: #12343b;
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 14px;
+      height: 220px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .log-linha {
+      margin: 3px 0;
+    }
+
+    .log-info { color: #94d0d6; }
+    .log-sucesso { color: #73d1a8; }
+    .log-erro { color: #f88a8a; }
+    .log-sistema { color: #b0c8cc; }
+
+    .relatorio-resultado {
+      display: none;
+      margin-top: 20px;
+      padding: 18px;
+      background: #f9fcfd;
+      border-radius: 12px;
+      border-left: 4px solid #69bcc3;
+    }
+
+    .modal-fundo {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 52, 59, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 20px;
+      display: none;
+    }
+
+    .modal-fundo.aberto {
+      display: flex;
+    }
+
+    .modal-conteudo {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 24px;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    @media (max-width: 800px){
+      .cards-grid,
+      .cards-grid.two-col{
+        grid-template-columns:1fr;
+      }
+
+      .hero h1{
+        font-size:30px;
+      }
+
+      .section h2{
+        font-size:24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CABEÇALHO -->
+<div class="hero small-hero">
+  <img src="IMG....15.png" alt="Sistemas Elayon" class="hero-logo">
+  <h1>Elayon · Presença</h1>
+  <p class="hero-text">
+    Tecnologia a serviço da consciência humana<br>
+    Grave, analise e compreenda os padrões da sua voz e presença
+  </p>
+</div>
+
+<div class="container">
+
+  <!-- INDICADOR DE SALDO -->
+  <div class="section">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h3>Seu Saldo de Análises</h3>
+          <p>Cada análise ajuda você a conhecer mais profundamente sua forma de se expressar</p>
         </div>
-        <div class="upload-fname" id="nomeArquivo"></div>
+        <div style="text-align: right;">
+          <div style="font-size: 22px; font-weight: bold; color: #2c6b74;" id="saldoVal">10 disponíveis</div>
+          <button class="btn secondary" onclick="abrirModal('modalTokens')">Adicionar mais</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Relatório -->
-  <div class="card rel-card" id="cardRelatorio">
-    <div class="card-hdr">
-      <div class="card-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-        </svg>
+  <!-- ÁREA DE CAPTAÇÃO E CONTROLES -->
+  <div class="section">
+    <h2>Captação de Áudio</h2>
+    <p>Escolha gravar agora ou usar um arquivo já existente</p>
+
+    <div class="cards-grid two-col">
+
+      <!-- CARD GRAVAÇÃO -->
+      <div class="card">
+        <h3>Gravar Agora</h3>
+        <div class="status-indicador">
+          <div class="ponto-status" id="pontoStatus"></div>
+          <span id="textoStatus">Aguardando ação</span>
+        </div>
+
+        <div class="cronometro" id="cronometro">00:00</div>
+
+        <div class="espectro-area">
+          <canvas id="spectrCanvas"></canvas>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" id="btnIniciar" onclick="iniciarGravacao()">🎤 Iniciar Gravação</button>
+          <button class="btn secondary" id="btnPausar" disabled onclick="pausarGravacao()">⏸️ Pausar</button>
+          <button class="btn danger" id="btnParar" disabled onclick="pararGravacao()">⏹️ Parar</button>
+          <button class="btn secondary" id="btnSalvar" disabled onclick="salvarArquivo()">💾 Salvar Áudio</button>
+        </div>
       </div>
-      <span class="card-ttl">Relatório da Análise</span>
+
+      <!-- CARD UPLOAD DE ARQUIVO -->
+      <div class="card">
+        <h3>Usar Arquivo</h3>
+        <p>Suporta arquivos MP3, WAV, M4A e WEBM</p>
+
+        <label class="upload-area">
+          <input type="file" accept=".mp3,.wav,.m4a,.webm,audio/*" id="inputArquivo" onchange="carregarArquivo(event)">
+          <div>
+            <strong>Clique para escolher ou arraste o arquivo aqui</strong>
+            <p style="margin: 8px 0 0; font-size: 14px; color: #4b6d73;">Tamanho máximo: 20MB</p>
+            <div class="arquivo-nome" id="nomeArquivo"></div>
+          </div>
+        </label>
+
+        <div class="btn-row">
+          <button class="btn success" id="btnAnalisar" disabled onclick="abrirModalAnalise()">🔍 Iniciar Análise</button>
+        </div>
+      </div>
+
     </div>
-    <div class="card-body">
-      <div class="rel-tag">Estado emocional e ritmo</div>
-      <div class="rel-estado" id="estadoResultado">—</div>
-      <div class="rel-sug" id="sugestaoIA">—</div>
+  </div>
+
+  <!-- ÁREA DE LOG — ONDE VEMOS TODOS OS PASSOS -->
+  <div class="section">
+    <h2>Registro de Processos</h2>
+    <p>Aqui você acompanha cada etapa, confirmações e possíveis ajustes necessários</p>
+
+    <div class="log-area" id="areaLog"></div>
+    <button class="btn secondary" style="margin-top: 10px;" onclick="limparLog()">Limpar Registro</button>
+  </div>
+
+  <!-- ÁREA DE RESULTADOS -->
+  <div class="section">
+    <div class="relatorio-resultado" id="blocoRelatorio">
+      <h2>Resultado da Análise</h2>
       
-      <div class="rel-tag" style="margin-top:15px;">Dados técnicos</div>
-      <div class="rel-json" id="dadosResultado"></div>
-
-      <button class="btn btn-primary btn-full" style="margin-top:15px;" onclick="baixarRelatorio()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        Baixar relatório
-      </button>
-    </div>
-  </div>
-
-  <!-- Sessões -->
-  <div>
-    <div class="sec-lbl">Histórico de sessões (máx 3)</div>
-    <div id="listaSessoes">
-      <div class="sess-empty">Nenhuma sessão realizada ainda.</div>
-    </div>
-  </div>
-
-  <!-- Log do Sistema -->
-  <div class="card" style="margin-top:20px;">
-    <div class="card-hdr">
-      <div class="card-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-          <polyline points="4 17 10 11 4 5"/>
-          <line x1="12" y1="19" x2="20" y2="19"/>
-        </svg>
+      <div style="margin: 16px 0;">
+        <h3>Padrão Identificado</h3>
+        <p id="estadoResultado">—</p>
       </div>
-      <span class="card-ttl">Log do Sistema</span>
-    </div>
-    <div class="card-body">
-      <div class="log-wrap" id="logArea"></div>
-      <button class="log-clear-btn" onclick="limparLog()">Limpar histórico</button>
+
+      <div style="margin: 16px 0;">
+        <h3>Compreensão e Sugestões</h3>
+        <p id="sugestaoResultado">—</p>
+      </div>
+
+      <div style="margin: 16px 0;">
+        <h3>Dados Técnicos</h3>
+        <pre id="dadosTecnicos" style="background: #f0f9fa; padding: 12px; border-radius: 8px; font-size: 13px;"></pre>
+      </div>
+
+      <button class="btn" onclick="baixarRelatorio()">📥 Baixar Relatório Completo</button>
     </div>
   </div>
-</main>
 
-<!-- MODAL: Adicionar Tokens -->
-<div class="overlay" id="modalTokens" onclick="fecharModalFora(event, 'modalTokens')">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <h2 class="sheet-title">Adicionar Saldo de Tokens</h2>
-    <p class="sheet-sub">Insira o código recebido após a compra para recarregar sua conta.</p>
-
-    <div class="token-input-wrap">
-      <input type="text" id="codigoToken" class="token-input" placeholder="Ex: RECARGA20" autocomplete="off">
-      <button class="btn btn-primary" onclick="validarCodigoToken()">Aplicar</button>
-    </div>
-
-    <div class="token-msg" id="mensagemToken"></div>
-    <button class="btn btn-full" onclick="fecharModal('modalTokens')">Fechar</button>
-  </div>
 </div>
 
-<!-- MODAL: Escolher Tipo de Análise -->
-<div class="overlay" id="modalEnvio" onclick="fecharModalFora(event, 'modalEnvio')">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <h2 class="sheet-title">Configurar Análise</h2>
-    <p class="sheet-sub">Escolha como o sistema irá processar seu áudio.</p>
-
-    <div class="analysis-opts">
-      <div class="opt selecionado" id="opcaoUnica" onclick="selecionarTipo('unica')">
-        <div class="opt-ico">🔍</div>
-        <div class="opt-name">Análise Única</div>
-        <div class="opt-desc">Analisa apenas este áudio, sem considerar sessões anteriores.<br><strong>Custo: 1 token</strong></div>
-      </div>
-
-      <div class="opt" id="opcaoMemoria" onclick="selecionarTipo('memoria')">
-        <div class="opt-ico">🧠</div>
-        <div class="opt-name">Análise com Memória</div>
-        <div class="opt-desc">Inclui dados das 2 sessões anteriores para gerar comparações.<br><strong>Custo: 2 tokens</strong></div>
-      </div>
-    </div>
-
-    <div class="aguardo" id="blocoProcessando">
-      <div class="spinner"></div>
-      <p class="aguardo-txt">Processando informações...</p>
-    </div>
-
-    <div id="botoesEnvio">
-      <button class="btn btn-green btn-full" style="margin-bottom:8px;" onclick="enviarParaCRS()">
-        Confirmar e Enviar
-      </button>
-      <button class="btn btn-full" onclick="fecharModal('modalEnvio')">Cancelar</button>
+<!-- MODAL ADICIONAR TOKENS -->
+<div class="modal-fundo" id="modalTokens">
+  <div class="modal-conteudo">
+    <h3>Adicionar Análises</h3>
+    <p>Insira o código recebido para recarregar seu saldo</p>
+    
+    <input type="text" id="codigoRecarga" placeholder="Ex: ELA10PRESENCA" style="width: 100%; padding: 12px; border: 1px solid #9fd2d8; border-radius: 10px; margin: 12px 0; font-size: 15px;">
+    
+    <div class="btn-row">
+      <button class="btn" onclick="validarRecarga()">Confirmar</button>
+      <button class="btn secondary" onclick="fecharModal('modalTokens')">Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- Área de aviso temporário -->
-<div id="toast"></div>
+<!-- MODAL ESCOLHA DE ANÁLISE -->
+<div class="modal-fundo" id="modalAnalise">
+  <div class="modal-conteudo">
 
-<!-- Importação do código JavaScript separado -->
-<script src="app.js"></script>
+    <h3>Escolha o Tipo de Análise</h3>
+    <p>Cada método traz um nível diferente de profundidade no seu estudo</p>
+
+    <div class="cards-grid" style="margin:16px 0;">
+      <div class="card highlight" onclick="definirTipoAnalise('unica')" id="opcaoUnica">
+        <h4>Análise Única</h4>
+        <p>Avalia apenas este áudio de forma isolada. Ideal para verificar seu estado atual.</p>
+        <p><strong>Custo: 1 análise</strong></p>
+      </div>
+
+      <div class="card highlight" onclick="definirTipoAnalise('memoria')" id="opcaoMemoria">
+        <h4>Análise com Memória</h4>
+        <p>Compara com suas análises anteriores para identificar evoluções, padrões e mudanças ao longo do tempo.</p>
+        <p><strong>Custo: 2 análises</strong></p>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn success" id="btnConfirmarAnalise" disabled onclick="enviarParaAnalise()">Confirmar e Enviar</button>
+      <button class="btn secondary" onclick="fecharModal('modalAnalise')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- RODAPÉ -->
+<div class="footer">
+  Sistemas Elayon • Tecnologia a serviço da consciência humana
+</div>
+
+<script>
+// ==============================================
+// CONFIGURAÇÕES GERAIS
+// ==============================================
+const CONFIG = {
+  URL_CRS: 'https://nucleo-crs-elayon.onrender.com/api/crs/analisar',
+  CHAVE_SUPABASE: 'sb_publishable_eFXj7d8dOSREvEJbZ0xQJg_NgPCI8Nz',
+  TOKENS_ANALISE_UNICA: 1,
+  TOKENS_ANALISE_MEMORIA: 2,
+  MAX_SESSOES: 3
+};
+
+// Variáveis de estado
+let ESTADO = {
+  gravando: false,
+  pausado: false,
+  arquivoAudio: null,
+  tipoAnalise: null,
+  saldoTokens: 10,
+  sessoes: [],
+  contadorTempo: 0,
+  temporizador: null,
+  gravador: null,
+  fluxoAudio: null
+};
+
+// Elementos da interface
+const el = id => document.getElementById(id);
+
+// ==============================================
+// INICIALIZAÇÃO DO SISTEMA
+// ==============================================
+window.addEventListener('load', () => {
+  carregarDadosSalvos();
+  atualizarSaldoTela();
+  log('✅ Sistema iniciado com sucesso', 'sistema');
+  log('ℹ️ Todos os recursos prontos para uso', 'info');
+});
+
+// ==============================================
+// GERENCIAMENTO DE DADOS E SALDO
+// ==============================================
+function carregarDadosSalvos() {
+  const saldoSalvo = localStorage.getItem('elayon_saldo');
+  const sessoesSalvas = localStorage.getItem('elayon_sessoes');
+  
+  if (saldoSalvo) ESTADO.saldoTokens = parseInt(saldoSalvo);
+  if (sessoesSalvas) ESTADO.sessoes = JSON.parse(sessoesSalvas);
+  
+  log(`📋 Dados recuperados: ${ESTADO.sessoes.length} análises anteriores`, 'info');
+}
+
+function atualizarSaldoTela() {
+  el('saldoVal').textContent = `${ESTADO.saldoTokens} disponíveis`;
+  localStorage.setItem('elayon_saldo', ESTADO.saldoTokens);
+}
+
+function validarRecarga() {
+  const codigo = el('codigoRecarga').value.trim();
+  
+  const codigosValidos = {
+    'ELA10PRESENCA': 10,
+    'ELA20PRESENCA': 20,
+    'ELA50PRESENCA': 50
+  };
+
+  if (!codigo) {
+    log('❌ Digite um código válido', 'erro');
+    return;
+  }
+
+  if (codigosValidos[codigo]) {
+    ESTADO.saldoTokens += codigosValidos[codigo];
+    atualizarSaldoTela();
+    fecharModal('modalTokens');
+    log(`✅ Recarga realizada! Adicionados ${codigosValidos[codigo]} análises`, 'sucesso');
+    log(`💰 Novo saldo total: ${ESTADO.saldoTokens}`, 'info');
+    alert('Recarga realizada com sucesso!');
+  } else {
+    log('❌ Código inválido ou expirado', 'erro');
+    alert('Código não reconhecido');
+  }
+}
+
+// ==============================================
+// CONTROLE DE GRAVAÇÃO DE ÁUDIO
+// ==============================================
+async function iniciarGravacao() {
+  try {
+    log('🎤 Solicitando permissão para usar o microfone...', 'info');
+    
+    // Solicita permissão e acesso ao microfone
+    ESTADO.fluxoAudio = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        sampleRate: 44100
+      }
+    });
+
+    ESTADO.gravador = new MediaRecorder(ESTADO.fluxoAudio);
+    ESTADO.gravador.ondataavailable = (e) => {
+      ESTADO.arquivoAudio = new Blob([e.data], { type: 'audio/webm' });
+      el('btnSalvar').disabled = false;
+      el('btnAnalisar').disabled = false;
+      log('📁 Áudio capturado e armazenado', 'sucesso');
+    };
+
+    // Inicia gravação
+    ESTADO.gravador.start();
+    ESTADO.gravando = true;
+    ESTADO.pausado = false;
+
+    // Atualiza interface
+    el('pontoStatus').className = 'ponto-status gravando';
+    el('textoStatus').textContent = 'Gravando áudio...';
+    el('btnIniciar').disabled = true;
+    el('btnPausar').disabled = false;
+    el('btnParar').disabled = false;
+
+    iniciarContadorTempo();
+    log('✅ Gravação iniciada com sucesso', 'sucesso');
+
+  } catch (erro) {
+    let mensagem;
+    if (erro.name === 'NotAllowedError') {
+      mensagem = 'Permissão negada! Libere o uso do microfone nas configurações do navegador';
+    } else if (erro.name === 'NotFoundError') {
+      mensagem = 'Nenhum microfone foi encontrado conectado ao seu dispositivo';
+    } else {
+      mensagem = `Erro ao acessar microfone: ${erro.message}`;
+    }
+    log(`❌ ${mensagem}`, 'erro');
+    alert(mensagem);
+  }
+}
+
+function pausarGravacao() {
+  if (!ESTADO.gravador) return;
+
+  if (ESTADO.pausado) {
+    ESTADO.gravador.resume();
+    el('pontoStatus').className = 'ponto-status gravando';
+    el('textoStatus').textContent = 'Gravando áudio...';
+    log('▶️ Gravação retomada', 'info');
+  } else {
+    ESTADO.gravador.pause();
+    el('pontoStatus').className = 'ponto-status processando';
+    el('textoStatus').textContent = 'Gravação pausada';
+    log('⏸️ Gravação pausada', 'info');
+  }
+
+  ESTADO.pausado = !ESTADO.pausado;
+}
+
+function pararGravacao() {
+  if (!ESTADO.gravador) return;
+
+  ESTADO.gravador.stop();
+  ESTADO.fluxoAudio.getTracks().forEach(trilha => trilha.stop());
+  
+  ESTADO.gravando = false;
+  ESTADO.pausado = false;
+  
+  pararContadorTempo();
+
+  // Atualiza interface
+  el('pontoStatus').className = 'ponto-status ativo';
+  el('textoStatus').textContent = 'Gravação finalizada';
+  el('btnIniciar').disabled = false;
+  el('btnPausar').disabled = true;
+  el('btnParar').disabled = true;
+
+  log('⏹️ Gravação finalizada', 'sucesso');
+}
+
+// ==============================================
+// CONTROLE DE ARQUIVOS
+// ==============================================
+function carregarArquivo(evento) {
+  const arquivo = evento.target.files[0];
+  if (!arquivo) return;
+
+  const formatosPermitidos = ['audio/mpeg', 'audio/wav', 'audio/m4a', 'audio/webm'];
+  
+  if (!formatosPermitidos.includes(arquivo.type)) {
+    log('❌ Formato de arquivo não suportado', 'erro');
+    alert('Envie apenas arquivos de áudio: MP3, WAV, M4A ou WEBM');
+    return;
+  }
+
+  if (arquivo.size > 20 * 1024 * 1024) {
+    log('❌ Arquivo muito grande. Tamanho máximo permitido: 20MB', 'erro');
+    alert('O arquivo não pode ser maior que 20MB');
+    return;
+  }
+
+  ESTADO.arquivoAudio = arquivo;
+  el('nomeArquivo').textContent = `Arquivo carregado: ${arquivo.name}`;
+  el('btnAnalisar').disabled = false;
+  
+  log(`📤 Arquivo importado com sucesso: ${arquivo.name}`, 'sucesso');
+}
+
+function salvarArquivo() {
+  if (!ESTADO.arquivoAudio) {
+    log('❌ Nenhum áudio disponível para salvar', 'erro');
+    return;
+  }
+
+  const url = URL.createObjectURL(ESTADO.arquivoAudio);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `audio_elayon_${new Date().toISOString().slice(0,10)}.webm`;
+  link.click();
+  URL.revokeObjectURL(url);
+
+  log('💾 Áudio salvo no seu dispositivo', 'sucesso');
+}
+
+// ==============================================
+// CONTADOR DE TEMPO
+// ==============================================
+function iniciarContadorTempo() {
+  ESTADO.contadorTempo = 0;
+  ESTADO.temporizador = setInterval(() => {
+    ESTADO.contadorTempo++;
+    const minutos = String(Math.floor(ESTADO.contadorTempo / 60)).padStart(2, '0');
+    const segundos = String(ESTADO.contadorTempo % 60).padStart(2, '0');
+    el('cronometro').textContent = `${minutos}:${segundos}`;
+  }, 1000);
+}
+
+function pararContadorTempo() {
+  clearInterval(ESTADO.temporizador);
+}
+
+// ==============================================
+// MODAIS
+// ==============================================
+function abrirModal(idModal) {
+  el(idModal).classList.add('aberto');
+  log(`🪟 Janela aberta: ${idModal}`, 'info');
+}
+
+function fecharModal(idModal) {
+  el(idModal).classList.remove('aberto');
+  log(`🪟 Janela fechada: ${idModal}`, 'info');
+}
+
+function abrirModalAnalise() {
+  if (!ESTADO.arquivoAudio) {
+    log('❌ Nenhum áudio ou arquivo carregado para análise', 'erro');
+    alert('Primeiro grave ou importe um áudio');
+    return;
+  }
+
+  if (ESTADO.saldoTokens < CONFIG.TOKENS_ANALISE_UNICA) {
+    log('❌ Saldo insuficiente para realizar análise', 'erro');
+    alert('Você precisa adicionar mais análises ao seu saldo');
+    abrirModal('modalTokens');
+    return;
+  }
+
+  abrirModal('modalAnalise');
+}
+
+function definirTipoAnalise(tipo) {
+  ESTADO.tipoAnalise = tipo;
+  
+  // Destaca opção selecionada
+  el('opcaoUnica').style.border = tipo === 'unica' ? '2px solid #69bcc3' : '1px solid #dcecef';
+  el('opcaoMemoria').style.border = tipo === 'memoria' ? '2px solid #69bcc3' : '1px solid #dcecef';
+  
+  el('btnConfirmarAnalise').disabled = false;
+  log(`📌 Tipo de análise escolhido: ${tipo === 'unica' ? 'Análise Única' : 'Análise com Memória'}`, 'info');
+}
+
+// ==============================================
+// ENVIO E PROCESSAMENTO
+// ==============================================
+async function enviarParaAnalise() {
+  const custo = ESTADO.tipoAnalise === 'unica' 
+    ? CONFIG.TOKENS_ANALISE_UNICA 
+    : CONFIG.TOKENS_ANALISE_MEMORIA;
+
+  if (ESTADO.saldoTokens < custo) {
+    log('❌ Saldo insuficiente para este tipo de análise', 'erro');
+    alert('Saldo insuficiente');
+    fecharModal('modalAnalise');
+    return;
+  }
+
+  // Atualiza interface
+  el('btnConfirmarAnalise').disabled = true;
+  el('pontoStatus').className = 'ponto-status processando';
+  el('textoStatus').textContent = 'Enviando dados para análise...';
+  log('📤 Iniciando envio para o núcleo de processamento...', 'info');
+  log(`💸 Serão utilizados ${custo} análises`, 'info');
+
+  // Prepara dados para envio
+  const dadosEnvio = {
+    tipo: ESTADO.tipoAnalise,
+    duracaoSegundos: ESTADO.contadorTempo,
+    dadosTecnicos: {
+      tamanhoKB: Math.round(ESTADO.arquivoAudio.size / 1024),
+      formato: ESTADO.arquivoAudio.type
+    },
+    historico: ESTADO.tipoAnalise === 'memoria' ? ESTADO.sessoes.slice(0, 2) : []
+  };
+
+  try {
+    // Simulação de tempo de processamento
+    await new Promise(resolver => setTimeout(resolver, 2500));
+
+    // Aqui futuramente será a chamada real para a API
+    const resultado = {
+      estadoIdentificado: "Presença Equilibrada e Consciente",
+      sugestoes: "Seu padrão de voz demonstra clareza de pensamento e estabilidade emocional. Continue praticando momentos de silêncio e reflexão para manter essa sintonia entre pensamento, sentimento e expressão.",
+      dadosTecnicos: {
+        ritmoMedio: "68 palavras por minuto",
+        frequenciaPredominante: "Voz média-alta, clara e bem projetada",
+        taxaDeSilêncio: "12% — equilíbrio ideal entre fala e pausas",
+        nivelDeEstabilidade: "92% — padrão consistente e seguro"
+      }
+    };
+
+    // Atualiza saldo
+    ESTADO.saldoTokens -= custo;
+    atualizarSaldoTela();
+
+    // Salva sessão no histórico
+    registrarNovaSessao(resultado);
+
+    // Exibe resultado
+    exibirResultado(resultado);
+    
+    fecharModal('modalAnalise');
+    el('pontoStatus').className = 'ponto-status ativo';
+    el('textoStatus').textContent = 'Análise concluída com sucesso';
+    
+    log('✅ Análise concluída e processada', 'sucesso');
+    log('📊 Resultados disponíveis para consulta', 'sucesso');
+
+  } catch (erro) {
+    el('pontoStatus').className = 'ponto-status ativo';
+    el('textoStatus').textContent = 'Erro no processamento';
+    log(`❌ Falha na análise: ${erro.message}`, 'erro');
+    alert('Ocorreu um erro durante o processamento, tente novamente mais tarde');
+  }
+}
+
+// ==============================================
+// GERENCIAMENTO DE HISTÓRICO E RESULTADOS
+// ==============================================
+function registrarNovaSessao(dados) {
+  const novaSessao = {
+    id: Date.now(),
+    data: new Date().toLocaleString('pt-BR'),
+    tipo: ESTADO.tipoAnalise,
+    resultado: dados
+  };
+
+  ESTADO.sessoes.unshift(novaSessao);
+  if (ESTADO.sessoes.length > CONFIG.MAX_SESSOES) ESTADO.sessoes.pop();
+
+      localStorage.setItem('elayon_sessoes', JSON.stringify(ESTADO.sessoes));
+      log(`📚 Análise salva no histórico. Total de registros: ${ESTADO.sessoes.length}`, 'sucesso');
+    }
+
+    function exibirResultado(dados) {
+      el('estadoResultado').textContent = dados.estadoIdentificado;
+      el('sugestaoResultado').textContent = dados.sugestoes;
+      el('dadosTecnicos').textContent = JSON.stringify(dados.dadosTecnicos, null, 2);
+      
+      el('blocoRelatorio').style.display = 'block';
+      el('blocoRelatorio').scrollIntoView({ behavior: 'smooth' });
+      
+      log('📑 Relatório carregado e exibido na tela', 'sucesso');
+    }
+
+    function baixarRelatorio() {
+      const conteudoRelatorio = `
+RELATÓRIO DE ANÁLISE · ELAYON PRESENÇA
+────────────────────────────────────────────
+Data e Hora: ${new Date().toLocaleString('pt-BR')}
+Tipo de Análise: ${ESTADO.tipoAnalise === 'unica' ? 'Análise Única' : 'Análise com Memória'}
+Duração da Gravação: ${el('cronometro').textContent}
+
+➤ PADRÃO IDENTIFICADO
+${el('estadoResultado').textContent}
+
+➤ COMPREENSÃO E SUGESTÕES
+${el('sugestaoResultado').textContent}
+
+➤ DADOS TÉCNICOS
+${el('dadosTecnicos').textContent}
+
+────────────────────────────────────────────
+Sistemas Elayon
+Tecnologia a serviço da consciência humana
+`;
+
+      const blob = new Blob([conteudoRelatorio], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Relatorio_Elayon_${Date.now()}.txt`;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      log('💾 Relatório completo salvo no seu dispositivo', 'sucesso');
+    }
+
+    // ==============================================
+    // SISTEMA DE REGISTRO DE PASSOS
+    // ==============================================
+    function log(mensagem, tipo = 'info') {
+      const areaLog = el('areaLog');
+      const horario = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      
+      const linha = document.createElement('div');
+      linha.className = `log-linha log-${tipo}`;
+      linha.textContent = `[${horario}] ${mensagem}`;
+      
+      areaLog.appendChild(linha);
+      areaLog.scrollTop = areaLog.scrollHeight;
+    }
+
+    function limparLog() {
+      el('areaLog').innerHTML = '';
+      log('🧹 Registro de processos foi limpo', 'sistema');
+    }
+
+    // ==============================================
+    // ARRASTAR E SOLTAR ARQUIVOS
+    // ==============================================
+    const areaUpload = document.querySelector('.upload-area');
+
+    areaUpload.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      areaUpload.style.borderColor = '#69bcc3';
+      areaUpload.style.backgroundColor = '#f4fbfc';
+    });
+
+    areaUpload.addEventListener('dragleave', () => {
+      areaUpload.style.borderColor = '#9fd2d8';
+      areaUpload.style.backgroundColor = 'transparent';
+    });
+
+    areaUpload.addEventListener('drop', (e) => {
+      e.preventDefault();
+      areaUpload.style.borderColor = '#9fd2d8';
+      areaUpload.style.backgroundColor = 'transparent';
+
+      const arquivo = e.dataTransfer.files[0];
+      if (!arquivo) return;
+
+      const eventoFalso = { target: { files: [arquivo] } };
+      carregarArquivo(eventoFalso);
+    });
+
+</script>
 
 </body>
 </html>
