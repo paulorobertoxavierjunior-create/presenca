@@ -1,689 +1,323 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Elayon · Presença</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
-<style>
-:root{
-  --bg:#f4f9f8;--surface:#fff;--border:#dceeed;--text:#1a2b2a;--sub:#5f7c7a;
-  --cyan:#3bbfb7;--teal:#1f9e96;--green:#3abf82;--blue:#4a9fd4;
-  --danger:#e05252;--warn:#e0952a;
-  --mono:'DM Mono',monospace;--serif:'Cormorant Garamond',Georgia,serif;--sans:'Inter',sans-serif;
-  --r:14px;--sh:0 2px 18px rgba(0,0,0,.06);
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;min-height:100vh;padding-bottom:80px}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
-.logo{display:flex;align-items:center;gap:9px}
-.logo img{width:36px;height:36px;object-fit:contain;border-radius:50%}
-.logo-fb{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--teal));display:none;align-items:center;justify-content:center;flex-shrink:0}
-.logo-fb svg{width:18px;height:18px}
-.logo-name{font-family:var(--serif);font-size:1.2rem;font-weight:400;letter-spacing:.02em}
-.logo-name em{color:var(--cyan);font-style:italic}
-.hdr-right{display:flex;align-items:center;gap:8px}
-.saldo-chip{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:5px 11px;display:flex;flex-direction:column;align-items:flex-end;cursor:pointer;transition:border-color .18s}
-.saldo-chip:hover{border-color:var(--cyan)}
-.saldo-lbl{font-size:.56rem;text-transform:uppercase;letter-spacing:.1em;color:var(--sub)}
-.saldo-val{font-family:var(--mono);font-size:.86rem;color:var(--teal);font-weight:400}
-main{max-width:640px;margin:0 auto;padding:24px 15px 0}
-.page-title{font-family:var(--serif);font-size:1.8rem;font-weight:300;margin-bottom:2px}
-.page-sub{font-size:.76rem;color:var(--sub);margin-bottom:22px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
-.card-hdr{padding:12px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.card-ico{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#e2f7f5,#c6efec);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.card-ico svg{width:13px;height:13px;color:var(--teal)}
-.card-ttl{font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--sub)}
-.card-body{padding:16px}
-.spectro-wrap{height:66px;border-radius:8px;overflow:hidden;background:#0d1f1e;margin-bottom:7px;position:relative}
-#spectrCanvas{width:100%;height:100%;display:block}
-.spectro-bar{display:flex;justify-content:space-between;align-items:center}
-.spectro-state{font-family:var(--mono);font-size:.66rem;color:var(--cyan);letter-spacing:.06em}
-.spectro-timer{font-family:var(--mono);font-size:.88rem;color:var(--text);letter-spacing:.1em}
-.status-strip{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:8px;background:var(--bg);border:1px solid var(--border);margin-bottom:12px}
-.sdot{width:8px;height:8px;border-radius:50%;background:var(--sub);flex-shrink:0;transition:background .3s}
-.sdot.idle{background:var(--sub)}.sdot.rec{background:#e05252;animation:blink 1.1s infinite}
-.sdot.paused{background:var(--warn)}.sdot.ready{background:var(--green)}
-.sdot.sending{background:var(--cyan);animation:blink .6s infinite}
-.sdot.done{background:var(--green)}.sdot.err{background:var(--danger)}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
-.stxt{font-size:.76rem;color:var(--sub);font-weight:300}
-.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--sans);font-size:.78rem;font-weight:400;cursor:pointer;transition:all .16s ease;-webkit-tap-highlight-color:transparent}
-.btn svg{width:14px;height:14px;flex-shrink:0}
-.btn:hover{border-color:var(--cyan);color:var(--teal)}
-.btn:active{transform:scale(.97)}
-.btn:disabled{opacity:.38;cursor:not-allowed;transform:none}
-.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--teal));border-color:transparent;color:#fff;font-weight:500}
-.btn-primary:hover{filter:brightness(1.07);border-color:transparent;color:#fff}
-.btn-green{background:linear-gradient(135deg,var(--green),#1a9e65);border-color:transparent;color:#fff;font-weight:500}
-.btn-green:hover{filter:brightness(1.07);border-color:transparent;color:#fff}
-.btn-danger{border-color:#fad7d4;color:var(--danger);background:#fff8f7}
-.btn-danger:hover{background:#faeae8;border-color:var(--danger);color:var(--danger)}
-.btn-full{width:100%}
-.ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
-.col2{grid-column:1/-1}
-.upload-zone{border:1.5px dashed var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:border-color .18s,background .18s;position:relative}
-.upload-zone:hover,.upload-zone.dragover{border-color:var(--cyan);background:#f0fdfc}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
-.upload-lbl{font-size:.76rem;color:var(--sub)}
-.upload-lbl strong{color:var(--teal);font-weight:400}
-.upload-fname{margin-top:5px;font-family:var(--mono);font-size:.66rem;color:var(--cyan);display:none}
-.rel-card{display:none}
-.rel-estado{font-family:var(--serif);font-size:1.08rem;font-weight:400;color:var(--teal);margin-bottom:3px}
-.rel-sug{font-size:.76rem;color:var(--text);font-weight:300;line-height:1.6;margin-bottom:12px}
-.rel-tag{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--sub);margin-bottom:5px}
-.rel-json{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:var(--mono);font-size:.68rem;line-height:1.75;color:var(--text);white-space:pre-wrap;max-height:260px;overflow-y:auto}
-.sec-lbl{font-size:.64rem;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:var(--sub);margin-bottom:9px;padding-left:1px}
-.sess-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;gap:11px;-webkit-tap-highlight-color:transparent;transition:border-color .16s}
-.sess-item:hover{border-color:var(--cyan)}
-.sess-thumb{width:32px;height:32px;border-radius:7px;background:linear-gradient(135deg,#e2f7f5,#c6efec);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sess-thumb svg{width:15px;height:15px;color:var(--teal)}
-.sess-info{flex:1;min-width:0}
-.sess-name{font-size:.78rem;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sess-meta{font-size:.64rem;color:var(--sub);margin-top:2px;font-family:var(--mono)}
-.sess-badge{font-size:.58rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;padding:3px 7px;border-radius:20px;flex-shrink:0}
-.b-single{background:#e2f7f5;color:var(--teal)}.b-memory{background:#e2eeff;color:#3060c0}
-.sess-empty{text-align:center;padding:20px 14px;color:var(--sub);font-size:.78rem;font-style:italic;font-family:var(--serif);border:1.5px dashed var(--border);border-radius:10px}
-.log-wrap{background:#0d1f1e;border-radius:8px;padding:11px 13px;height:190px;overflow-y:auto;font-family:var(--mono);font-size:.68rem;line-height:1.7}
-.log-wrap::-webkit-scrollbar{width:3px}
-.log-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.log-line.info{color:#5dd9d0}.log-line.ok{color:#5bcf96}.log-line.warn{color:#e0a72a}
-.log-line.err{color:#e05252}.log-line.data{color:#8eb8ff}.log-line.sys{color:#7a9a98}
-.log-actions{display:flex;justify-content:flex-end;margin-top:5px}
-.log-clear-btn{font-size:.63rem;color:var(--sub);cursor:pointer;background:none;border:none;font-family:var(--sans)}
-.log-clear-btn:hover{color:var(--teal)}
-.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border) 20%,var(--border) 80%,transparent);margin:13px 0}
-.overlay{position:fixed;inset:0;background:rgba(10,25,24,.5);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s}
-.overlay.on{opacity:1;pointer-events:all}
-.sheet{background:var(--surface);border-radius:var(--r) var(--r) 0 0;padding:22px 18px 34px;width:100%;max-width:640px;transform:translateY(50px);transition:transform .28s cubic-bezier(.32,1,.36,1);border-top:1px solid var(--border)}
-.overlay.on .sheet{transform:translateY(0)}
-.sheet-handle{width:32px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 18px}
-.sheet-title{font-family:var(--serif);font-size:1.25rem;font-weight:400;margin-bottom:3px}
-.sheet-sub{font-size:.74rem;color:var(--sub);margin-bottom:16px;font-weight:300}
-.token-input-wrap{display:flex;gap:7px;margin-bottom:12px}
-.token-input{flex:1;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--mono);font-size:.88rem;color:var(--text);background:var(--bg);outline:none;transition:border-color .18s}
-.token-input:focus{border-color:var(--cyan)}
-.token-msg{font-size:.74rem;padding:7px 11px;border-radius:8px;display:none;margin-bottom:9px;font-weight:300}
-.token-msg.ok{background:#e6faf3;color:#1a7a51;display:block}
-.token-msg.err{background:#faeae8;color:var(--danger);display:block}
-.analysis-opts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
-.opt{border:2px solid var(--border);border-radius:11px;padding:14px 12px;cursor:pointer;transition:border-color .16s,background .16s;-webkit-tap-highlight-color:transparent}
-.opt:hover{border-color:var(--cyan);background:#f0fdfc}
-.opt.sel{border-color:var(--cyan);background:#e4f9f7}
-.opt-ico{font-size:1.2rem;margin-bottom:5px}
-.opt-name{font-size:.8rem;font-weight:500;margin-bottom:2px}
-.opt-desc{font-size:.66rem;color:var(--sub);line-height:1.5;font-weight:300}
-.cost-row{display:flex;justify-content:space-between;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 13px;margin-bottom:14px}
-.cost-lbl{font-size:.74rem;color:var(--sub)}.cost-val{font-family:var(--mono);font-size:.8rem;color:var(--teal)}
-.aguardo{text-align:center;padding:18px 0 4px;display:none}
-.aguardo.on{display:block}
-.spinner{width:34px;height:34px;border:2.5px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .85s linear infinite;margin:0 auto 11px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.aguardo-txt{font-family:var(--serif);font-size:.96rem;font-weight:300;font-style:italic;color:var(--sub)}
-.aguardo-sub{font-size:.66rem;font-family:var(--mono);color:var(--cyan);margin-top:3px;letter-spacing:.08em}
-#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--text);color:#fff;padding:9px 17px;border-radius:30px;font-size:.74rem;white-space:nowrap;z-index:500;transition:transform .28s cubic-bezier(.32,1,.36,1),opacity .28s;opacity:0}
-#toast.on{transform:translateX(-50%) translateY(0);opacity:1}
-</style>
-</head>
-<body>
+ <html lang="pt-BR">
+ <head>
+   <meta charset="UTF-8"/>
+   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   <title>Elayon · Presença</title>
+   <!-- Fontes -->
+   <link rel="preconnect" href="https://fonts.googleapis.com"/>
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+   <!-- Estilos -->
+   <style>
+     :root{
+       --bg:#f4f9f8;--surface:#fff;--border:#dceeed;--text:#1a2b2a;--sub:#5f7c7a;
+       --cyan:#3bbfb7;--teal:#1f9e96;--green:#3abf82;--blue:#4a9fd4;
+       --danger:#e05252;--warn:#e0952a;
+       --mono:'DM Mono',monospace;--serif:'Cormorant Garamond',serif;--sans:'Inter',sans-serif;
+       --r:14px;--sh:0 2px 18px rgba(0,0,0,.06);
+     }
+     *{box-sizing:border-box;margin:0;padding:0}
+     html{font-size:16px}
+     body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;padding-bottom:80px}
+     
+     /* Cabeçalho */
+     header{background:var(--surface);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+     .logo{display:flex;align-items:center;gap:9px}
+     .logo img{width:36px;height:36px;border-radius:50%}
+     .logo-name{font-family:var(--serif);font-size:1.2rem}
+     .logo-name em{color:var(--cyan);font-style:italic}
+     .saldo-chip{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:5px 11px;cursor:pointer;transition:border-color .18s}
+     .saldo-chip:hover{border-color:var(--cyan)}
+     .saldo-lbl{font-size:.56rem;text-transform:uppercase;color:var(--sub)}
+     .saldo-val{font-family:var(--mono);font-size:.86rem;color:var(--teal)}
+     /* Conteúdo Principal */
+     main{max-width:640px;margin:0 auto;padding:24px 15px 0}
+     .page-title{font-family:var(--serif);font-size:1.8rem}
+     .page-sub{font-size:.76rem;color:var(--sub);margin-bottom:22px}
+     /* Cards */
+     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
+     .card-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+     .card-ico{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#e2f7f5,#c6efec);display:flex;align-items:center;justify-content:center}
+     .card-ico svg{width:13px;height:13px;color:var(--teal)}
+     .card-ttl{font-size:.7rem;font-weight:500;text-transform:uppercase;color:var(--sub)}
+     .card-body{padding:16px}
+     /* Espectro */
+     .spectro-wrap{height:66px;border-radius:8px;overflow:hidden;background:#0d1f1e;margin-bottom:7px}
+     #spectrCanvas{width:100%;height:100%}
+     .spectro-bar{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.66rem}
+     .spectro-state{color:var(--cyan)}
+     .spectro-timer{color:var(--text)}
+     /* Controles */
+     .status-strip{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:8px;background:var(--bg);border:1px solid var(--border);margin-bottom:12px}
+     .sdot{width:8px;height:8px;border-radius:50%}
+     .sdot.idle{background:var(--sub)}.sdot.rec{background:#e05252;animation:blink 1s infinite}
+     .sdot.paused{background:var(--warn)}.sdot.ready{background:var(--green)}.sdot.sending{background:var(--cyan);animation:blink .6s infinite}
+     @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+     .ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
+     .btn{padding:10px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .16s}
+     .btn:hover{border-color:var(--cyan)}
+     .btn:disabled{opacity:.4;cursor:not-allowed}
+     .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--teal));border-color:transparent;color:white}
+     .btn-green{background:linear-gradient(135deg,var(--green),#1a9e65);border-color:transparent;color:white}
+     .btn-danger{border-color:#fad7d4;color:var(--danger);background:#fff8f7}
+     .btn-full{width:100%;grid-column:1/-1}
+     /* Upload */
+     .upload-zone{border:1.5px dashed var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:border-color .18s}
+     .upload-zone:hover,.upload-zone.dragover{border-color:var(--cyan);background:#f0fdfc}
+     .upload-zone input{position:absolute;inset:0;opacity:0}
+     .upload-lbl{font-size:.76rem;color:var(--sub)}
+     .upload-lbl strong{color:var(--teal)}
+     .upload-fname{font-family:var(--mono);font-size:.66rem;color:var(--cyan);margin-top:5px;display:none}
+     /* Relatório */
+     .rel-card{display:none}
+     .rel-estado{font-family:var(--serif);font-size:1.08rem;color:var(--teal);margin-bottom:3px}
+     .rel-sug{font-size:.76rem;line-height:1.6;margin-bottom:12px}
+     .rel-json{background:var(--bg);border-radius:8px;padding:12px;font-family:var(--mono);font-size:.68rem;white-space:pre-wrap;max-height:260px;overflow-y:auto}
+     /* Sessões */
+     .sec-lbl{font-size:.64rem;text-transform:uppercase;color:var(--sub);margin:20px 0 9px;padding-left:1px}
+     .sess-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;gap:11px;transition:border-color .16s}
+     .sess-item:hover{border-color:var(--cyan)}
+     .sess-thumb{width:32px;height:32px;border-radius:7px;background:linear-gradient(135deg,#e2f7f5,#c6efec);display:flex;align-items:center;justify-content:center}
+     .sess-info{flex:1}
+     .sess-name{font-size:.78rem}
+     .sess-meta{font-size:.64rem;color:var(--sub);margin-top:2px;font-family:var(--mono)}
+     .sess-badge{font-size:.58rem;text-transform:uppercase;padding:3px 7px;border-radius:20px}
+     .b-single{background:#e2f7f5;color:var(--teal)}.b-memory{background:#e2eeff;color:#3060c0}
+     .sess-empty{text-align:center;padding:20px 14px;color:var(--sub);font-style:italic;border:1.5px dashed var(--border);border-radius:10px}
+     /* Log */
+     .log-wrap{background:#0d1f1e;border-radius:8px;padding:11px 13px;height:190px;overflow-y:auto;font-family:var(--mono);font-size:.68rem;line-height:1.7}
+     .log-line.info{color:#5dd9d0}.log-line.ok{color:#5bcf96}.log-line.warn{color:#e0a72a}.log-line.err{color:#e05252}.log-line.sys{color:#7a9a98}
+     .log-clear-btn{font-size:.63rem;color:var(--sub);cursor:pointer;background:none;border:none;margin-top:5px;display:block;margin-left:auto}
+     .log-clear-btn:hover{color:var(--teal)}
+     /* Modais */
+     .overlay{position:fixed;inset:0;background:rgba(10,25,24,.5);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s}
+     .overlay.on{opacity:1;pointer-events:all}
+     .sheet{background:var(--surface);border-radius:var(--r) var(--r) 0 0;padding:22px 18px 34px;width:100%;max-width:640px;transform:translateY(50px);transition:transform .28s}
+     .overlay.on .sheet{transform:translateY(0)}
+     .sheet-handle{width:32px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 18px}
+     .sheet-title{font-family:var(--serif);font-size:1.25rem;margin-bottom:3px}
+     .sheet-sub{font-size:.74rem;color:var(--sub);margin-bottom:16px}
+     /* Toast */
+     #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--text);color:white;padding:9px 17px;border-radius:30px;font-size:.74rem;opacity:0;transition:all .28s;z-index:500}
+     #toast.on{transform:translateX(-50%) translateY(0);opacity:1}
+   </style>
+ </head>
+ <body>
+ <header>
+   <div class="logo">
+     <img src="logo-elayon.png" alt="Elayon">
+     <span class="logo-name">Elayon <em>Presença</em></span>
+   </div>
+   <div class="hdr-right">
+     <div class="saldo-chip" onclick="abrirModal('ovToken')">
+       <span class="saldo-lbl">Saldo</span>
+       <span class="saldo-val" id="saldoVal">0 tokens</span>
+     </div>
+   </div>
+ </header>
+ <main>
+   <h1 class="page-title">Laboratório de Presença</h1>
+   <p class="page-sub">Grave. Carregue. Envie. O silêncio também fala.</p>
+   <!-- Espectro -->
+   <div class="card">
+     <div class="card-hdr">
+       <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+       <span class="card-ttl">Espectro de Voz</span>
+     </div>
+     <div class="card-body">
+       <div class="spectro-wrap"><canvas id="spectrCanvas"></canvas></div>
+       <div class="spectro-bar">
+         <span class="spectro-state" id="spectroState">aguardando sinal…</span>
+         <span class="spectro-timer" id="recTimer">00:00</span>
+       </div>
+     </div>
+   </div>
+   <!-- Captação -->
+   <div class="card">
+     <div class="card-hdr">
+       <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 
-<header>
-  <div class="logo">
-    <img src="IMG-20260218-WA0015.jpg" alt="Elayon"
-         onerror="this.style.display='none';document.getElementById('lFb').style.display='flex'"/>
-    <div class="logo-fb" id="lFb">
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-        <circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 11l-2 4M16 11l2 4"/><path d="M6 19h12"/>
-      </svg>
-    </div>
-    <span class="logo-name">Elayon <em>Presença</em></span>
-  </div>
-  <div class="hdr-right">
-    <div class="saldo-chip" onclick="abrirToken()" title="Adicionar tokens">
-      <span class="saldo-lbl">Saldo</span>
-      <span class="saldo-val" id="saldoVal">10 tokens</span>
-    </div>
-  </div>
-</header>
-
-<main>
-  <h1 class="page-title">Laboratório de Presença</h1>
-  <p class="page-sub">Grave. Carregue. Envie. O silêncio também fala.</p>
-
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-      <span class="card-ttl">Espectro de Voz</span>
-    </div>
-    <div class="card-body" style="padding-bottom:14px">
-      <div class="spectro-wrap"><canvas id="spectrCanvas"></canvas></div>
-      <div class="spectro-bar">
-        <span class="spectro-state" id="spectroState">aguardando sinal…</span>
-        <span class="spectro-timer" id="recTimer">00:00</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div>
+<!-- Continuação da seção Captação -->
+stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+<path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+<line x1="12" y1="19" x2="12" y2="23"/>
+<line x1="8" y1="23" x2="16" y2="23"/>
+</svg></div>
       <span class="card-ttl">Captação</span>
     </div>
     <div class="card-body">
       <div class="status-strip">
-        <div class="sdot idle" id="sdot"></div>
-        <span class="stxt" id="stxt">Pronto para iniciar</span>
+        <div class="sdot idle" id="statusDot"></div>
+        <span class="status-text" id="statusText">Pronto para iniciar</span>
       </div>
+
       <div class="ctrl-grid">
-        <button class="btn btn-primary" id="btnLigar" onclick="iniciarGravacao()">
-          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>Ligar mic
+        <button class="btn btn-primary" id="btnStart" onclick="iniciarGravacao()">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+            <circle cx="12" cy="12" r="8"/>
+          </svg>
+          Ligar microfone
         </button>
-        <button class="btn" id="btnPausa" disabled onclick="pausarGravacao()">
-          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>Pausar
+        <button class="btn" id="btnPause" disabled onclick="pausarGravacao()">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+            <rect x="6" y="4" width="4" height="16"/>
+            <rect x="14" y="4" width="4" height="16"/>
+          </svg>
+          Pausar
         </button>
         <button class="btn btn-danger" id="btnStop" disabled onclick="pararGravacao()">
-          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>Stop
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+          </svg>
+          Parar
         </button>
-        <button class="btn" id="btnSalvar" disabled onclick="salvarLocal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Só salvar
+        <button class="btn" id="btnSaveLocal" disabled onclick="salvarAudioLocal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Salvar só arquivo
         </button>
-        <button class="btn btn-green col2" id="btnEnviar" disabled onclick="abrirEnvio()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <button class="btn btn-green btn-full" id="btnSend" disabled onclick="abrirModalEnvio()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
           Enviar para análise CRS
         </button>
       </div>
-      <div class="divider"></div>
-      <div class="upload-zone" id="uploadZone">
-        <input type="file" id="audioUpload" accept="audio/*" onchange="handleUpload(event)"/>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24" style="margin:0 auto 6px;display:block;color:var(--sub)"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-        <div class="upload-lbl"><strong>Escolher arquivo</strong> ou arrastar aqui · mp3 · wav · m4a · webm</div>
-        <div class="upload-fname" id="uploadFname"></div>
+
+      <div class="upload-zone" id="uploadArea">
+        <input type="file" id="audioInput" accept=".mp3,.wav,.m4a,.webm,audio/*" onchange="carregarArquivo(event)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24" style="margin:0 auto 8px;display:block;color:var(--sub)">
+          <polyline points="16 16 12 12 8 16"/>
+          <line x1="12" y1="12" x2="12" y2="21"/>
+          <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+        </svg>
+        <div class="upload-lbl">
+          <strong>Escolher arquivo</strong> ou arrastar aqui<br>
+          <small style="font-size:0.65rem">Formatos suportados: MP3, WAV, M4A, WEBM</small>
+        </div>
+        <div class="upload-fname" id="nomeArquivo"></div>
       </div>
     </div>
   </div>
 
-  <div class="card rel-card" id="relCard">
+  <!-- Relatório -->
+  <div class="card rel-card" id="cardRelatorio">
     <div class="card-hdr">
-      <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-      <span class="card-ttl">Relatório CRS</span>
+      <div class="card-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+      </div>
+      <span class="card-ttl">Relatório da Análise</span>
     </div>
     <div class="card-body">
-      <div class="rel-tag">Estado identificado</div>
-      <div class="rel-estado" id="relEstado">—</div>
-      <div class="rel-sug" id="relSug">—</div>
-      <div class="rel-tag">Dados da sessão</div>
-      <div class="rel-json" id="relJSON"></div>
+      <div class="rel-tag">Estado emocional e ritmo</div>
+      <div class="rel-estado" id="estadoResultado">—</div>
+      <div class="rel-sug" id="sugestaoIA">—</div>
+      
+      <div class="rel-tag" style="margin-top:15px;">Dados técnicos</div>
+      <div class="rel-json" id="dadosResultado"></div>
+
+      <button class="btn btn-primary btn-full" style="margin-top:15px;" onclick="baixarRelatorio()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Baixar relatório
+      </button>
     </div>
   </div>
 
-  <div style="margin-top:6px">
-    <div class="sec-lbl">Sessões · FIFO (máx 3)</div>
-    <div id="sessoesList"><div class="sess-empty">Nenhuma sessão ainda.</div></div>
+  <!-- Sessões -->
+  <div>
+    <div class="sec-lbl">Histórico de sessões (máx 3)</div>
+    <div id="listaSessoes">
+      <div class="sess-empty">Nenhuma sessão realizada ainda.</div>
+    </div>
   </div>
 
-  <div class="card" style="margin-top:14px">
+  <!-- Log do Sistema -->
+  <div class="card" style="margin-top:20px;">
     <div class="card-hdr">
-      <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+      <div class="card-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <polyline points="4 17 10 11 4 5"/>
+          <line x1="12" y1="19" x2="20" y2="19"/>
+        </svg>
+      </div>
       <span class="card-ttl">Log do Sistema</span>
     </div>
-    <div class="card-body" style="padding-bottom:8px">
-      <div class="log-wrap" id="logBox"></div>
-      <div class="log-actions"><button class="log-clear-btn" onclick="limparLog()">Limpar log</button></div>
+    <div class="card-body">
+      <div class="log-wrap" id="logArea"></div>
+      <button class="log-clear-btn" onclick="limparLog()">Limpar histórico</button>
     </div>
   </div>
 </main>
 
-<div class="overlay" id="ovToken" onclick="fechaOverlay(event,'ovToken')">
+<!-- MODAL: Adicionar Tokens -->
+<div class="overlay" id="modalTokens" onclick="fecharModalFora(event, 'modalTokens')">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <h2 class="sheet-title">Adicionar tokens</h2>
-    <p class="sheet-sub">Código recebido após compra. Cada envio ao CRS consome 1 token.</p>
+    <h2 class="sheet-title">Adicionar Saldo de Tokens</h2>
+    <p class="sheet-sub">Insira o código recebido após a compra para recarregar sua conta.</p>
+
     <div class="token-input-wrap">
-      <input class="token-input" id="codigoInput" type="text" placeholder="Ex: Mais10" autocomplete="off" spellcheck="false"
-             onkeydown="if(event.key==='Enter')validarCodigo()"/>
-      <button class="btn btn-primary" onclick="validarCodigo()">Aplicar</button>
+      <input type="text" id="codigoToken" class="token-input" placeholder="Ex: RECARGA20" autocomplete="off">
+      <button class="btn btn-primary" onclick="validarCodigoToken()">Aplicar</button>
     </div>
-    <div class="token-msg" id="tokenMsg"></div>
-    <button class="btn btn-full" onclick="fechaOverlayDireto('ovToken')">Fechar</button>
+
+    <div class="token-msg" id="mensagemToken"></div>
+    <button class="btn btn-full" onclick="fecharModal('modalTokens')">Fechar</button>
   </div>
 </div>
 
-<div class="overlay" id="ovEnvio" onclick="fechaOverlay(event,'ovEnvio')">
+<!-- MODAL: Escolher Tipo de Análise -->
+<div class="overlay" id="modalEnvio" onclick="fecharModalFora(event, 'modalEnvio')">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <h2 class="sheet-title">Tipo de análise</h2>
-    <p class="sheet-sub">Escolha como o CRS vai processar esta sessão.</p>
+    <h2 class="sheet-title">Configurar Análise</h2>
+    <p class="sheet-sub">Escolha como o sistema irá processar seu áudio.</p>
+
     <div class="analysis-opts">
-      <div class="opt sel" id="optSingle" onclick="selOpt('single')">
+      <div class="opt selecionado" id="opcaoUnica" onclick="selecionarTipo('unica')">
         <div class="opt-ico">🔍</div>
-        <div class="opt-name">Análise única</div>
-        <div class="opt-desc">Retrato do momento. Sem histórico anterior.</div>
+        <div class="opt-name">Análise Única</div>
+        <div class="opt-desc">Analisa apenas este áudio, sem considerar sessões anteriores.<br><strong>Custo: 1 token</strong></div>
       </div>
-      <div class="opt" id="optMemory" onclick="selOpt('memory')">
+
+      <div class="opt" id="opcaoMemoria" onclick="selecionarTipo('memoria')">
         <div class="opt-ico">🧠</div>
-        <div class="opt-name">Com memória</div>
-        <div class="opt-desc">Inclui as 2 sessões anteriores. A mais antiga sai (FIFO).</div>
+        <div class="opt-name">Análise com Memória</div>
+        <div class="opt-desc">Inclui dados das 2 sessões anteriores para gerar comparações.<br><strong>Custo: 2 tokens</strong></div>
       </div>
     </div>
-    <div class="cost-row">
-      <span class="cost-lbl">Custo desta análise</span>
-      <span class="cost-val">1 token</span>
-    </div>
-    <div class="aguardo" id="aguardoBlock">
+
+    <div class="aguardo" id="blocoProcessando">
       <div class="spinner"></div>
-      <p class="aguardo-txt">Paciência por gentileza.</p>
-      <p class="aguardo-sub">Processando…</p>
+      <p class="aguardo-txt">Processando informações...</p>
     </div>
-    <div id="envioActions">
-      <button class="btn btn-green btn-full" style="margin-bottom:8px" onclick="confirmarEnvio()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg>
-        Confirmar e enviar
+
+    <div id="botoesEnvio">
+      <button class="btn btn-green btn-full" style="margin-bottom:8px;" onclick="enviarParaCRS()">
+        Confirmar e Enviar
       </button>
-      <button class="btn btn-full" onclick="fechaOverlayDireto('ovEnvio')">Cancelar</button>
+      <button class="btn btn-full" onclick="fecharModal('modalEnvio')">Cancelar</button>
     </div>
   </div>
 </div>
 
+<!-- Área de aviso temporário -->
 <div id="toast"></div>
 
-<script>
-const CRS_URL      = 'https://nucleo-crs-elayon.onrender.com';
-const SUPABASE_KEY = 'const SUPABASE_KEY = 'supabase_token';';
+<!-- Importação do código JavaScript separado -->
+<script src="app.js"></script>
 
-
-/* ═══════════════════════════════════════
-   FIX CIRÚRGICO — leitura do token
-   Supabase v2 guarda como array no localStorage:
-   [{ access_token, refresh_token, user, ... }]
-   O código original fazia p?.access_token num array → undefined → 401
-   ═══════════════════════════════════════ */
-function lerTokenSupabase() {
-  try {
-    const raw = localStorage.getItem('supabase_token');
-    if (!raw) { log('warn', 'supabase_token ausente no localStorage.'); return ''; }
-    // pode ser string direta ou JSON com access_token
-    try {
-      const p = JSON.parse(raw);
-      if (Array.isArray(p)) return p[0]?.access_token || '';
-      if (p?.access_token) return p.access_token;
-    } catch(e) {
-      return raw; // é string direta — usa direto
-    }
-    return raw;
-  } catch(e) {
-    log('warn', 'Erro ao ler token: ' + e.message);
-    return '';
-  }
-}
-
-const S = {
-  gravando:false, pausado:false,
-  audioCtx:null, analyser:null, mediaRecorder:null, chunks:[],
-  timerInt:null, segundos:0,
-  blob:null,
-  tipoAnalise:'single',
-  sessoes:[],
-  saldo:0,
-  silentFrames:0, totalFrames:0,
-  pausas:[], emPausa:false, pausaInicio:0,
-  volHistory:[],
-};
-
-const CODIGOS = { 'Mais10': 10 };
-
-window.addEventListener('load', () => {
-  S.saldo = parseInt(localStorage.getItem('elayon_saldo') ?? '10');
-  atualizaSaldo();
-  carregarSessoes();
-  renderSessoes();
-  startFake();
-  log('sys','Sistema pronto. Saldo: ' + S.saldo + ' tokens.');
-  log('sys','CRS: ' + CRS_URL);
-  const tk = lerTokenSupabase();
-  log('info', 'Token: ' + (tk ? '✓ ' + tk.slice(0,16) + '…' : '✗ ausente — envios retornarão 401'));
-});
-
-function atualizaSaldo(){
-  document.getElementById('saldoVal').textContent = S.saldo + ' token' + (S.saldo!==1?'s':'');
-}
-function salvaSaldo(){ localStorage.setItem('elayon_saldo', S.saldo); atualizaSaldo(); }
-
-function abrirToken(){
-  document.getElementById('codigoInput').value='';
-  document.getElementById('tokenMsg').className='token-msg';
-  document.getElementById('tokenMsg').textContent='';
-  document.getElementById('ovToken').classList.add('on');
-  log('info','Modal tokens aberto.');
-}
-function validarCodigo(){
-  const code = document.getElementById('codigoInput').value.trim();
-  const msg  = document.getElementById('tokenMsg');
-  log('info','Código submetido: "' + code + '"');
-  if(CODIGOS[code] !== undefined){
-    const n = CODIGOS[code];
-    S.saldo += n; salvaSaldo();
-    msg.className='token-msg ok';
-    msg.textContent = '+' + n + ' tokens. Saldo: ' + S.saldo;
-    log('ok','+' + n + ' tokens. Saldo agora: ' + S.saldo);
-    toast('+' + n + ' tokens adicionados!');
-  } else {
-    msg.className='token-msg err';
-    msg.textContent='Código inválido.';
-    log('err','Código inválido: "' + code + '"');
-  }
-}
-
-function log(tipo, msg){
-  const box = document.getElementById('logBox');
-  const now = new Date().toLocaleTimeString('pt-BR',{hour12:false});
-  const sp  = document.createElement('span');
-  sp.className = 'log-line ' + tipo;
-  sp.textContent = '['+now+'] '+msg;
-  box.appendChild(sp);
-  box.appendChild(document.createTextNode('\n'));
-  box.scrollTop = box.scrollHeight;
-}
-function limparLog(){ document.getElementById('logBox').innerHTML=''; log('sys','Log limpo.'); }
-
-function setStatus(tipo, txt){
-  document.getElementById('sdot').className='sdot '+tipo;
-  document.getElementById('stxt').textContent=txt;
-}
-
-const canvas=document.getElementById('spectrCanvas');
-const c2d=canvas.getContext('2d');
-const N=52; const bvals=new Array(N).fill(0);
-let animId=null, fakeId=null;
-function rezCanvas(){ canvas.width=canvas.offsetWidth*devicePixelRatio; canvas.height=canvas.offsetHeight*devicePixelRatio; }
-rezCanvas(); window.addEventListener('resize',rezCanvas);
-function drawBars(arr){
-  rezCanvas(); const W=canvas.width,H=canvas.height; c2d.clearRect(0,0,W,H);
-  const bw=W/N, gap=bw*.3;
-  for(let i=0;i<N;i++){
-    const v=arr ? arr[Math.floor(i*arr.length/N)]/255 : bvals[i];
-    const bh=Math.max(2.5*devicePixelRatio, v*H*.88);
-    const x=i*bw+gap/2, y=(H-bh)/2;
-    const g=c2d.createLinearGradient(x,y,x,y+bh);
-    g.addColorStop(0,'rgba(59,191,183,.95)');
-    g.addColorStop(.5,'rgba(58,191,130,.8)');
-    g.addColorStop(1,'rgba(74,159,212,.7)');
-    c2d.fillStyle=g; c2d.beginPath(); c2d.roundRect(x,y,bw-gap,bh,2); c2d.fill();
-  }
-}
-
-function startFake(){
-  let t=0;
-  function tick(){ fakeId=requestAnimationFrame(tick); t+=.025;
-    for(let i=0;i<N;i++) bvals[i]=Math.max(0,Math.min(1,.05+.035*Math.sin(t+i*.35)+.015*Math.random()));
-    drawBars(null); }
-  tick();
-}
-function stopFake(){ if(fakeId){cancelAnimationFrame(fakeId);fakeId=null;} }
-function startLive(){
-  stopFake();
-  const buf=S.analyser.frequencyBinCount;
-  const td=new Uint8Array(buf), fd=new Uint8Array(buf);
-  const TRESHOLD=0.018;
-  function draw(){
-    if(!S.gravando) return; animId=requestAnimationFrame(draw);
-    S.analyser.getByteTimeDomainData(td);
-    let rms=0;
-    for(let i=0;i<td.length;i++){ const v=(td[i]-128)/128; rms+=v*v; }
-    rms=Math.sqrt(rms/td.length);
-    S.totalFrames++; S.volHistory.push(rms); if(S.volHistory.length>120) S.volHistory.shift();
-    if(rms<TRESHOLD){ S.silentFrames++; if(!S.emPausa){S.emPausa=true;S.pausaInicio=Date.now();} }
-    else { if(S.emPausa){ const d=Date.now()-S.pausaInicio; if(d>=200)S.pausas.push(d); S.emPausa=false; } }
-    S.analyser.getByteFrequencyData(fd); drawBars(fd);
-  }
-  draw();
-}
-function stopLive(){ if(animId){cancelAnimationFrame(animId);animId=null;} startFake(); }
-
-function startTimer(){
-  S.segundos=0;
-  S.timerInt=setInterval(()=>{
-    if(!S.pausado){ S.segundos++;
-      const m=String(Math.floor(S.segundos/60)).padStart(2,'0');
-      const s=String(S.segundos%60).padStart(2,'0');
-      document.getElementById('recTimer').textContent=m+':'+s; }
-  },1000);
-}
-function stopTimer(){ clearInterval(S.timerInt); S.timerInt=null; }
-
-async function iniciarGravacao(){
-  log('info','Solicitando microfone…');
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia({
-      audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}
-    });
-    S.audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-    S.analyser=S.audioCtx.createAnalyser(); S.analyser.fftSize=256;
-    S.audioCtx.createMediaStreamSource(stream).connect(S.analyser);
-    S.mediaRecorder=new MediaRecorder(stream); S.chunks=[];
-    S.silentFrames=0; S.totalFrames=0; S.pausas=[]; S.emPausa=false; S.volHistory=[];
-    S.mediaRecorder.ondataavailable=e=>S.chunks.push(e.data);
-    S.mediaRecorder.onstop=()=>{
-      S.blob=new Blob(S.chunks,{type:'audio/webm'});
-      log('ok','Áudio pronto. Tamanho: '+(S.blob.size/1024).toFixed(1)+' KB');
-      setStatus('ready','Áudio pronto — '+document.getElementById('recTimer').textContent);
-    };
-    S.mediaRecorder.start(100); S.gravando=true; S.pausado=false;
-    setStatus('rec','Gravando…');
-    document.getElementById('spectroState').textContent='sinal ativo';
-    startTimer(); startLive();
-    btn('btnLigar',true); btn('btnPausa',false); btn('btnStop',false);
-    btn('btnSalvar',false); btn('btnEnviar',false);
-    log('ok','Gravação iniciada. Microfone ativo.');
-  }catch(e){
-    log('err','Erro microfone: '+e.message);
-    toast('Permissão de microfone negada.');
-  }
-}
-
-function pausarGravacao(){
-  if(!S.mediaRecorder) return; S.pausado=!S.pausado;
-  if(S.pausado){
-    S.mediaRecorder.pause(); setStatus('paused','Pausado');
-    document.getElementById('spectroState').textContent='pausado';
-    document.getElementById('btnPausa').innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>Retomar';
-    log('warn','Pausado.');
-  } else {
-    S.mediaRecorder.resume(); setStatus('rec','Gravando…');
-    document.getElementById('spectroState').textContent='sinal ativo';
-    document.getElementById('btnPausa').innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>Pausar';
-    log('info','Retomado.');
-  }
-}
-
-function pararGravacao(){
-  if(!S.mediaRecorder) return;
-  S.mediaRecorder.stop(); S.mediaRecorder.stream.getTracks().forEach(t=>t.stop());
-  S.gravando=false; S.pausado=false;
-  if(S.audioCtx){S.audioCtx.close();S.audioCtx=null;}
-  stopTimer(); stopLive();
-  document.getElementById('spectroState').textContent='captura encerrada';
-  btn('btnLigar',false); btn('btnPausa',true); btn('btnStop',true);
-  const silPct=S.totalFrames>0?((S.silentFrames/S.totalFrames)*100).toFixed(1):0;
-  log('ok','Stop. Frames:'+S.totalFrames+' | Silêncio:'+silPct+'% | Pausas:'+S.pausas.length);
-}
-
-function salvarLocal(){
-  if(!S.blob){toast('Nada gravado ainda.');log('warn','Salvar: sem blob.');return;}
-  const a=document.createElement('a'); a.href=URL.createObjectURL(S.blob);
-  a.download='presenca_'+Date.now()+'.webm'; a.click();
-  log('ok','Áudio salvo localmente.'); toast('Áudio salvo.');
-}
-
-function btn(id, disabled){ document.getElementById(id).disabled=disabled; }
-
-function handleUpload(e){
-  const f=e.target.files[0]; if(!f) return;
-  S.blob=f;
-  document.getElementById('uploadFname').textContent=f.name;
-  document.getElementById('uploadFname').style.display='block';
-  setStatus('ready','Arquivo: '+f.name);
-  btn('btnEnviar',false);
-  log('ok','Upload: '+f.name+' ('+(f.size/1024).toFixed(1)+' KB)');
-  toast('Arquivo carregado.');
-}
-const uz=document.getElementById('uploadZone');
-uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('dragover');});
-uz.addEventListener('dragleave',()=>uz.classList.remove('dragover'));
-uz.addEventListener('drop',e=>{
-  e.preventDefault(); uz.classList.remove('dragover');
-  const f=e.dataTransfer.files[0];
-  if(f&&f.type.startsWith('audio/')){
-    S.blob=f;
-    document.getElementById('uploadFname').textContent=f.name;
-    document.getElementById('uploadFname').style.display='block';
-    setStatus('ready','Drop: '+f.name); btn('btnEnviar',false); log('ok','Drop: '+f.name);
-  } else { log('err','Arquivo inválido no drop.'); }
-});
-
-function abrirEnvio(){
-  if(!S.blob){toast('Nada para enviar.');log('warn','Sem áudio.');return;}
-  if(S.saldo<1){toast('Saldo zero.');log('err','Saldo insuficiente.');return;}
-  document.getElementById('aguardoBlock').classList.remove('on');
-  document.getElementById('envioActions').style.display='';
-  document.getElementById('ovEnvio').classList.add('on');
-  log('info','Modal envio. Tipo: '+S.tipoAnalise);
-}
-function selOpt(t){
-  S.tipoAnalise=t;
-  document.getElementById('optSingle').classList.toggle('sel',t==='single');
-  document.getElementById('optMemory').classList.toggle('sel',t==='memory');
-  log('info','Tipo selecionado: '+t);
-}
-
-
-/* ═══════════════════════════════════════
-   ENVIO — usa lerTokenSupabase() no lugar do bloco quebrado
-   ═══════════════════════════════════════ */
-async function confirmarEnvio(){
-  document.getElementById('envioActions').style.display='none';
-  document.getElementById('aguardoBlock').classList.add('on');
-  setStatus('sending','Enviando ao CRS…');
-  log('info','Montando payload…');
-
-  const dur    = S.segundos || 60;
-  const silPct = S.totalFrames>0 ? Math.round((S.silentFrames/S.totalFrames)*100) : 30;
-  const meanP  = S.pausas.length>0 ? Math.round(S.pausas.reduce((a,b)=>a+b,0)/S.pausas.length) : 0;
-  let osc=0;
-  if(S.volHistory.length>1){
-    const avg=S.volHistory.reduce((a,b)=>a+b,0)/S.volHistory.length;
-    const sq=S.volHistory.map(v=>(v-avg)**2);
-    osc=Math.min(100, Math.round(Math.sqrt(sq.reduce((a,b)=>a+b,0)/sq.length)*1000)/10);
-  }
-  const energy=S.volHistory.length>0 ? Math.round(S.volHistory.reduce((a,b)=>a+b,0)/S.volHistory.length*100) : 50;
-  const ctx = S.tipoAnalise==='memory' ? buildCtx() : '';
-
-  const payload={
-    duration_sec:    dur,
-    silence_pct:     silPct,
-    pause_count:     S.pausas.length,
-    mean_pause_ms:   meanP,
-    oscillation_pct: osc,
-    continuity_pct:  Math.max(0,100-silPct),
-    energy_pct:      energy,
-    transcript_raw:  '',
-    context:         ctx,
-    spectrum_snapshot:{graves:35,medios:45,agudos:20,ruido:10,estabilidade:Math.max(0,100-osc)}
-  };
-
-  log('data','Tipo: '+S.tipoAnalise+' | Tamanho: '+(S.blob?.size/1024||0).toFixed(1)+' KB');
-  log('data','Payload → '+JSON.stringify(payload));
-
-  // ── TOKEN FIX ──
-  const token = lerTokenSupabase();
-  log('info','Token Supabase: '+(token ? 'presente ('+token.slice(0,16)+'…)' : '✗ AUSENTE'));
-
-  try{
-    const res=await fetch(CRS_URL+'/api/crs/analisar',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'Authorization': token ? 'Bearer '+token : ''
-      },
-      body:JSON.stringify(payload)
-    });
-    const json=await res.json();
-    log('data','Resposta CRS → status '+res.status);
-    log('data',JSON.stringify(json));
-
-    if(json.ok){
-      S.saldo-=1; salvaSaldo();
-      log('ok','Análise ok. Saldo restante: '+S.saldo);
-      exibirRelatorio(json);
-      registrarSessao(json);
-      fechaOverlayDireto('ovEnvio');
-      setStatus('done','Análise concluída.');
-      toast('Relatório recebido.');
-    } else {
-      log('err','CRS erro: '+(json.error||'desconhecido'));
-      setStatus('err','Erro no CRS.');
-      fechaOverlayDireto('ovEnvio');
-      toast('Erro: '+(json.error||'CRS indisponível'));
-    }
-  }catch(e){
-    log('err','Falha de rede: '+e.message);
-    setStatus('err','Falha de conexão.');
-    fechaOverlayDireto('ovEnvio');
-    toast('Falha de conexão com o CRS.');
-  }
-}
-
-function exibirRelatorio(json){
-  document.getElementById('relEstado').textContent=json.analise_sugestiva||'—';
-  document.getElementById('relSug').textContent=json.sugestao_ia||'—';
-  document.getElementById('relJSON').textContent=JSON.stringify(json.relatorio,null,2);
-  const card=document.getElementById('relCard');
-  card.style.display='';
-  setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),150);
-}
-
-function buildCtx(){
-  return S.sessoes.slice(0,2).map((s,i)=>'Sessão -'+(i+1)+': '+s.estado).join(' | ');
-}
-function registrarSessao(json){
-  S.sessoes.unshift({
-    id:Date.now(),
-    nome:'Sessão '+(S.sessoes.length+1),
-    data:new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}),
-    duracao:document.getElementById('recTimer').textContent,
-    tipo:S.tipoAnalise,
-    estado:json.analise_sugestiva||'—',
-  });
-  if(S.sessoes.length>3) S.sessoes.pop();
-  salvaSessoes(); renderSessoes();
-  log('info','Sessão registrada. Total: '+S.sessoes.length);
-}
-function renderSessoes(){
-  const l=document.getElementById('sessoesList');
-  if(!S.sessoes.length){ l.innerHTML='<div class="sess-empty">Nenhuma sessão ainda.</div>'; return; }
-  l.innerHTML=S.sessoes.map((s,i)=>`
-    <div class="sess-item">
-      <div class="sess-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
-      <div class="sess-info">
-        <div class="sess-name">${s.nome}${i===0?' · atual':''}</div>
-        <div class="sess-meta">${s.data} · ${s.duracao} · ${s.estado}</div>
-      </div>
-      <span class="sess-badge ${s.tipo==='single'?'b-single':'b-memory'}">${s.tipo==='single'?'Única':'Memória'}</span>
-    </div>`).join('');
-}
-function salvaSessoes(){ try{localStorage.setItem('elayon_sessoes',JSON.stringify(S.sessoes));}catch(e){} }
-function carregarSessoes(){ try{const r=localStorage.getItem('elayon_sessoes');if(r)S.sessoes=JSON.parse(r);}catch(e){} }
-
-function fechaOverlay(e,id){ if(e.target===document.getElementById(id)) fechaOverlayDireto(id); }
-function fechaOverlayDireto(id){ document.getElementById(id).classList.remove('on'); }
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('on');
-  setTimeout(()=>t.classList.remove('on'),2800);
-}
-</script>
 </body>
 </html>
