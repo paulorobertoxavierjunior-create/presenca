@@ -790,17 +790,14 @@ async function enviarParaAnalise() {
     // Simulação de tempo de processamento
     await new Promise(resolver => setTimeout(resolver, 2500));
 
-    // Aqui futuramente será a chamada real para a API
-    const resultado = {
-      estadoIdentificado: "Presença Equilibrada e Consciente",
-      sugestoes: "Seu padrão de voz demonstra clareza de pensamento e estabilidade emocional. Continue praticando momentos de silêncio e reflexão para manter essa sintonia entre pensamento, sentimento e expressão.",
-      dadosTecnicos: {
-        ritmoMedio: "68 palavras por minuto",
-        frequenciaPredominante: "Voz média-alta, clara e bem projetada",
-        taxaDeSilêncio: "12% — equilíbrio ideal entre fala e pausas",
-        nivelDeEstabilidade: "92% — padrão consistente e seguro"
-      }
-    };
+    // Futura versão com dados reais
+const resposta = await fetch(CONFIG.URL_CRS, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.CHAVE_SUPABASE}` },
+  body: JSON.stringify({audio: ESTADO.arquivoAudio, tipo: ESTADO.tipoAnalise})
+});
+const resultado = await resposta.json();
+
 
     // Atualiza saldo
     ESTADO.saldoTokens -= custo;
