@@ -303,13 +303,17 @@ const SUPABASE_KEY = 'const SUPABASE_KEY = 'supabase_token';';
    ═══════════════════════════════════════ */
 function lerTokenSupabase() {
   try {
-    const raw = localStorage.getItem(SUPABASE_KEY);
-    if (!raw) return '';
-    const p = JSON.parse(raw);
-    if (Array.isArray(p))          return p[0]?.access_token  || '';
-    if (p?.access_token)           return p.access_token;
-    if (p?.session?.access_token)  return p.session.access_token;
-    return '';
+    const raw = localStorage.getItem('supabase_token');
+    if (!raw) { log('warn', 'supabase_token ausente no localStorage.'); return ''; }
+    // pode ser string direta ou JSON com access_token
+    try {
+      const p = JSON.parse(raw);
+      if (Array.isArray(p)) return p[0]?.access_token || '';
+      if (p?.access_token) return p.access_token;
+    } catch(e) {
+      return raw; // é string direta — usa direto
+    }
+    return raw;
   } catch(e) {
     log('warn', 'Erro ao ler token: ' + e.message);
     return '';
