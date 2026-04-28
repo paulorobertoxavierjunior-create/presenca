@@ -412,7 +412,6 @@ async function iniciarAnalise(){
     return;
   }
 
-  // Verifica se tem dados
   if(!dadosCalibracao.f1 || !dadosCalibracao.f2 || !dadosCalibracao.f3){
     alert('Calibre primeiro!');
     return;
@@ -423,18 +422,16 @@ async function iniciarAnalise(){
   document.getElementById('cardResultado').classList.add('hidden');
 
   try {
-    // PREPARA DADOS PARA ENVIAR
     var audiosParaEnviar = [];
     
     if(tipoAnalise === 'unica'){
-      // Apenas a ultima gravacao
       audiosParaEnviar = [
         dadosCalibracao.f1,
         dadosCalibracao.f2,
         dadosCalibracao.f3
       ];
     } else {
-      // Com memoria: enche com as ultimas 3 sessoes
+      // Com memoria: pega as ultimas 3 sessoes
       historico = JSON.parse(localStorage.getItem('historico_analises') || '[]');
       historico.forEach(sessao => {
         audiosParaEnviar.push(...sessao.audios);
@@ -443,18 +440,28 @@ async function iniciarAnalise(){
 
     console.log('🚀 Enviando para analise...', audiosParaEnviar.length + ' arquivos');
 
-    // CHAMA O SERVIDOR DO RENDER
+    // --- A MAGIA AQUI: CONVERTE O DADO LOCAL NO FORMATO QUE O SERVIDOR LÊ ---
+    // O servidor espera uma URL, então a gente finge que é uma URL mas passa o dado real
+    var urlsFormatadas = audiosParaEnviar.map(audio => {
+        // Se ja for URL deixa como ta, senao transforma o dado local
+        return audio.startsWith('data:') ? audio : 'data:audio/webm;base64,' + audio;
+    });
+
     var payload={
-      user_id:userId,
-      tipo:tipoAnalise,
-      audio_urls: audiosParaEnviar, // Agora sao os dados base64 locais
+      user_id: userId,
+      tipo: tipoAnalise,
+      audio_urls: urlsFormatadas, // Agora no formato que ele aceita
       metricas: dadosCalibracao.metricas,
-      timestamp:new Date().toISOString()
+      timestamp: new Date().toISOString()
     };
 
     var res=await fetch(CRS_ENDPOINT,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        // Se precisar passar token de autenticacao, coloca aqui:
+        // 'Authorization': 'Bearer ' + seuToken
+      },
       body:JSON.stringify(payload)
     });
     
@@ -472,27 +479,13 @@ async function iniciarAnalise(){
     exibirResultado({
       estado: 'ERRO DE COMUNICAÇÃO',
       sugestao: 'Verifique sua conexão ou tente novamente.',
-      analise_sugestiva: 'Não foi possível conectar ao núcleo.'
+      analise_sugestiva: 'Não foi possível conectar ao núcleo.',
+      metricas_locais: dadosCalibracao.metricas
     });
     document.getElementById('btnAnalisar').disabled=false;
   }
 
   document.getElementById('spinnerAnalise').style.display='none';
-}
-
-function exibirResultado(data){
-  document.getElementById('cardResultado').classList.remove('hidden');
-  document.getElementById('resEstado').textContent=data.estado||data.analise_sugestiva||'—';
-  document.getElementById('resOrientacao').textContent=data.sugestao||'—';
-  
-  // Mostra tambem as metricas locais junto
-  let tecnico = data;
-  if(dadosCalibracao.metricas){
-    tecnico.metricas_locais = dadosCalibracao.metricas;
-  }
-  
-  document.getElementById('resTecnico').textContent=JSON.stringify(tecnico,null,2);
-  document.getElementById('cardResultado').scrollIntoView({behavior:'smooth'});
 }
 
 /* ════════════════════════════════════
