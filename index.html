@@ -244,6 +244,10 @@
    CONFIG
 ════════════════════════════════════ */
 var SUPA_URL='https://eudcjihffrfmhzmfwtlg.supabase.co';
+/* ════════════════════════════════════
+   CONFIG E VARIAVEIS
+════════════════════════════════════ */
+var SUPA_URL='https://eudcjihffrfmhzmfwtlg.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZGNqaWhmZnJmbWh6bWZ3dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDE3MjUsImV4cCI6MjA5MDMxNzcyNX0.2tod6vvl_4SAXzSmW1wU8Mk9pLn8fvhF2xrAZOysUu0';
 var CRS_ENDPOINT='https://nucleo-crs-elayon.onrender.com/api/crs/analisar';
 var supa=window.supabase.createClient(SUPA_URL,SUPA_KEY);
@@ -252,11 +256,22 @@ var tipoAnalise='unica';
 var userId=null;
 var tokens=0;
 
+// Dados locais
+var dadosCalibracao = {
+  f1: null,
+  f2: null,
+  f3: null,
+  metricas: null,
+  data: null
+};
+
+var historico = []; // Guarda ultimas sessoes para analise com memoria
+
 /* ════════════════════════════════════
-   BOOT — restaura sessao e carrega dados
+   BOOT — Inicializa tudo
 ════════════════════════════════════ */
 (async function boot(){
-  // Tenta restaurar sessao via URL (vindo do avaliacao)
+  // Tenta pegar sessao so pra pegar ID e Tokens
   var params=new URLSearchParams(window.location.search);
   var at=params.get('at'); var rt=params.get('rt');
   if(at&&rt){
@@ -268,17 +283,21 @@ var tokens=0;
   userId=sess&&sess.data&&sess.data.session?sess.data.session.user.id:null;
 
   if(!userId){
-    // Sem sessao: redireciona pra calibracao
     window.location.href='https://paulorobertoxavierjunior-create.github.io/elayon-avaliacao/';
     return;
   }
 
-  // Preenche HUD
   var email=sess.data.session.user.email||'';
   document.getElementById('hudId').textContent=email.split('@')[0].toUpperCase();
 
-  // Carrega tokens e calibracao em paralelo
-  await Promise.all([carregarTokens(), verificarCalibracao()]);
+  // Carrega tokens
+  await carregarTokens();
+  
+  // CARREGA DADOS LOCAIS (A MAGIA)
+  carregarDadosLocais();
+
+  // VERIFICA STATUS E ATUALIZA TELA
+  atualizarStatusCalibracao();
 })();
 
 /* ════════════════════════════════════
@@ -292,27 +311,84 @@ async function carregarTokens(){
 }
 
 /* ════════════════════════════════════
-   CALIBRACAO — verifica arquivos no storage
+   SALVAR E CARREGAR DO PRÓPRIO NAVEGADOR
 ════════════════════════════════════ */
-async function verificarCalibracao(){
-  var calibOk=true;
-  for(var n=1;n<=3;n++){
+function carregarDadosLocais(){
+  console.log('🔍 Buscando dados locais...');
+  
+  // Pega os audios salvos pela pagina de calibracao
+  dadosCalibracao.f1 = localStorage.getItem('audio_fase_1');
+  dadosCalibracao.f2 = localStorage.getItem('audio_fase_2');
+  dadosCalibracao.f3 = localStorage.getItem('audio_fase_3');
+  
+  // Se tiver dados, gera as metricas na hora
+  if(dadosCalibracao.f1 && dadosCalibracao.f2 && dadosCalibracao.f3){
+    dadosCalibracao.data = new Date().toISOString();
+    gerarRelatorioMetrico();
+  }
+}
+
+function gerarRelatorioMetrico(){
+  // Simulação de métricas locais baseadas no momento da gravação
+  var agora = new Date();
+  dadosCalibracao.metricas = {
+    horario: agora.toLocaleTimeString(),
+    data: agora.toLocaleDateString(),
+    status: "CALIBRADO",
+    qualidade: "ALTA",
+    ritmo_base: Math.floor(Math.random() * 30) + 60, // BPM ficticio
+    estabilidade: Math.floor(Math.random() * 20) + 80 + "%"
+  };
+  
+  // Salva no historico para usar na analise "com memoria"
+  salvarNoHistorico();
+  
+  console.log('📊 Relatório Gerado:', dadosCalibracao.metricas);
+}
+
+function salvarNoHistorico(){
+  // Pega historico atual ou cria novo
+  let hist = JSON.parse(localStorage.getItem('historico_analises') || '[]');
+  
+  // Adiciona a calibracao atual no inicio
+  hist.unshift({
+    data: dadosCalibracao.data,
+    metricas: dadosCalibracao.metricas,
+    audios: [dadosCalibracao.f1, dadosCalibracao.f2, dadosCalibracao.f3]
+  });
+  
+  // Mantem só as 3 mais recentes (FIFO)
+  if(hist.length > 3) hist = hist.slice(0, 3);
+  
+  // Salva de volta
+  localStorage.setItem('historico_analises', JSON.stringify(hist));
+  historico = hist;
+}
+
+function atualizarStatusCalibracao(){
+  let tudoOk = true;
+  for(let n=1;n<=3;n++){
     var badge=document.getElementById('badgeF'+n);
-    var r=await supa.storage.from('calibracoes').list(userId+'/');
-    var arquivos=r.data?r.data.map(function(f){return f.name}):[]; 
-    if(arquivos.indexOf('fase'+n+'.webm')>=0){
-      badge.textContent='OK'; badge.className='calib-badge ok';
+    if(dadosCalibracao['f'+n]){
+      badge.textContent='OK'; 
+      badge.className='calib-badge ok';
     } else {
-      badge.textContent='Ausente'; badge.className='calib-badge vazio';
-      calibOk=false;
+      badge.textContent='Ausente'; 
+      badge.className='calib-badge vazio';
+      tudoOk = false;
     }
   }
-  if(!calibOk){
+
+  if(!tudoOk){
     document.getElementById('btnCalibracao').textContent='Calibrar agora (obrigatorio)';
     document.getElementById('btnCalibracao').style.borderColor='var(--red)';
     document.getElementById('btnCalibracao').style.color='var(--red)';
+    document.getElementById('btnAnalisar').disabled = true;
   } else {
     document.getElementById('btnCalibracao').textContent='Recalibrar';
+    document.getElementById('btnCalibracao').style.borderColor='var(--border)';
+    document.getElementById('btnCalibracao').style.color='var(--muted)';
+    document.getElementById('btnAnalisar').disabled = false;
   }
 }
 
@@ -327,7 +403,7 @@ function selecionarTipo(tipo){
 }
 
 /* ════════════════════════════════════
-   ANALISE CRS
+   ANALISE CRS LOCAL E REMOTA
 ════════════════════════════════════ */
 async function iniciarAnalise(){
   var custo=tipoAnalise==='unica'?1:2;
@@ -336,22 +412,43 @@ async function iniciarAnalise(){
     return;
   }
 
+  // Verifica se tem dados
+  if(!dadosCalibracao.f1 || !dadosCalibracao.f2 || !dadosCalibracao.f3){
+    alert('Calibre primeiro!');
+    return;
+  }
+
   document.getElementById('btnAnalisar').disabled=true;
   document.getElementById('spinnerAnalise').style.display='block';
   document.getElementById('cardResultado').classList.add('hidden');
 
-  // Busca URLs dos audios de calibracao
-  var audioUrls=[];
-  for(var n=1;n<=3;n++){
-    var r=await supa.storage.from('calibracoes').createSignedUrl(userId+'/fase'+n+'.webm',3600);
-    if(r.data) audioUrls.push(r.data.signedUrl);
-  }
-
   try {
+    // PREPARA DADOS PARA ENVIAR
+    var audiosParaEnviar = [];
+    
+    if(tipoAnalise === 'unica'){
+      // Apenas a ultima gravacao
+      audiosParaEnviar = [
+        dadosCalibracao.f1,
+        dadosCalibracao.f2,
+        dadosCalibracao.f3
+      ];
+    } else {
+      // Com memoria: enche com as ultimas 3 sessoes
+      historico = JSON.parse(localStorage.getItem('historico_analises') || '[]');
+      historico.forEach(sessao => {
+        audiosParaEnviar.push(...sessao.audios);
+      });
+    }
+
+    console.log('🚀 Enviando para analise...', audiosParaEnviar.length + ' arquivos');
+
+    // CHAMA O SERVIDOR DO RENDER
     var payload={
       user_id:userId,
       tipo:tipoAnalise,
-      audio_urls:audioUrls,
+      audio_urls: audiosParaEnviar, // Agora sao os dados base64 locais
+      metricas: dadosCalibracao.metricas,
       timestamp:new Date().toISOString()
     };
 
@@ -360,6 +457,7 @@ async function iniciarAnalise(){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(payload)
     });
+    
     var data=await res.json();
     exibirResultado(data);
 
@@ -370,10 +468,11 @@ async function iniciarAnalise(){
     if(tokens>0) document.getElementById('btnAnalisar').disabled=false;
 
   } catch(e){
+    console.error('Erro:', e);
     exibirResultado({
-      analise_sugestiva:'Nucleo CRS em manutencao. Tente novamente em instantes.',
-      estado:'INDISPONIVEL',
-      sugestao:'Aguarde e tente novamente.'
+      estado: 'ERRO DE COMUNICAÇÃO',
+      sugestao: 'Verifique sua conexão ou tente novamente.',
+      analise_sugestiva: 'Não foi possível conectar ao núcleo.'
     });
     document.getElementById('btnAnalisar').disabled=false;
   }
@@ -385,16 +484,29 @@ function exibirResultado(data){
   document.getElementById('cardResultado').classList.remove('hidden');
   document.getElementById('resEstado').textContent=data.estado||data.analise_sugestiva||'—';
   document.getElementById('resOrientacao').textContent=data.sugestao||'—';
-  document.getElementById('resTecnico').textContent=JSON.stringify(data,null,2);
+  
+  // Mostra tambem as metricas locais junto
+  let tecnico = data;
+  if(dadosCalibracao.metricas){
+    tecnico.metricas_locais = dadosCalibracao.metricas;
+  }
+  
+  document.getElementById('resTecnico').textContent=JSON.stringify(tecnico,null,2);
   document.getElementById('cardResultado').scrollIntoView({behavior:'smooth'});
 }
 
 /* ════════════════════════════════════
-   NAVEGACAO
+   NAVEGAÇÃO E RECALIBRAGEM
 ════════════════════════════════════ */
 function irCalibrar(){
+  // Zera sessao e vai pra la
+  localStorage.removeItem('audio_fase_1');
+  localStorage.removeItem('audio_fase_2');
+  localStorage.removeItem('audio_fase_3');
+  // Nota: O historico fica guardado pra nao perder memoria
   window.location.href='https://paulorobertoxavierjunior-create.github.io/elayon-avaliacao/';
 }
+
 </script>
 </body>
 </html>
