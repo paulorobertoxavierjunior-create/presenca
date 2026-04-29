@@ -7,21 +7,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@300;400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #f4f8f8;
+      --bg:      #f4f8f8;
       --surface: #ffffff;
-      --border: #c8e2e4;
-      --cyan: #3ecfcf;
-      --cglow: rgba(62,207,207,0.18);
-      --teal: #2a9d8f;
-      --dark: #07202480;
-      --text: #072024;
-      --muted: #4a7a80;
-      --red: #ef4444;
-      --green: #2a9d8f;
-      --mono: 'Share Tech Mono', monospace;
-      --sans: 'Syne', sans-serif;
+      --border:  #c8e2e4;
+      --cyan:    #3ecfcf;
+      --cglow:   rgba(62,207,207,0.18);
+      --teal:    #2a9d8f;
+      --text:    #072024;
+      --muted:   #4a7a80;
+      --red:     #ef4444;
+      --mono:    'Share Tech Mono', monospace;
+      --sans:    'Syne', sans-serif;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -34,25 +31,15 @@
       align-items: center;
       padding: 0 20px 80px;
     }
-
-    /* fundo sutil */
     body::before {
       content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
       background:
         radial-gradient(ellipse 70% 40% at 50% -10%, rgba(62,207,207,0.07) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 90% 80%, rgba(42,157,143,0.05) 0%, transparent 60%);
+        radial-gradient(ellipse 40% 30% at 90% 80%,  rgba(42,157,143,0.05) 0%, transparent 60%);
     }
-
-    .page {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 480px;
-    }
+    .page { position: relative; z-index: 1; width: 100%; max-width: 480px; }
 
     /* ── HEADER ── */
     .site-header {
@@ -64,7 +51,6 @@
       border-bottom: 1px solid var(--border);
       margin-bottom: 30px;
     }
-
     .logo-box { display: flex; align-items: center; gap: 12px; }
     .logo-box img {
       height: 46px; width: 46px;
@@ -74,60 +60,30 @@
     }
     .logo-text {
       font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 3px;
-      color: var(--teal);
-      text-transform: uppercase;
-      line-height: 1.8;
+      font-size: 9px; letter-spacing: 3px;
+      color: var(--teal); text-transform: uppercase; line-height: 1.8;
     }
-
     .hud-info {
       font-family: var(--mono);
-      font-size: 9px;
-      color: var(--muted);
-      text-align: right;
-      line-height: 1.9;
+      font-size: 9px; color: var(--muted);
+      text-align: right; line-height: 1.9;
     }
-    .hud-info .hud-val {
-      color: var(--cyan);
-      font-weight: bold;
-    }
-    .hud-info .hud-sub {
-      font-size: 8px;
-      color: var(--border);
-    }
+    .hud-val  { color: var(--cyan); font-weight: bold; }
+    .hud-sub  { font-size: 8px; color: var(--border); }
 
     /* ── HERO ── */
-    .hero {
-      text-align: center;
-      padding: 6px 0 28px;
-    }
+    .hero { text-align: center; padding: 6px 0 28px; }
     .hero-label {
       font-family: var(--mono);
-      font-size: 8px;
-      letter-spacing: 5px;
-      color: var(--cyan);
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: 14px;
-      opacity: 0.8;
+      font-size: 8px; letter-spacing: 5px;
+      color: var(--cyan); text-transform: uppercase;
+      display: block; margin-bottom: 14px; opacity: 0.8;
     }
-    .hero-title {
-      font-size: 26px;
-      font-weight: 300;
-      line-height: 1.35;
-      color: var(--text);
-    }
-    .hero-title strong {
-      font-weight: 800;
-      color: var(--teal);
-    }
+    .hero-title { font-size: 26px; font-weight: 300; line-height: 1.35; color: var(--text); }
+    .hero-title strong { font-weight: 800; color: var(--teal); }
     .hero-sub {
-      font-size: 12px;
-      font-weight: 300;
-      color: var(--muted);
-      margin-top: 12px;
-      line-height: 1.8;
+      font-size: 12px; font-weight: 300;
+      color: var(--muted); margin-top: 12px; line-height: 1.8;
     }
 
     /* ── CARDS ── */
@@ -139,198 +95,145 @@
       margin-bottom: 14px;
       box-shadow: 0 1px 16px rgba(62,207,207,0.05);
     }
-
     .card-label {
       font-family: var(--mono);
-      font-size: 8px;
-      letter-spacing: 4px;
-      color: var(--cyan);
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: 14px;
+      font-size: 8px; letter-spacing: 4px;
+      color: var(--cyan); text-transform: uppercase;
+      display: block; margin-bottom: 14px;
     }
 
     /* ── CITAÇÃO ── */
     .citacao {
       border-left: 2px solid var(--cyan);
       padding: 12px 16px;
-      font-size: 13px;
-      font-weight: 300;
-      font-style: italic;
-      color: var(--muted);
-      line-height: 1.8;
-      margin-bottom: 16px;
+      font-size: 13px; font-weight: 300; font-style: italic;
+      color: var(--muted); line-height: 1.8; margin-bottom: 16px;
     }
 
     /* ── CALIB GRID ── */
     .calib-grid { display: flex; flex-direction: column; gap: 8px; }
-
     .calib-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 14px;
-      border-radius: 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px; border-radius: 12px;
+      background: var(--bg); border: 1px solid var(--border);
       transition: border-color 0.3s;
     }
     .calib-item.ok-item { border-color: rgba(42,157,143,0.3); }
-
     .calib-nome { font-family: var(--mono); font-size: 9px; color: var(--text); }
-
     .calib-badge {
-      font-family: var(--mono);
-      font-size: 8px;
-      letter-spacing: 2px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      text-transform: uppercase;
+      font-family: var(--mono); font-size: 8px; letter-spacing: 2px;
+      padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
     }
     .calib-badge.ok    { background: rgba(42,157,143,0.12); color: var(--teal); }
     .calib-badge.vazio { background: rgba(239,68,68,0.08);  color: var(--red);  }
     .calib-badge.spin  { background: rgba(62,207,207,0.08); color: var(--cyan); }
 
+    /* recalibrar — discreto, abaixo do hero quando calibrado */
+    .recalib-link {
+      font-family: var(--mono);
+      font-size: 8px; letter-spacing: 2px;
+      color: var(--muted); text-decoration: none;
+      text-align: center; display: block;
+      margin-bottom: 20px; opacity: 0.6;
+      cursor: pointer; text-transform: uppercase;
+    }
+    .recalib-link:hover { opacity: 1; color: var(--cyan); }
+
     /* ── TIPO ANÁLISE ── */
     .analise-tipo { display: flex; gap: 10px; margin-bottom: 14px; }
-
     .tipo-btn {
-      flex: 1;
-      padding: 14px 10px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--surface);
-      cursor: pointer;
-      text-align: center;
-      transition: 0.2s;
-      font-family: var(--sans);
+      flex: 1; padding: 14px 10px;
+      border: 1px solid var(--border); border-radius: 14px;
+      background: var(--surface); cursor: pointer;
+      text-align: center; transition: 0.2s; font-family: var(--sans);
     }
-    .tipo-btn.ativo {
-      border-color: var(--cyan);
-      background: rgba(62,207,207,0.05);
-    }
+    .tipo-btn.ativo { border-color: var(--cyan); background: rgba(62,207,207,0.05); }
     .tipo-btn h4 { font-size: 12px; color: var(--text); margin-bottom: 4px; }
     .tipo-btn p  { font-size: 10px; color: var(--muted); line-height: 1.4; }
 
     /* ── CUSTO ── */
     .custo-linha {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      padding: 10px 14px;
-      background: var(--bg);
-      border-radius: 10px;
-      border: 1px solid var(--border);
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px; padding: 10px 14px;
+      background: var(--bg); border-radius: 10px; border: 1px solid var(--border);
     }
     .custo-linha span { color: var(--cyan); font-weight: bold; }
 
-    /* ── TOKENS ── */
-    .tokens-card {
-      background: var(--surface);
+    /* ── AVISO TOKENS ── */
+    .token-aviso {
+      font-family: var(--mono); font-size: 9px;
+      color: var(--muted); text-align: center;
+      margin-top: 10px; line-height: 1.8;
+      background: rgba(62,207,207,0.04);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 14px;
-      box-shadow: 0 1px 16px rgba(62,207,207,0.05);
+      border-radius: 10px; padding: 10px 14px;
     }
+
+    /* ── RESULTADO ── */
+    .estado-tag {
+      display: inline-block;
+      font-family: var(--mono); font-size: 9px; letter-spacing: 3px;
+      padding: 6px 14px; border-radius: 20px;
+      background: rgba(62,207,207,0.1); color: var(--cyan);
+      text-transform: uppercase; margin-bottom: 14px;
+    }
+    .resultado-bloco { margin-top: 14px; }
+    .resultado-bloco h4 {
+      font-size: 8px; color: var(--muted);
+      font-family: var(--mono); letter-spacing: 3px;
+      margin-bottom: 6px; text-transform: uppercase;
+    }
+    .resultado-texto {
+      font-size: 14px; font-weight: 300;
+      line-height: 1.75; color: var(--text); min-height: 20px;
+    }
+    .sep {
+      width: 100%; height: 1px;
+      background: var(--border); margin: 14px 0; opacity: 0.5;
+    }
+    .tecnico-pre {
+      font-family: var(--mono); font-size: 9px;
+      color: var(--muted); white-space: pre-wrap; line-height: 1.7;
+      background: var(--bg); border-radius: 10px;
+      padding: 12px; border: 1px solid var(--border); margin-top: 6px;
+    }
+
+    /* ── TOKENS DISPLAY ── */
     .tokens-display {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 6px;
     }
     .tokens-numero {
-      font-family: var(--mono);
-      font-size: 32px;
-      color: var(--cyan);
-      font-weight: bold;
-      letter-spacing: 2px;
+      font-family: var(--mono); font-size: 36px;
+      color: var(--cyan); font-weight: bold; letter-spacing: 2px;
     }
     .tokens-label {
-      font-family: var(--mono);
-      font-size: 8px;
-      letter-spacing: 3px;
-      color: var(--muted);
-      text-transform: uppercase;
+      font-family: var(--mono); font-size: 8px;
+      letter-spacing: 3px; color: var(--muted); text-transform: uppercase;
+    }
+    .tokens-info {
+      font-family: var(--mono); font-size: 8px;
+      color: var(--muted); line-height: 1.9; text-align: right;
     }
     .tokens-bar-wrap {
-      background: var(--bg);
-      border-radius: 4px;
-      height: 4px;
-      overflow: hidden;
-      margin-bottom: 14px;
-      border: 1px solid var(--border);
+      background: var(--bg); border-radius: 4px;
+      height: 3px; overflow: hidden;
+      margin: 10px 0 4px; border: 1px solid var(--border);
     }
     .tokens-bar {
       height: 100%;
       background: linear-gradient(90deg, var(--teal), var(--cyan));
-      border-radius: 4px;
-      transition: width 0.6s ease;
+      border-radius: 4px; transition: width 0.6s ease;
     }
-    .tokens-pacotes {
-      display: flex;
-      gap: 8px;
-    }
-    .pacote-btn {
-      flex: 1;
-      padding: 10px 6px;
+    .tokens-painel-aviso {
+      font-family: var(--mono); font-size: 9px;
+      color: var(--muted); line-height: 1.8;
+      margin-top: 12px; padding: 12px 14px;
+      background: var(--bg); border-radius: 10px;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      background: var(--bg);
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 1px;
-      color: var(--muted);
-      cursor: pointer;
-      text-align: center;
-      transition: 0.2s;
     }
-    .pacote-btn:hover {
-      border-color: var(--cyan);
-      color: var(--cyan);
-      background: rgba(62,207,207,0.04);
-    }
-    .pacote-btn strong {
-      display: block;
-      font-size: 14px;
-      color: var(--text);
-      margin-bottom: 2px;
-    }
-
-    /* ── RESULTADO ── */
-    .resultado-bloco { margin-top: 14px; }
-    .resultado-bloco h4 {
-      font-size: 8px;
-      color: var(--muted);
-      font-family: var(--mono);
-      letter-spacing: 3px;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
-    .resultado-texto {
-      font-size: 14px;
-      font-weight: 300;
-      line-height: 1.75;
-      color: var(--text);
-      min-height: 20px;
-    }
-
-    .estado-tag {
-      display: inline-block;
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 3px;
-      padding: 6px 14px;
-      border-radius: 20px;
-      background: rgba(62,207,207,0.1);
-      color: var(--cyan);
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
+    .tokens-painel-aviso strong { color: var(--text); }
 
     /* ── SPINNER ── */
     .spinner { display: none; text-align: center; padding: 24px 0; }
@@ -344,116 +247,73 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner p {
-      font-family: var(--mono);
-      font-size: 8px;
-      color: var(--muted);
-      letter-spacing: 2px;
-      line-height: 1.8;
+      font-family: var(--mono); font-size: 8px;
+      color: var(--muted); letter-spacing: 2px; line-height: 1.8;
     }
-
-    /* ── PROGRESSO DE EXTRAÇÃO ── */
     .extracao-status {
-      font-family: var(--mono);
-      font-size: 8px;
-      color: var(--muted);
-      letter-spacing: 2px;
-      text-align: center;
-      margin-top: 6px;
-      min-height: 14px;
-      transition: 0.3s;
+      font-family: var(--mono); font-size: 8px;
+      color: var(--muted); letter-spacing: 2px;
+      text-align: center; margin-top: 6px; min-height: 14px;
     }
 
     /* ── BOTÕES ── */
     .btn {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      border-radius: 14px;
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: 0.2s;
-      margin-top: 10px;
+      width: 100%; padding: 15px; border: none;
+      border-radius: 14px; font-family: var(--mono);
+      font-size: 10px; letter-spacing: 3px;
+      text-transform: uppercase; cursor: pointer;
+      transition: 0.2s; margin-top: 10px;
     }
     .btn-primary {
-      background: var(--cyan);
-      color: #072024;
-      font-weight: 700;
-      box-shadow: 0 4px 18px var(--cglow);
+      background: var(--cyan); color: #072024;
+      font-weight: 700; box-shadow: 0 4px 18px var(--cglow);
     }
     .btn-primary:hover:not(:disabled) {
       transform: translateY(-1px);
       box-shadow: 0 6px 24px var(--cglow);
     }
     .btn-primary:disabled {
-      background: var(--border);
-      color: var(--muted);
-      box-shadow: none;
-      cursor: not-allowed;
+      background: var(--border); color: var(--muted);
+      box-shadow: none; cursor: not-allowed;
     }
-    .btn-teal  { background: var(--teal); color: white; font-weight: 700; }
     .btn-ghost {
-      background: transparent;
-      color: var(--muted);
+      background: transparent; color: var(--muted);
       border: 1px solid var(--border);
     }
     .btn-ghost:hover { border-color: var(--muted); }
-
-    /* ── TOKEN AVISO ── */
-    .token-aviso {
-      font-family: var(--mono);
-      font-size: 9px;
+    .btn-logout {
+      background: transparent;
       color: var(--muted);
-      text-align: center;
-      margin-top: 10px;
-      line-height: 1.6;
-    }
-    .token-aviso a { color: var(--cyan); text-decoration: none; }
-
-    /* ── TÉCNICO ── */
-    .tecnico-pre {
-      font-family: var(--mono);
-      font-size: 9px;
-      color: var(--muted);
-      white-space: pre-wrap;
-      line-height: 1.7;
-      background: var(--bg);
-      border-radius: 10px;
-      padding: 12px;
       border: 1px solid var(--border);
-      margin-top: 6px;
+      font-family: var(--mono);
+      font-size: 9px; letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 14px; border-radius: 14px;
+      width: 100%; cursor: pointer;
+      margin-top: 10px; transition: 0.2s;
     }
-
-    /* ── SEPARADOR ── */
-    .sep {
-      width: 100%;
-      height: 1px;
-      background: var(--border);
-      margin: 6px 0 16px;
-      opacity: 0.5;
-    }
+    .btn-logout:hover { border-color: var(--red); color: var(--red); }
 
     .hidden { display: none !important; }
 
+    /* ── RODAPÉ ── */
+    .footer-area {
+      margin-top: 40px;
+      width: 100%;
+    }
     footer {
-      margin-top: 44px;
       text-align: center;
       font-family: var(--mono);
-      font-size: 8px;
-      color: var(--border);
-      letter-spacing: 2px;
+      font-size: 8px; color: var(--border);
+      letter-spacing: 2px; margin-top: 16px;
     }
 
-    /* ── ANIMAÇÃO ENTRADA ── */
+    /* ── ANIMAÇÃO ── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .card, .tokens-card, .hero {
-      animation: fadeUp 0.5s ease both;
-    }
+    .card, .hero { animation: fadeUp 0.45s ease both; }
     .card:nth-child(2) { animation-delay: 0.05s; }
     .card:nth-child(3) { animation-delay: 0.10s; }
     .card:nth-child(4) { animation-delay: 0.15s; }
@@ -487,8 +347,13 @@
     </p>
   </section>
 
-  <!-- CALIBRAÇÃO STATUS -->
-  <div class="card">
+  <!-- RECALIBRAR (aparece só quando calibrado) -->
+  <span class="recalib-link hidden" id="linkRecalibrar" onclick="irCalibrar()">
+    ↺ Recalibrar sinal
+  </span>
+
+  <!-- CALIBRAÇÃO (some quando calibrado) -->
+  <div class="card" id="cardCalibracao">
     <span class="card-label">Inicialização de Sinais</span>
     <div class="citacao">
       "Antes da leitura, alinhar origem, intenção e estabilidade do emissor."
@@ -507,12 +372,12 @@
         <span class="calib-badge spin" id="badgeF3">···</span>
       </div>
     </div>
-    <button class="btn btn-ghost" id="btnCalibracao" style="margin-top:16px;" onclick="irCalibrar()">
+    <button class="btn btn-ghost" style="margin-top:16px;" onclick="irCalibrar()">
       Executar calibração
     </button>
   </div>
 
-  <!-- ANÁLISE CRS -->
+  <!-- ANÁLISE CRS (bloqueado até calibrar) -->
   <div class="card" id="cardAnalise">
     <span class="card-label">Processamento CRS</span>
 
@@ -541,9 +406,10 @@
       Iniciar leitura
     </button>
 
-    <p class="token-aviso">
-      Sem tokens? <a href="javascript:void(0)" onclick="scrollToTokens()">Recarregar módulo</a>
-    </p>
+    <div class="token-aviso" id="tokenAviso" style="display:none;">
+      Tokens insuficientes. Recarregue no painel Elayon.<br>
+      <strong>Tokens são gerenciados fora deste módulo.</strong>
+    </div>
   </div>
 
   <!-- RESULTADO -->
@@ -556,16 +422,12 @@
       <h4>Padrão identificado</h4>
       <p class="resultado-texto" id="resEstado">—</p>
     </div>
-
     <div class="sep"></div>
-
     <div class="resultado-bloco">
       <h4>Direcionamento sugerido</h4>
       <p class="resultado-texto" id="resOrientacao">—</p>
     </div>
-
     <div class="sep"></div>
-
     <div class="resultado-bloco">
       <h4>Estrutura técnica</h4>
       <pre class="tecnico-pre" id="resTecnico">—</pre>
@@ -577,20 +439,19 @@
     </button>
   </div>
 
-  <!-- TOKENS -->
-  <div class="tokens-card" id="tokensCard">
-    <span class="card-label">Gestão de Recursos</span>
+  <!-- TOKENS INFO -->
+  <div class="card" id="tokensCard">
+    <span class="card-label">Recursos</span>
 
     <div class="tokens-display">
       <div>
         <div class="tokens-numero" id="tokensGrande">0</div>
         <div class="tokens-label">tokens disponíveis</div>
       </div>
-      <div style="text-align:right;">
-        <div style="font-family:var(--mono);font-size:8px;color:var(--muted);line-height:1.8;">
-          Leitura isolada · 1 token<br>
-          Leitura com memória · 2 tokens
-        </div>
+      <div class="tokens-info">
+        Leitura isolada · 1 token<br>
+        Leitura com memória · 2 tokens<br>
+        Calibração · gratuita
       </div>
     </div>
 
@@ -598,20 +459,21 @@
       <div class="tokens-bar" id="tokensBar" style="width:0%"></div>
     </div>
 
-    <div class="tokens-pacotes">
-      <div class="pacote-btn" onclick="adicionarTokens(5)">
-        <strong>+5</strong>tokens
-      </div>
-      <div class="pacote-btn" onclick="adicionarTokens(10)">
-        <strong>+10</strong>tokens
-      </div>
-      <div class="pacote-btn" onclick="adicionarTokens(20)">
-        <strong>+20</strong>tokens
-      </div>
+    <div class="tokens-painel-aviso">
+      <strong>Tokens são carregados no painel Elayon.</strong><br>
+      Este módulo apenas debita conforme o uso.<br>
+      Para recarregar, acesse o painel e retorne.
     </div>
   </div>
 
-  <footer>ELAYON PRESENÇA V2.0 — INTERFACE DE LEITURA ATIVA</footer>
+  <!-- RODAPÉ COM LOGOUT -->
+  <div class="footer-area">
+    <button class="btn-logout" onclick="confirmarLogout()">
+      Encerrar sessão
+    </button>
+    <footer>ELAYON PRESENÇA V2.1 — INTERFACE DE LEITURA ATIVA</footer>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -619,24 +481,23 @@
 /* ══════════════════════════════════════════════════════
    CONFIG
 ══════════════════════════════════════════════════════ */
-var SUPA_URL  = 'https://eudcjihffrfmhzmfwtlg.supabase.co';
-var SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZGNqaWhmZnJmbWh6bWZ3dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDE3MjUsImV4cCI6MjA5MDMxNzcyNX0.2tod6vvl_4SAXzSmW1wU8Mk9pLn8fvhF2xrAZOysUu0';
+var SUPA_URL     = 'https://eudcjihffrfmhzmfwtlg.supabase.co';
+var SUPA_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZGNqaWhmZnJmbWh6bWZ3dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDE3MjUsImV4cCI6MjA5MDMxNzcyNX0.2tod6vvl_4SAXzSmW1wU8Mk9pLn8fvhF2xrAZOysUu0';
 var CRS_ENDPOINT = 'https://nucleo-crs-elayon.onrender.com/api/crs/analisar';
-var supa = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+var LOGIN_URL    = 'https://paulorobertoxavierjunior-create.github.io/elayon-cadastro/login.html';
+var supa         = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
-var tipoAnalise = 'unica';
-var userId      = null;
-var accessToken = null;
-var tokens      = 0;
-var MAX_TOKENS  = 50; // referência pra barra visual
-
-var metricas3fases = null; // resultado da extração local
+var tipoAnalise    = 'unica';
+var userId         = null;
+var accessToken    = null;
+var tokens         = 0;
+var MAX_TOKENS     = 50;
+var metricas3fases = null;
 
 /* ══════════════════════════════════════════════════════
    BOOT
 ══════════════════════════════════════════════════════ */
 (async function boot() {
-  // Aceita token por querystring (vindo do painel)
   var params = new URLSearchParams(window.location.search);
   var at = params.get('at'), rt = params.get('rt');
   if (at && rt) {
@@ -647,10 +508,10 @@ var metricas3fases = null; // resultado da extração local
     window.history.replaceState({}, '', window.location.pathname);
   }
 
-  var sess = await supa.auth.getSession();
+  var sess    = await supa.auth.getSession();
   var session = sess?.data?.session;
   if (!session) {
-    window.location.href = 'https://paulorobertoxavierjunior-create.github.io/elayon-avaliacao/';
+    window.location.href = LOGIN_URL;
     return;
   }
 
@@ -662,27 +523,53 @@ var metricas3fases = null; // resultado da extração local
 
   await carregarTokens();
 
-  // Verifica calibração obrigatória por sessão
-  var calibradoNestaSessao = sessionStorage.getItem('elayon_calibrado');
+  // Verifica calibração
+  var jaCalibrado = sessionStorage.getItem('elayon_calibrado');
   var f1 = localStorage.getItem('audio_fase_1');
   var f2 = localStorage.getItem('audio_fase_2');
   var f3 = localStorage.getItem('audio_fase_3');
 
-  if (f1 && f2 && f3 && calibradoNestaSessao) {
-    // Tudo ok — extrai métricas
+  if (f1 && f2 && f3) {
     await extrairMetricasTodas(f1, f2, f3);
-    atualizarStatusCalibracao(true);
+    sessionStorage.setItem('elayon_calibrado', '1');
+    revelarCalibracao(true);
   } else {
-    // Áudios existem mas sessão não foi marcada — respeita mesmo assim se existirem
-    if (f1 && f2 && f3) {
-      await extrairMetricasTodas(f1, f2, f3);
-      sessionStorage.setItem('elayon_calibrado', '1');
-      atualizarStatusCalibracao(true);
-    } else {
-      atualizarStatusCalibracao(false);
-    }
+    revelarCalibracao(false);
   }
 })();
+
+/* ══════════════════════════════════════════════════════
+   CALIBRAÇÃO — mostra/esconde card
+══════════════════════════════════════════════════════ */
+function revelarCalibracao(ok) {
+  var cardCalib    = document.getElementById('cardCalibracao');
+  var linkRecalib  = document.getElementById('linkRecalibrar');
+
+  if (ok) {
+    // Some o card grande, aparece link discreto
+    cardCalib.classList.add('hidden');
+    linkRecalib.classList.remove('hidden');
+    // Atualiza badges mesmo que escondidos
+    for (var n = 1; n <= 3; n++) {
+      var badge = document.getElementById('badgeF' + n);
+      var item  = document.getElementById('itemF'  + n);
+      badge.textContent = 'OK';
+      badge.className   = 'calib-badge ok';
+      item.classList.add('ok-item');
+    }
+  } else {
+    cardCalib.classList.remove('hidden');
+    linkRecalib.classList.add('hidden');
+    for (var n = 1; n <= 3; n++) {
+      var badge = document.getElementById('badgeF' + n);
+      badge.textContent = 'Ausente';
+      badge.className   = 'calib-badge vazio';
+    }
+    document.getElementById('btnAnalisar').disabled = true;
+  }
+
+  atualizarUI_tokens();
+}
 
 /* ══════════════════════════════════════════════════════
    TOKENS
@@ -697,247 +584,14 @@ function atualizarUI_tokens() {
   document.getElementById('hudTokens').textContent    = tokens;
   document.getElementById('tokensGrande').textContent = tokens;
   var pct = Math.min(100, (tokens / MAX_TOKENS) * 100);
-  document.getElementById('tokensBar').style.width = pct + '%';
-  var custo = tipoAnalise === 'unica' ? 1 : 2;
+  document.getElementById('tokensBar').style.width    = pct + '%';
+
+  var custo    = tipoAnalise === 'unica' ? 1 : 2;
   var temCalib = !!metricas3fases;
-  document.getElementById('btnAnalisar').disabled = !(tokens >= custo && temCalib);
-}
+  var temToken = tokens >= custo;
 
-async function adicionarTokens(qtd) {
-  await supa.rpc('adicionar_tokens', { p_user_id: userId, p_quantidade: qtd });
-  tokens += qtd;
-  atualizarUI_tokens();
-}
-
-function scrollToTokens() {
-  document.getElementById('tokensCard').scrollIntoView({ behavior: 'smooth' });
-}
-
-/* ══════════════════════════════════════════════════════
-   EXTRAÇÃO DE MÉTRICAS — Web Audio API
-══════════════════════════════════════════════════════ */
-function setStatus(msg) {
-  document.getElementById('extracaoStatus').textContent = msg;
-}
-
-async function base64ToArrayBuffer(dataUrl) {
-  // dataUrl = "data:audio/webm;base64,AAAA..."
-  var base64 = dataUrl.split(',')[1];
-  var binary = atob(base64);
-  var buf = new ArrayBuffer(binary.length);
-  var view = new Uint8Array(buf);
-  for (var i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
-  return buf;
-}
-
-async function extrairMetricasDeAudio(dataUrl, contexto) {
-  setStatus('Decodificando ' + contexto + '...');
-  var buf = await base64ToArrayBuffer(dataUrl);
-
-  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  var decoded;
-  try {
-    decoded = await audioCtx.decodeAudioData(buf);
-  } catch(e) {
-    await audioCtx.close();
-    // Retorna métricas neutras se não conseguir decodificar
-    return {
-      duration_sec: 0, silence_pct: 0, pause_count: 0,
-      mean_pause_ms: 0, oscillation_pct: 0, continuity_pct: 0,
-      energy_pct: 0, spectrum_snapshot: { graves: 0, medios: 0, agudos: 0, ruido: 0, estabilidade: 0 }
-    };
-  }
-
-  var channel    = decoded.getChannelData(0);
-  var sampleRate = decoded.sampleRate;
-  var duration   = decoded.duration;
-
-  // — Energia RMS janelada —
-  var windowSize = Math.floor(sampleRate * 0.025); // 25ms
-  var rmsValues  = [];
-  for (var i = 0; i < channel.length; i += windowSize) {
-    var sum = 0;
-    var end = Math.min(i + windowSize, channel.length);
-    for (var j = i; j < end; j++) sum += channel[j] * channel[j];
-    rmsValues.push(Math.sqrt(sum / (end - i)));
-  }
-
-  // — Silêncio e pausas —
-  var SILENCE_THRESHOLD = 0.015;
-  var MIN_PAUSE_FRAMES  = Math.floor(0.2 / 0.025); // 200ms mínimo
-  var silentFrames = 0;
-  var pauseCount   = 0;
-  var pauseLengths = [];
-  var inPause      = false;
-  var pauseLen     = 0;
-
-  for (var k = 0; k < rmsValues.length; k++) {
-    if (rmsValues[k] < SILENCE_THRESHOLD) {
-      silentFrames++;
-      if (inPause) {
-        pauseLen++;
-      } else {
-        inPause  = true;
-        pauseLen = 1;
-      }
-    } else {
-      if (inPause && pauseLen >= MIN_PAUSE_FRAMES) {
-        pauseCount++;
-        pauseLengths.push(pauseLen * 25); // ms
-      }
-      inPause  = false;
-      pauseLen = 0;
-    }
-  }
-
-  var silence_pct   = rmsValues.length > 0 ? (silentFrames / rmsValues.length) * 100 : 0;
-  var mean_pause_ms = pauseLengths.length > 0
-    ? pauseLengths.reduce((a, b) => a + b, 0) / pauseLengths.length
-    : 0;
-
-  // — Energia média —
-  var rmsMedia   = rmsValues.reduce((a, b) => a + b, 0) / rmsValues.length;
-  var energy_pct = Math.min(100, rmsMedia * 800);
-
-  // — Oscilação (desvio padrão da energia) —
-  var variance = rmsValues.reduce((a, v) => a + Math.pow(v - rmsMedia, 2), 0) / rmsValues.length;
-  var stdDev   = Math.sqrt(variance);
-  var oscillation_pct = Math.min(100, stdDev * 1200);
-
-  // — Continuidade —
-  var continuity_pct = Math.max(0, 100 - silence_pct - oscillation_pct * 0.3);
-
-  // — Espectro simples via FFT offline —
-  var offCtx  = new OfflineAudioContext(1, decoded.length, sampleRate);
-  var src2    = offCtx.createBufferSource();
-  var analyser = offCtx.createAnalyser();
-  analyser.fftSize = 2048;
-  src2.buffer = decoded;
-  src2.connect(analyser);
-  analyser.connect(offCtx.destination);
-
-  // Aproximação de espectro sem OfflineAnalyser (que não suporta getByteFrequencyData)
-  // Usamos DFT simplificado em 3 bandas na amostra central
-  var mid    = Math.floor(channel.length / 2);
-  var sample = channel.slice(mid, mid + 2048);
-  var graves = 0, medios = 0, agudos = 0;
-  for (var s = 0; s < sample.length; s++) {
-    var norm = Math.abs(sample[s]);
-    if (s < 170)       graves += norm;  // < ~100Hz
-    else if (s < 1024) medios += norm;  // 100–1kHz
-    else               agudos += norm;  // > 1kHz
-  }
-  var espTotal = graves + medios + agudos || 1;
-  graves = (graves / espTotal) * 100;
-  medios = (medios / espTotal) * 100;
-  agudos = (agudos / espTotal) * 100;
-
-  // — Ruído estimado (energia residual em frames muito curtos) —
-  var noise_pct = Math.min(40, stdDev * 600);
-
-  // — Estabilidade —
-  var stability_pct = Math.max(0, 100 - oscillation_pct * 0.6 - noise_pct * 0.4);
-
-  await audioCtx.close();
-
-  return {
-    duration_sec:    parseFloat(duration.toFixed(2)),
-    silence_pct:     parseFloat(silence_pct.toFixed(2)),
-    pause_count:     pauseCount,
-    mean_pause_ms:   parseFloat(mean_pause_ms.toFixed(2)),
-    oscillation_pct: parseFloat(oscillation_pct.toFixed(2)),
-    continuity_pct:  parseFloat(continuity_pct.toFixed(2)),
-    energy_pct:      parseFloat(energy_pct.toFixed(2)),
-    spectrum_snapshot: {
-      graves:      parseFloat(graves.toFixed(2)),
-      medios:      parseFloat(medios.toFixed(2)),
-      agudos:      parseFloat(agudos.toFixed(2)),
-      ruido:       parseFloat(noise_pct.toFixed(2)),
-      estabilidade: parseFloat(stability_pct.toFixed(2))
-    }
-  };
-}
-
-async function extrairMetricasTodas(f1, f2, f3) {
-  setStatus('Iniciando extração de sinais...');
-  try {
-    var m1 = await extrairMetricasDeAudio(f1, 'Fase 01');
-    var m2 = await extrairMetricasDeAudio(f2, 'Fase 02');
-    var m3 = await extrairMetricasDeAudio(f3, 'Fase 03');
-
-    // Consolida as 3 fases em um vetor único (média ponderada)
-    metricas3fases = consolidarMetricas(m1, m2, m3);
-    setStatus('Sinais extraídos. Sistema pronto.');
-    console.log('📊 Métricas consolidadas:', metricas3fases);
-  } catch(e) {
-    console.error('Extração falhou:', e);
-    setStatus('Falha na extração. Recalibre.');
-    metricas3fases = null;
-  }
-}
-
-function consolidarMetricas(m1, m2, m3) {
-  // F1 peso 0.3, F2 peso 0.3, F3 peso 0.4 (comprometimento tem maior peso)
-  var w = [0.3, 0.3, 0.4];
-  var ms = [m1, m2, m3];
-
-  function media(campo) {
-    return ms.reduce((acc, m, i) => acc + (m[campo] || 0) * w[i], 0);
-  }
-  function mediaSnap(campo) {
-    return ms.reduce((acc, m, i) => acc + (m.spectrum_snapshot[campo] || 0) * w[i], 0);
-  }
-
-  return {
-    duration_sec:    parseFloat((m1.duration_sec + m2.duration_sec + m3.duration_sec).toFixed(2)),
-    silence_pct:     parseFloat(media('silence_pct').toFixed(2)),
-    pause_count:     m1.pause_count + m2.pause_count + m3.pause_count,
-    mean_pause_ms:   parseFloat(media('mean_pause_ms').toFixed(2)),
-    oscillation_pct: parseFloat(media('oscillation_pct').toFixed(2)),
-    continuity_pct:  parseFloat(media('continuity_pct').toFixed(2)),
-    energy_pct:      parseFloat(media('energy_pct').toFixed(2)),
-    context:         'calibracao_3fases',
-    transcript_raw:  '',
-    spectrum_snapshot: {
-      graves:       parseFloat(mediaSnap('graves').toFixed(2)),
-      medios:       parseFloat(mediaSnap('medios').toFixed(2)),
-      agudos:       parseFloat(mediaSnap('agudos').toFixed(2)),
-      ruido:        parseFloat(mediaSnap('ruido').toFixed(2)),
-      estabilidade: parseFloat(mediaSnap('estabilidade').toFixed(2))
-    }
-  };
-}
-
-/* ══════════════════════════════════════════════════════
-   STATUS DE CALIBRAÇÃO
-══════════════════════════════════════════════════════ */
-function atualizarStatusCalibracao(ok) {
-  for (var n = 1; n <= 3; n++) {
-    var badge = document.getElementById('badgeF' + n);
-    var item  = document.getElementById('itemF' + n);
-    if (ok) {
-      badge.textContent  = 'OK';
-      badge.className    = 'calib-badge ok';
-      item.classList.add('ok-item');
-    } else {
-      badge.textContent = 'Ausente';
-      badge.className   = 'calib-badge vazio';
-      item.classList.remove('ok-item');
-    }
-  }
-
-  var btn = document.getElementById('btnCalibracao');
-  if (!ok) {
-    btn.textContent           = 'Calibrar agora — obrigatório';
-    btn.style.borderColor     = 'var(--red)';
-    btn.style.color           = 'var(--red)';
-  } else {
-    btn.textContent           = 'Recalibrar';
-    btn.style.borderColor     = 'var(--border)';
-    btn.style.color           = 'var(--muted)';
-  }
-
-  atualizarUI_tokens(); // reavalia botão de análise
+  document.getElementById('btnAnalisar').disabled = !(temCalib && temToken);
+  document.getElementById('tokenAviso').style.display = (temCalib && !temToken) ? 'block' : 'none';
 }
 
 /* ══════════════════════════════════════════════════════
@@ -952,91 +606,151 @@ function selecionarTipo(tipo) {
 }
 
 /* ══════════════════════════════════════════════════════
-   ANÁLISE CRS
+   EXTRAÇÃO — Web Audio API
 ══════════════════════════════════════════════════════ */
-async function iniciarAnalise() {
-  var custo = tipoAnalise === 'unica' ? 1 : 2;
-  if (tokens < custo) {
-    scrollToTokens();
-    return;
-  }
-  if (!metricas3fases) {
-    alert('Calibre antes de iniciar a leitura.');
-    return;
-  }
+function setStatus(msg) {
+  document.getElementById('extracaoStatus').textContent = msg;
+}
 
-  document.getElementById('btnAnalisar').disabled = true;
-  document.getElementById('spinnerAnalise').style.display = 'block';
-  document.getElementById('cardResultado').classList.add('hidden');
-  setStatus('');
+async function base64ToArrayBuffer(dataUrl) {
+  var base64 = dataUrl.split(',')[1];
+  var binary = atob(base64);
+  var buf    = new ArrayBuffer(binary.length);
+  var view   = new Uint8Array(buf);
+  for (var i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
+  return buf;
+}
+
+async function extrairMetricasDeAudio(dataUrl, contexto) {
+  setStatus('Decodificando ' + contexto + '...');
+  var buf      = await base64ToArrayBuffer(dataUrl);
+  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  var decoded;
 
   try {
-    var payload = Object.assign({}, metricas3fases);
-
-    // Se análise com memória, agrega métricas das sessões anteriores
-    if (tipoAnalise === 'memoria') {
-      var hist = JSON.parse(localStorage.getItem('historico_metricas') || '[]');
-      if (hist.length > 0) {
-        // Média simples entre sessão atual e histórico
-        var todas = [metricas3fases, ...hist.slice(0, 2)];
-        payload = consolidarHistorico(todas);
-        payload.context = 'calibracao_3fases_memoria' + todas.length;
-      }
-    }
-
-    document.getElementById('spinnerMsg').innerHTML =
-      'Transmitindo ao núcleo CRS.<br>Aguarde.';
-
-    var res = await fetch(CRS_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': 'Bearer ' + accessToken
-      },
-      body: JSON.stringify(payload)
-    });
-
-    var data = await res.json();
-
-    // Salva métricas no histórico local
-    salvarMetricasHistorico(metricas3fases);
-
-    exibirResultado(data);
-
-    // Debita tokens
-    await supa.rpc('adicionar_tokens', { p_user_id: userId, p_quantidade: -custo });
-    tokens -= custo;
-    atualizarUI_tokens();
-
+    decoded = await audioCtx.decodeAudioData(buf);
   } catch(e) {
-    console.error('Erro CRS:', e);
-    exibirResultado({
-      ok: false,
-      analise_sugestiva: 'ERRO DE COMUNICAÇÃO',
-      sugestao_ia: 'Não foi possível conectar ao núcleo. Verifique sua conexão.',
-      relatorio: metricas3fases
-    });
-    document.getElementById('btnAnalisar').disabled = false;
+    await audioCtx.close();
+    return { duration_sec:0, silence_pct:0, pause_count:0, mean_pause_ms:0,
+             oscillation_pct:0, continuity_pct:0, energy_pct:0,
+             spectrum_snapshot:{ graves:0, medios:0, agudos:0, ruido:0, estabilidade:0 } };
   }
 
-  document.getElementById('spinnerAnalise').style.display = 'none';
+  var channel    = decoded.getChannelData(0);
+  var sampleRate = decoded.sampleRate;
+  var duration   = decoded.duration;
+  var winSize    = Math.floor(sampleRate * 0.025);
+  var rmsValues  = [];
+
+  for (var i = 0; i < channel.length; i += winSize) {
+    var sum = 0, end = Math.min(i + winSize, channel.length);
+    for (var j = i; j < end; j++) sum += channel[j] * channel[j];
+    rmsValues.push(Math.sqrt(sum / (end - i)));
+  }
+
+  var THRESH       = 0.015;
+  var MIN_FRAMES   = Math.floor(0.2 / 0.025);
+  var silentFrames = 0, pauseCount = 0;
+  var pauseLengths = [], inPause = false, pauseLen = 0;
+
+  for (var k = 0; k < rmsValues.length; k++) {
+    if (rmsValues[k] < THRESH) {
+      silentFrames++;
+      inPause ? pauseLen++ : (inPause = true, pauseLen = 1);
+    } else {
+      if (inPause && pauseLen >= MIN_FRAMES) { pauseCount++; pauseLengths.push(pauseLen * 25); }
+      inPause = false; pauseLen = 0;
+    }
+  }
+
+  var silence_pct   = rmsValues.length ? (silentFrames / rmsValues.length) * 100 : 0;
+  var mean_pause_ms = pauseLengths.length
+    ? pauseLengths.reduce((a,b) => a+b, 0) / pauseLengths.length : 0;
+
+  var rmsMedia        = rmsValues.reduce((a,b) => a+b, 0) / rmsValues.length;
+  var energy_pct      = Math.min(100, rmsMedia * 800);
+  var variance        = rmsValues.reduce((a,v) => a + Math.pow(v - rmsMedia, 2), 0) / rmsValues.length;
+  var stdDev          = Math.sqrt(variance);
+  var oscillation_pct = Math.min(100, stdDev * 1200);
+  var continuity_pct  = Math.max(0, 100 - silence_pct - oscillation_pct * 0.3);
+
+  // Espectro — DFT simplificado em 3 bandas
+  var mid = Math.floor(channel.length / 2);
+  var seg = channel.slice(mid, mid + 2048);
+  var gr = 0, me = 0, ag = 0;
+  for (var s = 0; s < seg.length; s++) {
+    var n = Math.abs(seg[s]);
+    if (s < 170) gr += n; else if (s < 1024) me += n; else ag += n;
+  }
+  var tot = gr + me + ag || 1;
+  gr = (gr/tot)*100; me = (me/tot)*100; ag = (ag/tot)*100;
+
+  var noise_pct    = Math.min(40, stdDev * 600);
+  var stability    = Math.max(0, 100 - oscillation_pct * 0.6 - noise_pct * 0.4);
+
+  await audioCtx.close();
+
+  return {
+    duration_sec:    parseFloat(duration.toFixed(2)),
+    silence_pct:     parseFloat(silence_pct.toFixed(2)),
+    pause_count:     pauseCount,
+    mean_pause_ms:   parseFloat(mean_pause_ms.toFixed(2)),
+    oscillation_pct: parseFloat(oscillation_pct.toFixed(2)),
+    continuity_pct:  parseFloat(continuity_pct.toFixed(2)),
+    energy_pct:      parseFloat(energy_pct.toFixed(2)),
+    spectrum_snapshot: {
+      graves:       parseFloat(gr.toFixed(2)),
+      medios:       parseFloat(me.toFixed(2)),
+      agudos:       parseFloat(ag.toFixed(2)),
+      ruido:        parseFloat(noise_pct.toFixed(2)),
+      estabilidade: parseFloat(stability.toFixed(2))
+    }
+  };
+}
+
+async function extrairMetricasTodas(f1, f2, f3) {
+  setStatus('Iniciando extração de sinais...');
+  try {
+    var m1 = await extrairMetricasDeAudio(f1, 'Fase 01');
+    var m2 = await extrairMetricasDeAudio(f2, 'Fase 02');
+    var m3 = await extrairMetricasDeAudio(f3, 'Fase 03');
+    metricas3fases = consolidar([m1, m2, m3], [0.3, 0.3, 0.4]);
+    setStatus('Sinais prontos.');
+    salvarMetricasHistorico(metricas3fases);
+  } catch(e) {
+    console.error(e);
+    setStatus('Falha na extração. Recalibre.');
+    metricas3fases = null;
+  }
+}
+
+function consolidar(ms, w) {
+  function med(c)  { return ms.reduce((a,m,i) => a + (m[c]||0)*w[i], 0); }
+  function medS(c) { return ms.reduce((a,m,i) => a + (m.spectrum_snapshot[c]||0)*w[i], 0); }
+  return {
+    duration_sec:    parseFloat((ms[0].duration_sec+ms[1].duration_sec+ms[2].duration_sec).toFixed(2)),
+    silence_pct:     parseFloat(med('silence_pct').toFixed(2)),
+    pause_count:     ms[0].pause_count+ms[1].pause_count+ms[2].pause_count,
+    mean_pause_ms:   parseFloat(med('mean_pause_ms').toFixed(2)),
+    oscillation_pct: parseFloat(med('oscillation_pct').toFixed(2)),
+    continuity_pct:  parseFloat(med('continuity_pct').toFixed(2)),
+    energy_pct:      parseFloat(med('energy_pct').toFixed(2)),
+    context:         'calibracao_3fases',
+    transcript_raw:  '',
+    spectrum_snapshot: {
+      graves:       parseFloat(medS('graves').toFixed(2)),
+      medios:       parseFloat(medS('medios').toFixed(2)),
+      agudos:       parseFloat(medS('agudos').toFixed(2)),
+      ruido:        parseFloat(medS('ruido').toFixed(2)),
+      estabilidade: parseFloat(medS('estabilidade').toFixed(2))
+    }
+  };
 }
 
 function consolidarHistorico(lista) {
-  var base = JSON.parse(JSON.stringify(lista[0]));
-  // Média simples de todas as sessões
-  var campos = ['duration_sec','silence_pct','pause_count','mean_pause_ms',
-                'oscillation_pct','continuity_pct','energy_pct'];
-  campos.forEach(function(c) {
-    base[c] = parseFloat((lista.reduce((a, m) => a + (m[c] || 0), 0) / lista.length).toFixed(2));
-  });
-  var snapCampos = ['graves','medios','agudos','ruido','estabilidade'];
-  snapCampos.forEach(function(c) {
-    base.spectrum_snapshot[c] = parseFloat(
-      (lista.reduce((a, m) => a + (m.spectrum_snapshot[c] || 0), 0) / lista.length).toFixed(2)
-    );
-  });
-  return base;
+  var n = lista.length;
+  var w = lista.map(() => 1/n);
+  return consolidar(lista, w);
 }
 
 function salvarMetricasHistorico(m) {
@@ -1047,45 +761,121 @@ function salvarMetricasHistorico(m) {
 }
 
 /* ══════════════════════════════════════════════════════
+   ANÁLISE CRS
+══════════════════════════════════════════════════════ */
+async function iniciarAnalise() {
+  var custo = tipoAnalise === 'unica' ? 1 : 2;
+  if (tokens < custo || !metricas3fases) return;
+
+  document.getElementById('btnAnalisar').disabled          = true;
+  document.getElementById('spinnerAnalise').style.display  = 'block';
+  document.getElementById('cardResultado').classList.add('hidden');
+  setStatus('');
+
+  try {
+    var payload = Object.assign({}, metricas3fases);
+
+    if (tipoAnalise === 'memoria') {
+      var hist = JSON.parse(localStorage.getItem('historico_metricas') || '[]');
+      if (hist.length > 1) {
+        var todas = hist.slice(0, 3);
+        payload = consolidarHistorico(todas);
+        payload.context = 'calibracao_memoria_' + todas.length;
+      }
+    }
+
+    document.getElementById('spinnerMsg').innerHTML = 'Transmitindo ao núcleo CRS.<br>Aguarde.';
+
+    var res = await fetch(CRS_ENDPOINT, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + accessToken
+      },
+      body: JSON.stringify(payload)
+    });
+
+    var data = await res.json();
+    exibirResultado(data);
+
+    // ── DÉBITO REAL NO SUPABASE ──
+    var debito = await supa.rpc('adicionar_tokens', {
+      p_user_id:    userId,
+      p_quantidade: -custo
+    });
+
+    if (!debito.error) {
+      tokens -= custo;
+      atualizarUI_tokens();
+    } else {
+      console.error('Erro ao debitar tokens:', debito.error);
+    }
+
+  } catch(e) {
+    console.error('Erro CRS:', e);
+    exibirResultado({
+      ok: false,
+      analise_sugestiva: 'ERRO DE COMUNICAÇÃO',
+      sugestao_ia: 'Não foi possível conectar ao núcleo. Verifique sua conexão e tente novamente.',
+      relatorio: metricas3fases
+    });
+    document.getElementById('btnAnalisar').disabled = false;
+  }
+
+  document.getElementById('spinnerAnalise').style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════════════
    EXIBIÇÃO DO RESULTADO
 ══════════════════════════════════════════════════════ */
 function exibirResultado(data) {
   var card = document.getElementById('cardResultado');
   card.classList.remove('hidden');
 
-  var estado     = data.analise_sugestiva || 'Indeterminado';
-  var sugestao   = data.sugestao_ia       || '—';
-  var relatorio  = data.relatorio         || {};
+  var estado   = data.analise_sugestiva || 'Indeterminado';
+  var sugestao = data.sugestao_ia       || '—';
+  var rel      = data.relatorio         || {};
 
-  document.getElementById('resEstadoTag').textContent = estado;
-  document.getElementById('resEstado').textContent    = estado;
+  document.getElementById('resEstadoTag').textContent  = estado;
+  document.getElementById('resEstado').textContent     = estado;
   document.getElementById('resOrientacao').textContent = sugestao;
 
-  var tecnico = '';
-  if (relatorio && Object.keys(relatorio).length) {
-    tecnico += 'Duração total    : ' + (relatorio.tempo_total || 0) + 's\n';
-    tecnico += 'Silêncio         : ' + (relatorio.porcentagem_silencio || 0) + '%\n';
-    tecnico += 'Pausas           : ' + (relatorio.total_pausas || 0) + '\n';
-    tecnico += 'Média pausa      : ' + (relatorio.media_pausa_ms || 0) + 'ms\n';
-    tecnico += 'Densidade        : ' + (relatorio.densidade || 0) + '\n';
-    tecnico += 'Continuidade     : ' + (relatorio.continuidade_pct || 0) + '%\n';
-    tecnico += 'Energia          : ' + (relatorio.energia_pct || 0) + '%\n';
-    tecnico += 'Oscilação        : ' + (relatorio.oscilacao_pct || 0) + '%\n';
-    if (relatorio.snapshot_sonoro) {
-      var s = relatorio.snapshot_sonoro;
-      tecnico += '\nEspectro Sonoro\n';
-      tecnico += '  Graves         : ' + s.graves + '%\n';
-      tecnico += '  Médios         : ' + s.medios + '%\n';
-      tecnico += '  Agudos         : ' + s.agudos + '%\n';
-      tecnico += '  Ruído          : ' + s.ruido  + '%\n';
-      tecnico += '  Estabilidade   : ' + s.estabilidade + '%\n';
+  var t = '';
+  if (rel && Object.keys(rel).length) {
+    t += 'Duração total    : ' + (rel.tempo_total            || 0) + 's\n';
+    t += 'Silêncio         : ' + (rel.porcentagem_silencio   || 0) + '%\n';
+    t += 'Pausas           : ' + (rel.total_pausas           || 0) + '\n';
+    t += 'Média pausa      : ' + (rel.media_pausa_ms         || 0) + 'ms\n';
+    t += 'Densidade        : ' + (rel.densidade              || 0) + '\n';
+    t += 'Continuidade     : ' + (rel.continuidade_pct       || 0) + '%\n';
+    t += 'Energia          : ' + (rel.energia_pct            || 0) + '%\n';
+    t += 'Oscilação        : ' + (rel.oscilacao_pct          || 0) + '%\n';
+    if (rel.snapshot_sonoro) {
+      var s = rel.snapshot_sonoro;
+      t += '\nEspectro Sonoro\n';
+      t += '  Graves         : ' + s.graves       + '%\n';
+      t += '  Médios         : ' + s.medios       + '%\n';
+      t += '  Agudos         : ' + s.agudos       + '%\n';
+      t += '  Ruído          : ' + s.ruido        + '%\n';
+      t += '  Estabilidade   : ' + s.estabilidade + '%\n';
     }
   } else {
-    tecnico = JSON.stringify(data, null, 2);
+    t = JSON.stringify(data, null, 2);
   }
 
-  document.getElementById('resTecnico').textContent = tecnico;
+  document.getElementById('resTecnico').textContent = t;
   card.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════════════════════════
+   LOGOUT
+══════════════════════════════════════════════════════ */
+function confirmarLogout() {
+  if (!confirm('Encerrar sessão e sair do Presença?')) return;
+  supa.auth.signOut().then(function() {
+    sessionStorage.removeItem('elayon_calibrado');
+    window.location.href = LOGIN_URL;
+  });
 }
 
 /* ══════════════════════════════════════════════════════
