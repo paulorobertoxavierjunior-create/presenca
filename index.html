@@ -22,18 +22,13 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      background: var(--bg); color: var(--text);
+      font-family: var(--sans); min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
       padding: 0 20px 80px;
     }
     body::before {
-      content: '';
-      position: fixed; inset: 0;
+      content: ''; position: fixed; inset: 0;
       pointer-events: none; z-index: 0;
       background:
         radial-gradient(ellipse 70% 40% at 50% -10%, rgba(62,207,207,0.07) 0%, transparent 70%),
@@ -43,115 +38,114 @@
 
     /* ── HEADER ── */
     .site-header {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 22px 0 18px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 30px;
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      padding: 22px 0 18px; border-bottom: 1px solid var(--border); margin-bottom: 30px;
     }
     .logo-box { display: flex; align-items: center; gap: 12px; }
-    .logo-box img {
-      height: 46px; width: 46px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-    .logo-text {
-      font-family: var(--mono);
-      font-size: 9px; letter-spacing: 3px;
-      color: var(--teal); text-transform: uppercase; line-height: 1.8;
-    }
-    .hud-info {
-      font-family: var(--mono);
-      font-size: 9px; color: var(--muted);
-      text-align: right; line-height: 1.9;
-    }
+    .logo-box img { height: 46px; width: 46px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
+    .logo-text { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; line-height: 1.8; }
+    .hud-info { font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: right; line-height: 1.9; }
     .hud-val  { color: var(--cyan); font-weight: bold; }
-    .hud-sub  { font-size: 8px; color: var(--border); }
+    .hud-sub  { font-size: 8px; color: var(--border); display: block; }
+    .hud-calib { font-size: 8px; color: var(--teal); display: block; margin-top: 2px; }
 
     /* ── HERO ── */
-    .hero { text-align: center; padding: 6px 0 28px; }
-    .hero-label {
-      font-family: var(--mono);
-      font-size: 8px; letter-spacing: 5px;
-      color: var(--cyan); text-transform: uppercase;
-      display: block; margin-bottom: 14px; opacity: 0.8;
-    }
+    .hero { text-align: center; padding: 6px 0 24px; }
+    .hero-label { font-family: var(--mono); font-size: 8px; letter-spacing: 5px; color: var(--cyan); text-transform: uppercase; display: block; margin-bottom: 14px; opacity: 0.8; }
     .hero-title { font-size: 26px; font-weight: 300; line-height: 1.35; color: var(--text); }
     .hero-title strong { font-weight: 800; color: var(--teal); }
-    .hero-sub {
-      font-size: 12px; font-weight: 300;
-      color: var(--muted); margin-top: 12px; line-height: 1.8;
-    }
+    .hero-sub { font-size: 12px; font-weight: 300; color: var(--muted); margin-top: 12px; line-height: 1.8; }
 
     /* ── CARDS ── */
     .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 22px 20px;
-      margin-bottom: 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 22px 20px; margin-bottom: 14px;
       box-shadow: 0 1px 16px rgba(62,207,207,0.05);
     }
-    .card-label {
-      font-family: var(--mono);
-      font-size: 8px; letter-spacing: 4px;
-      color: var(--cyan); text-transform: uppercase;
-      display: block; margin-bottom: 14px;
-    }
+    .card-label { font-family: var(--mono); font-size: 8px; letter-spacing: 4px; color: var(--cyan); text-transform: uppercase; display: block; margin-bottom: 14px; }
 
-    /* ── CITAÇÃO ── */
+    /* ── ABA CALIBRAÇÃO ── */
+    .calib-aba {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; margin-bottom: 14px;
+      box-shadow: 0 1px 16px rgba(62,207,207,0.05);
+      overflow: hidden; transition: max-height 0.4s ease, opacity 0.4s ease;
+      max-height: 600px; opacity: 1;
+    }
+    .calib-aba.fechada { max-height: 0; opacity: 0; margin-bottom: 0; pointer-events: none; }
+    .calib-aba-inner { padding: 22px 20px; }
+
     .citacao {
-      border-left: 2px solid var(--cyan);
-      padding: 12px 16px;
+      border-left: 2px solid var(--cyan); padding: 12px 16px;
       font-size: 13px; font-weight: 300; font-style: italic;
       color: var(--muted); line-height: 1.8; margin-bottom: 16px;
     }
-
-    /* ── CALIB GRID ── */
     .calib-grid { display: flex; flex-direction: column; gap: 8px; }
     .calib-item {
       display: flex; justify-content: space-between; align-items: center;
       padding: 10px 14px; border-radius: 12px;
-      background: var(--bg); border: 1px solid var(--border);
-      transition: border-color 0.3s;
+      background: var(--bg); border: 1px solid var(--border); transition: border-color 0.3s;
     }
     .calib-item.ok-item { border-color: rgba(42,157,143,0.3); }
     .calib-nome { font-family: var(--mono); font-size: 9px; color: var(--text); }
-    .calib-badge {
-      font-family: var(--mono); font-size: 8px; letter-spacing: 2px;
-      padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
-    }
+    .calib-badge { font-family: var(--mono); font-size: 8px; letter-spacing: 2px; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
     .calib-badge.ok    { background: rgba(42,157,143,0.12); color: var(--teal); }
-    .calib-badge.vazio { background: rgba(239,68,68,0.08);  color: var(--red);  }
+    .calib-badge.vazio { background: rgba(239,68,68,0.08);  color: var(--red); }
     .calib-badge.spin  { background: rgba(62,207,207,0.08); color: var(--cyan); }
 
-    /* recalibrar — discreto, abaixo do hero quando calibrado */
-    .recalib-link {
-      font-family: var(--mono);
-      font-size: 8px; letter-spacing: 2px;
-      color: var(--muted); text-decoration: none;
-      text-align: center; display: block;
-      margin-bottom: 20px; opacity: 0.6;
-      cursor: pointer; text-transform: uppercase;
+    /* ── MIC CARD ── */
+    .mic-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 22px 20px; margin-bottom: 14px; box-shadow: 0 1px 16px rgba(62,207,207,0.05); }
+    .mic-status-label { font-family: var(--mono); font-size: 8px; letter-spacing: 4px; color: var(--cyan); text-transform: uppercase; display: block; margin-bottom: 16px; }
+
+    .mic-estado {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 3px;
+      color: var(--muted); text-transform: uppercase;
+      text-align: center; margin-bottom: 14px; min-height: 14px;
     }
-    .recalib-link:hover { opacity: 1; color: var(--cyan); }
+    .mic-estado.gravando { color: var(--red); }
+    .mic-estado.pronto   { color: var(--teal); }
+
+    /* ondas */
+    .wave-box { display: flex; align-items: center; justify-content: center; gap: 4px; height: 40px; margin-bottom: 16px; }
+    .wave-bar { width: 4px; border-radius: 4px; background: var(--cyan); opacity: 0.08; transition: opacity 0.3s; }
+    .wave-bar.on { opacity: 1; animation: wave 1s ease-in-out infinite; }
+    .wave-bar:nth-child(1){height:10px;animation-delay:0.0s}
+    .wave-bar:nth-child(2){height:20px;animation-delay:0.1s}
+    .wave-bar:nth-child(3){height:32px;animation-delay:0.2s}
+    .wave-bar:nth-child(4){height:24px;animation-delay:0.3s}
+    .wave-bar:nth-child(5){height:36px;animation-delay:0.4s}
+    .wave-bar:nth-child(6){height:24px;animation-delay:0.3s}
+    .wave-bar:nth-child(7){height:32px;animation-delay:0.2s}
+    .wave-bar:nth-child(8){height:20px;animation-delay:0.1s}
+    .wave-bar:nth-child(9){height:10px;animation-delay:0.0s}
+    @keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.7)} }
+
+    .mic-timer { font-family: var(--mono); font-size: 28px; color: var(--text); letter-spacing: 6px; text-align: center; margin-bottom: 16px; }
+
+    /* sessões FIFO */
+    .sessoes-fifo { margin-top: 14px; }
+    .sessoes-label { font-family: var(--mono); font-size: 8px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
+    .sessao-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; border-radius: 10px;
+      background: var(--bg); border: 1px solid var(--border);
+      margin-bottom: 6px; font-family: var(--mono); font-size: 9px;
+    }
+    .sessao-idx { color: var(--cyan); }
+    .sessao-info { color: var(--muted); }
+    .sessao-atual { border-color: rgba(42,157,143,0.3); }
 
     /* ── TIPO ANÁLISE ── */
     .analise-tipo { display: flex; gap: 10px; margin-bottom: 14px; }
     .tipo-btn {
-      flex: 1; padding: 14px 10px;
-      border: 1px solid var(--border); border-radius: 14px;
-      background: var(--surface); cursor: pointer;
+      flex: 1; padding: 14px 10px; border: 1px solid var(--border);
+      border-radius: 14px; background: var(--surface); cursor: pointer;
       text-align: center; transition: 0.2s; font-family: var(--sans);
     }
     .tipo-btn.ativo { border-color: var(--cyan); background: rgba(62,207,207,0.05); }
     .tipo-btn h4 { font-size: 12px; color: var(--text); margin-bottom: 4px; }
     .tipo-btn p  { font-size: 10px; color: var(--muted); line-height: 1.4; }
 
-    /* ── CUSTO ── */
     .custo-linha {
       font-family: var(--mono); font-size: 10px; color: var(--muted);
       display: flex; justify-content: space-between; align-items: center;
@@ -160,163 +154,67 @@
     }
     .custo-linha span { color: var(--cyan); font-weight: bold; }
 
-    /* ── AVISO TOKENS ── */
-    .token-aviso {
-      font-family: var(--mono); font-size: 9px;
-      color: var(--muted); text-align: center;
-      margin-top: 10px; line-height: 1.8;
-      background: rgba(62,207,207,0.04);
-      border: 1px solid var(--border);
-      border-radius: 10px; padding: 10px 14px;
-    }
-
     /* ── RESULTADO ── */
     .estado-tag {
-      display: inline-block;
-      font-family: var(--mono); font-size: 9px; letter-spacing: 3px;
-      padding: 6px 14px; border-radius: 20px;
+      display: inline-block; font-family: var(--mono); font-size: 9px;
+      letter-spacing: 3px; padding: 6px 14px; border-radius: 20px;
       background: rgba(62,207,207,0.1); color: var(--cyan);
       text-transform: uppercase; margin-bottom: 14px;
     }
     .resultado-bloco { margin-top: 14px; }
-    .resultado-bloco h4 {
-      font-size: 8px; color: var(--muted);
-      font-family: var(--mono); letter-spacing: 3px;
-      margin-bottom: 6px; text-transform: uppercase;
-    }
-    .resultado-texto {
-      font-size: 14px; font-weight: 300;
-      line-height: 1.75; color: var(--text); min-height: 20px;
-    }
-    .sep {
-      width: 100%; height: 1px;
-      background: var(--border); margin: 14px 0; opacity: 0.5;
-    }
-    .tecnico-pre {
-      font-family: var(--mono); font-size: 9px;
-      color: var(--muted); white-space: pre-wrap; line-height: 1.7;
-      background: var(--bg); border-radius: 10px;
-      padding: 12px; border: 1px solid var(--border); margin-top: 6px;
-    }
+    .resultado-bloco h4 { font-size: 8px; color: var(--muted); font-family: var(--mono); letter-spacing: 3px; margin-bottom: 6px; text-transform: uppercase; }
+    .resultado-texto { font-size: 14px; font-weight: 300; line-height: 1.75; color: var(--text); min-height: 20px; }
+    .sep { width: 100%; height: 1px; background: var(--border); margin: 14px 0; opacity: 0.5; }
+    .tecnico-pre { font-family: var(--mono); font-size: 9px; color: var(--muted); white-space: pre-wrap; line-height: 1.7; background: var(--bg); border-radius: 10px; padding: 12px; border: 1px solid var(--border); margin-top: 6px; }
 
-    /* ── TOKENS DISPLAY ── */
-    .tokens-display {
-      display: flex; justify-content: space-between;
-      align-items: flex-start; margin-bottom: 6px;
+    /* ── TOKENS ── */
+    .tokens-display { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .tokens-numero { font-family: var(--mono); font-size: 36px; color: var(--cyan); font-weight: bold; letter-spacing: 2px; }
+    .tokens-label { font-family: var(--mono); font-size: 8px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+    .tokens-info { font-family: var(--mono); font-size: 8px; color: var(--muted); line-height: 1.9; text-align: right; }
+    .tokens-bar-wrap { background: var(--bg); border-radius: 4px; height: 3px; overflow: hidden; margin: 10px 0 4px; border: 1px solid var(--border); }
+    .tokens-bar { height: 100%; background: linear-gradient(90deg, var(--teal), var(--cyan)); border-radius: 4px; transition: width 0.6s ease; }
+    .tokens-aviso { font-family: var(--mono); font-size: 9px; color: var(--muted); line-height: 1.8; margin-top: 12px; padding: 12px 14px; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); }
+    .tokens-aviso strong { color: var(--text); }
+
+    /* ── INTEGRAÇÃO RODAPÉ ── */
+    .integracao-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 22px 20px; margin-bottom: 14px;
+      box-shadow: 0 1px 16px rgba(62,207,207,0.05);
     }
-    .tokens-numero {
-      font-family: var(--mono); font-size: 36px;
-      color: var(--cyan); font-weight: bold; letter-spacing: 2px;
-    }
-    .tokens-label {
-      font-family: var(--mono); font-size: 8px;
-      letter-spacing: 3px; color: var(--muted); text-transform: uppercase;
-    }
-    .tokens-info {
-      font-family: var(--mono); font-size: 8px;
-      color: var(--muted); line-height: 1.9; text-align: right;
-    }
-    .tokens-bar-wrap {
-      background: var(--bg); border-radius: 4px;
-      height: 3px; overflow: hidden;
-      margin: 10px 0 4px; border: 1px solid var(--border);
-    }
-    .tokens-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--teal), var(--cyan));
-      border-radius: 4px; transition: width 0.6s ease;
-    }
-    .tokens-painel-aviso {
-      font-family: var(--mono); font-size: 9px;
-      color: var(--muted); line-height: 1.8;
-      margin-top: 12px; padding: 12px 14px;
-      background: var(--bg); border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-    .tokens-painel-aviso strong { color: var(--text); }
+    .integ-bloco { margin-bottom: 18px; }
+    .integ-titulo { font-family: var(--mono); font-size: 8px; letter-spacing: 3px; color: var(--cyan); text-transform: uppercase; display: block; margin-bottom: 8px; }
+    .integ-desc { font-size: 12px; font-weight: 300; color: var(--muted); line-height: 1.7; margin-bottom: 10px; }
+    .integ-code { font-family: var(--mono); font-size: 9px; color: var(--teal); background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; line-height: 1.7; white-space: pre-wrap; word-break: break-all; }
+    .integ-sep { width: 100%; height: 1px; background: var(--border); margin: 16px 0; opacity: 0.4; }
 
     /* ── SPINNER ── */
-    .spinner { display: none; text-align: center; padding: 24px 0; }
-    .spinner-ring {
-      width: 32px; height: 32px;
-      border: 2px solid var(--border);
-      border-top-color: var(--cyan);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 12px;
-    }
+    .spinner { display: none; text-align: center; padding: 20px 0; }
+    .spinner-ring { width: 30px; height: 30px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner p {
-      font-family: var(--mono); font-size: 8px;
-      color: var(--muted); letter-spacing: 2px; line-height: 1.8;
-    }
-    .extracao-status {
-      font-family: var(--mono); font-size: 8px;
-      color: var(--muted); letter-spacing: 2px;
-      text-align: center; margin-top: 6px; min-height: 14px;
-    }
+    .spinner p { font-family: var(--mono); font-size: 8px; color: var(--muted); letter-spacing: 2px; line-height: 1.8; }
+    .extracao-status { font-family: var(--mono); font-size: 8px; color: var(--muted); letter-spacing: 2px; text-align: center; margin-top: 6px; min-height: 14px; }
 
     /* ── BOTÕES ── */
-    .btn {
-      width: 100%; padding: 15px; border: none;
-      border-radius: 14px; font-family: var(--mono);
-      font-size: 10px; letter-spacing: 3px;
-      text-transform: uppercase; cursor: pointer;
-      transition: 0.2s; margin-top: 10px;
-    }
-    .btn-primary {
-      background: var(--cyan); color: #072024;
-      font-weight: 700; box-shadow: 0 4px 18px var(--cglow);
-    }
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 24px var(--cglow);
-    }
-    .btn-primary:disabled {
-      background: var(--border); color: var(--muted);
-      box-shadow: none; cursor: not-allowed;
-    }
-    .btn-ghost {
-      background: transparent; color: var(--muted);
-      border: 1px solid var(--border);
-    }
+    .btn { width: 100%; padding: 15px; border: none; border-radius: 14px; font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    .btn-primary { background: var(--cyan); color: #072024; font-weight: 700; box-shadow: 0 4px 18px var(--cglow); }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 24px var(--cglow); }
+    .btn-primary:disabled { background: var(--border); color: var(--muted); box-shadow: none; cursor: not-allowed; }
+    .btn-red  { background: var(--red);  color: white; font-weight: 700; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
     .btn-ghost:hover { border-color: var(--muted); }
-    .btn-logout {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      font-family: var(--mono);
-      font-size: 9px; letter-spacing: 3px;
-      text-transform: uppercase;
-      padding: 14px; border-radius: 14px;
-      width: 100%; cursor: pointer;
-      margin-top: 10px; transition: 0.2s;
-    }
+    .btn-logout { background: transparent; color: var(--muted); border: 1px solid var(--border); font-family: var(--mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; padding: 14px; border-radius: 14px; width: 100%; cursor: pointer; margin-top: 10px; transition: 0.2s; }
     .btn-logout:hover { border-color: var(--red); color: var(--red); }
 
+    .token-sem-aviso { font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: center; margin-top: 10px; line-height: 1.8; background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.15); border-radius: 10px; padding: 10px 14px; display: none; }
+
     .hidden { display: none !important; }
+    .footer-area { margin-top: 40px; width: 100%; }
+    footer { text-align: center; font-family: var(--mono); font-size: 8px; color: var(--border); letter-spacing: 2px; margin-top: 16px; }
 
-    /* ── RODAPÉ ── */
-    .footer-area {
-      margin-top: 40px;
-      width: 100%;
-    }
-    footer {
-      text-align: center;
-      font-family: var(--mono);
-      font-size: 8px; color: var(--border);
-      letter-spacing: 2px; margin-top: 16px;
-    }
-
-    /* ── ANIMAÇÃO ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .card, .hero { animation: fadeUp 0.45s ease both; }
-    .card:nth-child(2) { animation-delay: 0.05s; }
-    .card:nth-child(3) { animation-delay: 0.10s; }
-    .card:nth-child(4) { animation-delay: 0.15s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .card, .mic-card, .integracao-card, .calib-aba, .hero { animation: fadeUp 0.45s ease both; }
   </style>
 </head>
 <body>
@@ -332,117 +230,133 @@
       PILOTO <span class="hud-val" id="hudId">---</span><br>
       <span class="hud-val" id="hudTokens">0</span> TOKENS<br>
       <span class="hud-sub">núcleo CRS ativo</span>
+      <span class="hud-calib" id="hudCalibTs"></span>
     </div>
   </header>
 
   <!-- HERO -->
   <section class="hero">
-    <span class="hero-label">Sistema de Leitura de Presença</span>
+    <span class="hero-label">Protocolo de Leitura de Presença</span>
     <h1 class="hero-title">
-      O sinal mais preciso<br>que você possui é <strong>sua voz</strong>.
+      Voz como dado.<br><strong>Estado como sinal.</strong>
     </h1>
     <p class="hero-sub">
-      Ritmo, pausa e intenção são dados primários.<br>
-      O sistema lê. Você se vê.
+      O sistema lê o padrão rítmico do emissor.<br>
+      Nenhuma avaliação. Apenas calibração de interação.<br>
+      A IA receptora ajusta seu comportamento a partir daqui.
     </p>
   </section>
 
-  <!-- RECALIBRAR (aparece só quando calibrado) -->
-  <span class="recalib-link hidden" id="linkRecalibrar" onclick="irCalibrar()">
-    ↺ Recalibrar sinal
-  </span>
-
-  <!-- CALIBRAÇÃO (some quando calibrado) -->
-  <div class="card" id="cardCalibracao">
-    <span class="card-label">Inicialização de Sinais</span>
-    <div class="citacao">
-      "Antes da leitura, alinhar origem, intenção e estabilidade do emissor."
+  <!-- ABA CALIBRAÇÃO -->
+  <div class="calib-aba" id="calibAba">
+    <div class="calib-aba-inner">
+      <span class="card-label">Inicialização de Sinais — Obrigatória</span>
+      <div class="citacao">
+        "O sistema não avalia o emissor. Ele lê o estado para calibrar quem vai responder."
+      </div>
+      <div class="calib-grid">
+        <div class="calib-item" id="itemF1">
+          <span class="calib-nome">Fase 01 — Estado atual do emissor</span>
+          <span class="calib-badge spin" id="badgeF1">···</span>
+        </div>
+        <div class="calib-item" id="itemF2">
+          <span class="calib-nome">Fase 02 — Direcionamento de intenção</span>
+          <span class="calib-badge spin" id="badgeF2">···</span>
+        </div>
+        <div class="calib-item" id="itemF3">
+          <span class="calib-nome">Fase 03 — Nível de comprometimento</span>
+          <span class="calib-badge spin" id="badgeF3">···</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:16px;" onclick="irCalibrar()">
+        Executar calibração
+      </button>
     </div>
-    <div class="calib-grid">
-      <div class="calib-item" id="itemF1">
-        <span class="calib-nome">Fase 01 — Estado atual do emissor</span>
-        <span class="calib-badge spin" id="badgeF1">···</span>
-      </div>
-      <div class="calib-item" id="itemF2">
-        <span class="calib-nome">Fase 02 — Direcionamento de intenção</span>
-        <span class="calib-badge spin" id="badgeF2">···</span>
-      </div>
-      <div class="calib-item" id="itemF3">
-        <span class="calib-nome">Fase 03 — Nível de comprometimento</span>
-        <span class="calib-badge spin" id="badgeF3">···</span>
-      </div>
-    </div>
-    <button class="btn btn-ghost" style="margin-top:16px;" onclick="irCalibrar()">
-      Executar calibração
-    </button>
   </div>
 
-  <!-- ANÁLISE CRS (bloqueado até calibrar) -->
-  <div class="card" id="cardAnalise">
-    <span class="card-label">Processamento CRS</span>
+  <!-- MIC DE ESCUTA -->
+  <div class="mic-card hidden" id="micCard">
+    <span class="mic-status-label">Escuta Simbiótica — CRS</span>
 
-    <div class="analise-tipo">
-      <div class="tipo-btn ativo" id="tipoUnica" onclick="selecionarTipo('unica')">
-        <h4>Leitura isolada</h4>
-        <p>Estado atual. Sem histórico anterior.</p>
-      </div>
-      <div class="tipo-btn" id="tipoMemoria" onclick="selecionarTipo('memoria')">
-        <h4>Leitura com memória</h4>
-        <p>Inclui até 2 sessões anteriores. FIFO.</p>
-      </div>
+    <div class="mic-estado" id="micEstado">Aguardando início</div>
+
+    <div class="wave-box">
+      <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
     </div>
 
-    <div class="custo-linha">
-      Consumo operacional <span id="custoTexto">1 token</span>
+    <div class="mic-timer" id="micTimer">00:00</div>
+
+    <div id="micBtnIniciar">
+      <button class="btn btn-primary" onclick="micIniciar()">Iniciar escuta</button>
+    </div>
+    <div id="micBtnParar" class="hidden">
+      <button class="btn btn-red" onclick="micParar()">Encerrar e processar</button>
+    </div>
+
+    <!-- Sessões FIFO -->
+    <div class="sessoes-fifo" id="sessoesFifo"></div>
+
+    <!-- Tipo de análise -->
+    <div style="margin-top:18px;">
+      <div class="analise-tipo">
+        <div class="tipo-btn ativo" id="tipoUnica" onclick="selecionarTipo('unica')">
+          <h4>Leitura isolada</h4>
+          <p>Última sessão registrada.</p>
+        </div>
+        <div class="tipo-btn" id="tipoMemoria" onclick="selecionarTipo('memoria')">
+          <h4>Com memória</h4>
+          <p>Até 3 sessões. FIFO.</p>
+        </div>
+      </div>
+      <div class="custo-linha">
+        Consumo operacional <span id="custoTexto">1 token</span>
+      </div>
     </div>
 
     <div class="spinner" id="spinnerAnalise">
       <div class="spinner-ring"></div>
-      <p id="spinnerMsg">Extraindo sinais acústicos.<br>Aguarde.</p>
+      <p id="spinnerMsg">Extraindo sinais.<br>Aguarde.</p>
     </div>
     <div class="extracao-status" id="extracaoStatus"></div>
 
     <button class="btn btn-primary" id="btnAnalisar" onclick="iniciarAnalise()" disabled>
-      Iniciar leitura
+      Enviar para análise CRS
     </button>
 
-    <div class="token-aviso" id="tokenAviso" style="display:none;">
-      Tokens insuficientes. Recarregue no painel Elayon.<br>
-      <strong>Tokens são gerenciados fora deste módulo.</strong>
+    <div class="token-sem-aviso" id="tokenSemAviso">
+      Tokens insuficientes.<br>Recarregue no painel Elayon.
     </div>
   </div>
 
   <!-- RESULTADO -->
   <div class="card hidden" id="cardResultado">
     <span class="card-label">Saída do Sistema</span>
-
     <div id="resEstadoTag" class="estado-tag">—</div>
-
     <div class="resultado-bloco">
       <h4>Padrão identificado</h4>
       <p class="resultado-texto" id="resEstado">—</p>
     </div>
     <div class="sep"></div>
     <div class="resultado-bloco">
-      <h4>Direcionamento sugerido</h4>
+      <h4>Direcionamento sugerido — instrução à IA receptora</h4>
       <p class="resultado-texto" id="resOrientacao">—</p>
     </div>
     <div class="sep"></div>
     <div class="resultado-bloco">
-      <h4>Estrutura técnica</h4>
+      <h4>Estrutura técnica — vetor CRS</h4>
       <pre class="tecnico-pre" id="resTecnico">—</pre>
     </div>
-
     <button class="btn btn-ghost" style="margin-top:16px;"
       onclick="document.getElementById('cardResultado').classList.add('hidden')">
       Encerrar visualização
     </button>
   </div>
 
-  <!-- TOKENS INFO -->
+  <!-- TOKENS -->
   <div class="card" id="tokensCard">
     <span class="card-label">Recursos</span>
-
     <div class="tokens-display">
       <div>
         <div class="tokens-numero" id="tokensGrande">0</div>
@@ -454,440 +368,68 @@
         Calibração · gratuita
       </div>
     </div>
-
     <div class="tokens-bar-wrap">
       <div class="tokens-bar" id="tokensBar" style="width:0%"></div>
     </div>
-
-    <div class="tokens-painel-aviso">
+    <div class="tokens-aviso">
       <strong>Tokens são carregados no painel Elayon.</strong><br>
       Este módulo apenas debita conforme o uso.<br>
       Para recarregar, acesse o painel e retorne.
     </div>
   </div>
 
-  <!-- RODAPÉ COM LOGOUT -->
+  <!-- INTEGRAÇÃO -->
+  <div class="integracao-card">
+    <span class="card-label">Integração de Sistema</span>
+
+    <div class="integ-bloco">
+      <span class="integ-titulo">Entrada — conecte a voz do seu sistema aqui</span>
+      <p class="integ-desc">
+        Este módulo recebe áudio via microfone local. Para integrar com um chatbot ou sistema externo, direcione o fluxo de entrada de voz para este endpoint antes de qualquer resposta da IA receptora. O CRS lê o estado do emissor e emite o vetor de calibração.
+      </p>
+      <div class="integ-code">POST https://nucleo-crs-elayon.onrender.com/api/crs/analisar
+Authorization: Bearer {token_supabase}
+Content-Type: application/json
+
+// Payload: vetor extraído localmente pelo módulo Presença
+// Campos: duration_sec, silence_pct, pause_count,
+//         mean_pause_ms, oscillation_pct, continuity_pct,
+//         energy_pct, spectrum_snapshot, context</div>
+    </div>
+
+    <div class="integ-sep"></div>
+
+    <div class="integ-bloco">
+      <span class="integ-titulo">Saída — onde sua IA recebe o relatório</span>
+      <p class="integ-desc">
+        O núcleo CRS devolve um relatório estruturado com o padrão identificado e a instrução de calibração de interação. Configure seu backend para consumir este JSON antes de gerar qualquer resposta ao usuário.
+      </p>
+      <div class="integ-code">{
+  "ok": true,
+  "calibracao_ref": {
+    "timestamp": "2026-04-28T22:16:37Z",
+    "vetor": { ...métricas da calibração... }
+  },
+  "leitura_sessao": { ...métricas da sessão atual... },
+  "analise_sugestiva": "Fluxo Moderado",
+  "sugestao_ia": "Manter tom claro com validações
+    breves entre blocos de conteúdo."
+}</div>
+    </div>
+  </div>
+
+  <!-- LOGOUT -->
   <div class="footer-area">
-    <button class="btn-logout" onclick="confirmarLogout()">
-      Encerrar sessão
-    </button>
-    <footer>ELAYON PRESENÇA V2.1 — INTERFACE DE LEITURA ATIVA</footer>
+    <button class="btn-logout" onclick="confirmarLogout()">Encerrar sessão</button>
+    <footer>ELAYON PRESENÇA V3.0 — PROTOCOLO CRS ATIVO</footer>
   </div>
 
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ══════════════════════════════════════════════════════
-   CONFIG
-══════════════════════════════════════════════════════ */
-var SUPA_URL     = 'https://eudcjihffrfmhzmfwtlg.supabase.co';
-var SUPA_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZGNqaWhmZnJmbWh6bWZ3dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDE3MjUsImV4cCI6MjA5MDMxNzcyNX0.2tod6vvl_4SAXzSmW1wU8Mk9pLn8fvhF2xrAZOysUu0';
-var CRS_ENDPOINT = 'https://nucleo-crs-elayon.onrender.com/api/crs/analisar';
-var LOGIN_URL    = 'https://paulorobertoxavierjunior-create.github.io/elayon-cadastro/login.html';
-var supa         = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-
-var tipoAnalise    = 'unica';
-var userId         = null;
-var accessToken    = null;
-var tokens         = 0;
-var MAX_TOKENS     = 50;
-var metricas3fases = null;
-
-/* ══════════════════════════════════════════════════════
-   BOOT
-══════════════════════════════════════════════════════ */
-(async function boot() {
-  var params = new URLSearchParams(window.location.search);
-  var at = params.get('at'), rt = params.get('rt');
-  if (at && rt) {
-    await supa.auth.setSession({
-      access_token:  decodeURIComponent(at),
-      refresh_token: decodeURIComponent(rt)
-    });
-    window.history.replaceState({}, '', window.location.pathname);
-  }
-
-  var sess    = await supa.auth.getSession();
-  var session = sess?.data?.session;
-  if (!session) {
-    window.location.href = LOGIN_URL;
-    return;
-  }
-
-  userId      = session.user.id;
-  accessToken = session.access_token;
-
-  var email = session.user.email || '';
-  document.getElementById('hudId').textContent = email.split('@')[0].toUpperCase();
-
-  await carregarTokens();
-
-  // Verifica calibração
-  var jaCalibrado = sessionStorage.getItem('elayon_calibrado');
-  var f1 = localStorage.getItem('audio_fase_1');
-  var f2 = localStorage.getItem('audio_fase_2');
-  var f3 = localStorage.getItem('audio_fase_3');
-
-  if (f1 && f2 && f3) {
-    await extrairMetricasTodas(f1, f2, f3);
-    sessionStorage.setItem('elayon_calibrado', '1');
-    revelarCalibracao(true);
-  } else {
-    revelarCalibracao(false);
-  }
-})();
-
-/* ══════════════════════════════════════════════════════
-   CALIBRAÇÃO — mostra/esconde card
-══════════════════════════════════════════════════════ */
-function revelarCalibracao(ok) {
-  var cardCalib    = document.getElementById('cardCalibracao');
-  var linkRecalib  = document.getElementById('linkRecalibrar');
-
-  if (ok) {
-    // Some o card grande, aparece link discreto
-    cardCalib.classList.add('hidden');
-    linkRecalib.classList.remove('hidden');
-    // Atualiza badges mesmo que escondidos
-    for (var n = 1; n <= 3; n++) {
-      var badge = document.getElementById('badgeF' + n);
-      var item  = document.getElementById('itemF'  + n);
-      badge.textContent = 'OK';
-      badge.className   = 'calib-badge ok';
-      item.classList.add('ok-item');
-    }
-  } else {
-    cardCalib.classList.remove('hidden');
-    linkRecalib.classList.add('hidden');
-    for (var n = 1; n <= 3; n++) {
-      var badge = document.getElementById('badgeF' + n);
-      badge.textContent = 'Ausente';
-      badge.className   = 'calib-badge vazio';
-    }
-    document.getElementById('btnAnalisar').disabled = true;
-  }
-
-  atualizarUI_tokens();
-}
-
-/* ══════════════════════════════════════════════════════
-   TOKENS
-══════════════════════════════════════════════════════ */
-async function carregarTokens() {
-  var r = await supa.from('profiles').select('tokens').eq('id', userId).single();
-  tokens = r.data ? r.data.tokens : 0;
-  atualizarUI_tokens();
-}
-
-function atualizarUI_tokens() {
-  document.getElementById('hudTokens').textContent    = tokens;
-  document.getElementById('tokensGrande').textContent = tokens;
-  var pct = Math.min(100, (tokens / MAX_TOKENS) * 100);
-  document.getElementById('tokensBar').style.width    = pct + '%';
-
-  var custo    = tipoAnalise === 'unica' ? 1 : 2;
-  var temCalib = !!metricas3fases;
-  var temToken = tokens >= custo;
-
-  document.getElementById('btnAnalisar').disabled = !(temCalib && temToken);
-  document.getElementById('tokenAviso').style.display = (temCalib && !temToken) ? 'block' : 'none';
-}
-
-/* ══════════════════════════════════════════════════════
-   TIPO DE ANÁLISE
-══════════════════════════════════════════════════════ */
-function selecionarTipo(tipo) {
-  tipoAnalise = tipo;
-  document.getElementById('tipoUnica').className   = 'tipo-btn' + (tipo === 'unica'   ? ' ativo' : '');
-  document.getElementById('tipoMemoria').className = 'tipo-btn' + (tipo === 'memoria' ? ' ativo' : '');
-  document.getElementById('custoTexto').textContent = tipo === 'unica' ? '1 token' : '2 tokens';
-  atualizarUI_tokens();
-}
-
-/* ══════════════════════════════════════════════════════
-   EXTRAÇÃO — Web Audio API
-══════════════════════════════════════════════════════ */
-function setStatus(msg) {
-  document.getElementById('extracaoStatus').textContent = msg;
-}
-
-async function base64ToArrayBuffer(dataUrl) {
-  var base64 = dataUrl.split(',')[1];
-  var binary = atob(base64);
-  var buf    = new ArrayBuffer(binary.length);
-  var view   = new Uint8Array(buf);
-  for (var i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
-  return buf;
-}
-
-async function extrairMetricasDeAudio(dataUrl, contexto) {
-  setStatus('Decodificando ' + contexto + '...');
-  var buf      = await base64ToArrayBuffer(dataUrl);
-  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  var decoded;
-
-  try {
-    decoded = await audioCtx.decodeAudioData(buf);
-  } catch(e) {
-    await audioCtx.close();
-    return { duration_sec:0, silence_pct:0, pause_count:0, mean_pause_ms:0,
-             oscillation_pct:0, continuity_pct:0, energy_pct:0,
-             spectrum_snapshot:{ graves:0, medios:0, agudos:0, ruido:0, estabilidade:0 } };
-  }
-
-  var channel    = decoded.getChannelData(0);
-  var sampleRate = decoded.sampleRate;
-  var duration   = decoded.duration;
-  var winSize    = Math.floor(sampleRate * 0.025);
-  var rmsValues  = [];
-
-  for (var i = 0; i < channel.length; i += winSize) {
-    var sum = 0, end = Math.min(i + winSize, channel.length);
-    for (var j = i; j < end; j++) sum += channel[j] * channel[j];
-    rmsValues.push(Math.sqrt(sum / (end - i)));
-  }
-
-  var THRESH       = 0.015;
-  var MIN_FRAMES   = Math.floor(0.2 / 0.025);
-  var silentFrames = 0, pauseCount = 0;
-  var pauseLengths = [], inPause = false, pauseLen = 0;
-
-  for (var k = 0; k < rmsValues.length; k++) {
-    if (rmsValues[k] < THRESH) {
-      silentFrames++;
-      inPause ? pauseLen++ : (inPause = true, pauseLen = 1);
-    } else {
-      if (inPause && pauseLen >= MIN_FRAMES) { pauseCount++; pauseLengths.push(pauseLen * 25); }
-      inPause = false; pauseLen = 0;
-    }
-  }
-
-  var silence_pct   = rmsValues.length ? (silentFrames / rmsValues.length) * 100 : 0;
-  var mean_pause_ms = pauseLengths.length
-    ? pauseLengths.reduce((a,b) => a+b, 0) / pauseLengths.length : 0;
-
-  var rmsMedia        = rmsValues.reduce((a,b) => a+b, 0) / rmsValues.length;
-  var energy_pct      = Math.min(100, rmsMedia * 800);
-  var variance        = rmsValues.reduce((a,v) => a + Math.pow(v - rmsMedia, 2), 0) / rmsValues.length;
-  var stdDev          = Math.sqrt(variance);
-  var oscillation_pct = Math.min(100, stdDev * 1200);
-  var continuity_pct  = Math.max(0, 100 - silence_pct - oscillation_pct * 0.3);
-
-  // Espectro — DFT simplificado em 3 bandas
-  var mid = Math.floor(channel.length / 2);
-  var seg = channel.slice(mid, mid + 2048);
-  var gr = 0, me = 0, ag = 0;
-  for (var s = 0; s < seg.length; s++) {
-    var n = Math.abs(seg[s]);
-    if (s < 170) gr += n; else if (s < 1024) me += n; else ag += n;
-  }
-  var tot = gr + me + ag || 1;
-  gr = (gr/tot)*100; me = (me/tot)*100; ag = (ag/tot)*100;
-
-  var noise_pct    = Math.min(40, stdDev * 600);
-  var stability    = Math.max(0, 100 - oscillation_pct * 0.6 - noise_pct * 0.4);
-
-  await audioCtx.close();
-
-  return {
-    duration_sec:    parseFloat(duration.toFixed(2)),
-    silence_pct:     parseFloat(silence_pct.toFixed(2)),
-    pause_count:     pauseCount,
-    mean_pause_ms:   parseFloat(mean_pause_ms.toFixed(2)),
-    oscillation_pct: parseFloat(oscillation_pct.toFixed(2)),
-    continuity_pct:  parseFloat(continuity_pct.toFixed(2)),
-    energy_pct:      parseFloat(energy_pct.toFixed(2)),
-    spectrum_snapshot: {
-      graves:       parseFloat(gr.toFixed(2)),
-      medios:       parseFloat(me.toFixed(2)),
-      agudos:       parseFloat(ag.toFixed(2)),
-      ruido:        parseFloat(noise_pct.toFixed(2)),
-      estabilidade: parseFloat(stability.toFixed(2))
-    }
-  };
-}
-
-async function extrairMetricasTodas(f1, f2, f3) {
-  setStatus('Iniciando extração de sinais...');
-  try {
-    var m1 = await extrairMetricasDeAudio(f1, 'Fase 01');
-    var m2 = await extrairMetricasDeAudio(f2, 'Fase 02');
-    var m3 = await extrairMetricasDeAudio(f3, 'Fase 03');
-    metricas3fases = consolidar([m1, m2, m3], [0.3, 0.3, 0.4]);
-    setStatus('Sinais prontos.');
-    salvarMetricasHistorico(metricas3fases);
-  } catch(e) {
-    console.error(e);
-    setStatus('Falha na extração. Recalibre.');
-    metricas3fases = null;
-  }
-}
-
-function consolidar(ms, w) {
-  function med(c)  { return ms.reduce((a,m,i) => a + (m[c]||0)*w[i], 0); }
-  function medS(c) { return ms.reduce((a,m,i) => a + (m.spectrum_snapshot[c]||0)*w[i], 0); }
-  return {
-    duration_sec:    parseFloat((ms[0].duration_sec+ms[1].duration_sec+ms[2].duration_sec).toFixed(2)),
-    silence_pct:     parseFloat(med('silence_pct').toFixed(2)),
-    pause_count:     ms[0].pause_count+ms[1].pause_count+ms[2].pause_count,
-    mean_pause_ms:   parseFloat(med('mean_pause_ms').toFixed(2)),
-    oscillation_pct: parseFloat(med('oscillation_pct').toFixed(2)),
-    continuity_pct:  parseFloat(med('continuity_pct').toFixed(2)),
-    energy_pct:      parseFloat(med('energy_pct').toFixed(2)),
-    context:         'calibracao_3fases',
-    transcript_raw:  '',
-    spectrum_snapshot: {
-      graves:       parseFloat(medS('graves').toFixed(2)),
-      medios:       parseFloat(medS('medios').toFixed(2)),
-      agudos:       parseFloat(medS('agudos').toFixed(2)),
-      ruido:        parseFloat(medS('ruido').toFixed(2)),
-      estabilidade: parseFloat(medS('estabilidade').toFixed(2))
-    }
-  };
-}
-
-function consolidarHistorico(lista) {
-  var n = lista.length;
-  var w = lista.map(() => 1/n);
-  return consolidar(lista, w);
-}
-
-function salvarMetricasHistorico(m) {
-  var hist = JSON.parse(localStorage.getItem('historico_metricas') || '[]');
-  hist.unshift(m);
-  if (hist.length > 3) hist = hist.slice(0, 3);
-  localStorage.setItem('historico_metricas', JSON.stringify(hist));
-}
-
-/* ══════════════════════════════════════════════════════
-   ANÁLISE CRS
-══════════════════════════════════════════════════════ */
-async function iniciarAnalise() {
-  var custo = tipoAnalise === 'unica' ? 1 : 2;
-  if (tokens < custo || !metricas3fases) return;
-
-  document.getElementById('btnAnalisar').disabled          = true;
-  document.getElementById('spinnerAnalise').style.display  = 'block';
-  document.getElementById('cardResultado').classList.add('hidden');
-  setStatus('');
-
-  try {
-    var payload = Object.assign({}, metricas3fases);
-
-    if (tipoAnalise === 'memoria') {
-      var hist = JSON.parse(localStorage.getItem('historico_metricas') || '[]');
-      if (hist.length > 1) {
-        var todas = hist.slice(0, 3);
-        payload = consolidarHistorico(todas);
-        payload.context = 'calibracao_memoria_' + todas.length;
-      }
-    }
-
-    document.getElementById('spinnerMsg').innerHTML = 'Transmitindo ao núcleo CRS.<br>Aguarde.';
-
-    var res = await fetch(CRS_ENDPOINT, {
-      method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': 'Bearer ' + accessToken
-      },
-      body: JSON.stringify(payload)
-    });
-
-    var data = await res.json();
-    exibirResultado(data);
-
-    // ── DÉBITO REAL NO SUPABASE ──
-    var debito = await supa.rpc('adicionar_tokens', {
-      p_user_id:    userId,
-      p_quantidade: -custo
-    });
-
-    if (!debito.error) {
-      tokens -= custo;
-      atualizarUI_tokens();
-    } else {
-      console.error('Erro ao debitar tokens:', debito.error);
-    }
-
-  } catch(e) {
-    console.error('Erro CRS:', e);
-    exibirResultado({
-      ok: false,
-      analise_sugestiva: 'ERRO DE COMUNICAÇÃO',
-      sugestao_ia: 'Não foi possível conectar ao núcleo. Verifique sua conexão e tente novamente.',
-      relatorio: metricas3fases
-    });
-    document.getElementById('btnAnalisar').disabled = false;
-  }
-
-  document.getElementById('spinnerAnalise').style.display = 'none';
-}
-
-/* ══════════════════════════════════════════════════════
-   EXIBIÇÃO DO RESULTADO
-══════════════════════════════════════════════════════ */
-function exibirResultado(data) {
-  var card = document.getElementById('cardResultado');
-  card.classList.remove('hidden');
-
-  var estado   = data.analise_sugestiva || 'Indeterminado';
-  var sugestao = data.sugestao_ia       || '—';
-  var rel      = data.relatorio         || {};
-
-  document.getElementById('resEstadoTag').textContent  = estado;
-  document.getElementById('resEstado').textContent     = estado;
-  document.getElementById('resOrientacao').textContent = sugestao;
-
-  var t = '';
-  if (rel && Object.keys(rel).length) {
-    t += 'Duração total    : ' + (rel.tempo_total            || 0) + 's\n';
-    t += 'Silêncio         : ' + (rel.porcentagem_silencio   || 0) + '%\n';
-    t += 'Pausas           : ' + (rel.total_pausas           || 0) + '\n';
-    t += 'Média pausa      : ' + (rel.media_pausa_ms         || 0) + 'ms\n';
-    t += 'Densidade        : ' + (rel.densidade              || 0) + '\n';
-    t += 'Continuidade     : ' + (rel.continuidade_pct       || 0) + '%\n';
-    t += 'Energia          : ' + (rel.energia_pct            || 0) + '%\n';
-    t += 'Oscilação        : ' + (rel.oscilacao_pct          || 0) + '%\n';
-    if (rel.snapshot_sonoro) {
-      var s = rel.snapshot_sonoro;
-      t += '\nEspectro Sonoro\n';
-      t += '  Graves         : ' + s.graves       + '%\n';
-      t += '  Médios         : ' + s.medios       + '%\n';
-      t += '  Agudos         : ' + s.agudos       + '%\n';
-      t += '  Ruído          : ' + s.ruido        + '%\n';
-      t += '  Estabilidade   : ' + s.estabilidade + '%\n';
-    }
-  } else {
-    t = JSON.stringify(data, null, 2);
-  }
-
-  document.getElementById('resTecnico').textContent = t;
-  card.scrollIntoView({ behavior: 'smooth' });
-}
-
-/* ══════════════════════════════════════════════════════
-   LOGOUT
-══════════════════════════════════════════════════════ */
-function confirmarLogout() {
-  if (!confirm('Encerrar sessão e sair do Presença?')) return;
-  supa.auth.signOut().then(function() {
-    sessionStorage.removeItem('elayon_calibrado');
-    window.location.href = LOGIN_URL;
-  });
-}
-
-/* ══════════════════════════════════════════════════════
-   NAVEGAÇÃO
-══════════════════════════════════════════════════════ */
-function irCalibrar() {
-  localStorage.removeItem('audio_fase_1');
-  localStorage.removeItem('audio_fase_2');
-  localStorage.removeItem('audio_fase_3');
-  sessionStorage.removeItem('elayon_calibrado');
-  window.location.href = 'https://paulorobertoxavierjunior-create.github.io/elayon-avaliacao/';
-}
+/* ═══════════════════════════════════════════════════════
+   PARTE 2 — SCRIPT (carregado inline abaixo)
+═══════════════════════════════════════════════════════ */
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
