@@ -35,6 +35,164 @@ var PERIODI_CADA     = 4;
 var calibPeriodRod   = false;
 
 /* ══════════════════════════════════════════════════════════
+   INTEGRAÇÃO IA — ANÁLISES E CONFIGURAÇÃO
+══════════════════════════════════════════════════════════ */
+var iaHabilitada     = false;
+var apiEndpointIA    = '';
+var analisesSalvas   = [];
+var MAX_ANALISES     = 3;
+
+function carregarConfigIA() {
+  var cfg = localStorage.getItem('elayon_ia_config');
+  if (cfg) {
+    try {
+      var parsed = JSON.parse(cfg);
+      iaHabilitada = parsed.enabled || false;
+      apiEndpointIA = parsed.endpoint || '';
+    } catch(e) {}
+  }
+  var analises = localStorage.getItem('elayon_analises');
+  if (analises) {
+    try { analisesSalvas = JSON.parse(analises); } catch(e) {}
+  }
+  atualizarUIAnalises();
+  var toggleEl = document.getElementById('toggleIA');
+  var endpointEl = document.getElementById('apiEndpoint');
+  if (toggleEl) toggleEl.checked = iaHabilitada;
+  if (endpointEl) endpointEl.value = apiEndpointIA;
+}
+
+function salvarConfiguracao() {
+  var endpoint = document.getElementById('apiEndpoint').value.trim();
+  if (!endpoint) {
+    alert('Por favor, insira um endpoint de API válido.');
+    return;
+  }
+  apiEndpointIA = endpoint;
+  localStorage.setItem('elayon_ia_config', JSON.stringify({
+    enabled: iaHabilitada,
+    endpoint: apiEndpointIA
+  }));
+  alert('Configuração salva com sucesso!');
+}
+
+function toggleIA(checked) {
+  iaHabilitada = checked;
+  localStorage.setItem('elayon_ia_config', JSON.stringify({
+    enabled: iaHabilitada,
+    endpoint: apiEndpointIA
+  }));
+  console.log('IA ' + (iaHabilitada ? 'habilitada' : 'desabilitada'));
+}
+
+function adicionarAnalise(dados, nomeCustomizado) {
+  var timestamp = new Date().toLocaleString('pt-BR');
+  var nome = nomeCustomizado || 'Análise ' + timestamp;
+  var id = 'analise_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  
+  var analise = {
+    id: id,
+    timestamp: timestamp,
+    nome: nome,
+    dados: dados
+  };
+  
+  analisesSalvas.unshift(analise);
+  if (analisesSalvas.length > MAX_ANALISES) {
+    analisesSalvas = analisesSalvas.slice(0, MAX_ANALISES);
+  }
+  localStorage.setItem('elayon_analises', JSON.stringify(analisesSalvas));
+  atualizarUIAnalises();
+}
+
+function atualizarUIAnalises() {
+  var cont = document.getElementById('analisesList');
+  if (!cont) return;
+  
+  if (analisesSalvas.length === 0) {
+    cont.innerHTML = '<p style="font-size:12px;color:var(--muted);text-align:center;padding:20px 0;">Nenhuma análise salva ainda</p>';
+    return;
+  }
+  
+  var html = '';
+  analisesSalvas.forEach(function(a) {
+    html += '<div class="analise-item">'
+          + '<span class="analise-nome">' + escHtml(a.nome) + '</span>'
+          + '<span class="analise-data">' + a.timestamp + '</span>'
+          + '<div class="analise-acoes">'
+          + '<button class="analise-btn" onclick="renomearAnalise(\'' + a.id + '\')">✎</button>'
+          + '<button class="analise-btn" onclick="baixarAnalise(\'' + a.id + '\')">⬇</button>'
+          + '<button class="analise-btn" onclick="removerAnalise(\'' + a.id + '\')">✕</button>'
+          + '</div>'
+          + '</div>';
+  });
+  cont.innerHTML = html;
+}
+
+function renomearAnalise(id) {
+  var analise = analisesSalvas.find(function(a) { return a.id === id; });
+  if (!analise) return;
+  
+  var novoNome = prompt('Novo nome para a análise:', analise.nome);
+  if (novoNome && novoNome.trim()) {
+    analise.nome = novoNome.trim();
+    localStorage.setItem('elayon_analises', JSON.stringify(analisesSalvas));
+    atualizarUIAnalises();
+  }
+}
+
+function baixarAnalise(id) {
+  var analise = analisesSalvas.find(function(a) { return a.id === id; });
+  if (!analise) return;
+  
+  var jsonStr = JSON.stringify(analise.dados, null, 2);
+  var blob = new Blob([jsonStr], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var link = document.createElement('a');
+  link.href = url;
+  link.download = analise.nome.replace(/\s+/g, '_') + '_' + Date.now() + '.json';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function removerAnalise(id) {
+  if (!confirm('Remover esta análise?')) return;
+  analisesSalvas = analisesSalvas.filter(function(a) { return a.id !== id; });
+  localStorage.setItem('elayon_analises', JSON.stringify(analisesSalvas));
+  atualizarUIAnalises();
+}
+
+async function enviarParaIA(payload) {
+  if (!iaHabilitada || !apiEndpointIA) {
+    console.log('IA não habilitada ou endpoint não configurado');
+    return;
+  }
+  
+  try {
+    console.log('Enviando para IA:', apiEndpointIA);
+    var res = await fetch(apiEndpointIA, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (res.ok) {
+      var resposta = await res.json();
+      adicionarAnalise(payload, 'Análise IA - ' + new Date().toLocaleTimeString('pt-BR'));
+      console.log('Análise enviada para IA com sucesso:', resposta);
+      return resposta;
+    } else {
+      console.error('Erro ao enviar para IA. Status:', res.status);
+    }
+  } catch(e) {
+    console.error('Erro ao enviar para IA:', e);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
    BOOT
 ══════════════════════════════════════════════════════════ */
 (async function boot() {
@@ -86,6 +244,7 @@ var calibPeriodRod   = false;
     mostrarCalibracao();
   }
 
+  carregarConfigIA();
   atualizarUI_tokens();
 })();
 
@@ -166,7 +325,6 @@ async function verificarCalibracaoPeriodica() {
     return;
   }
 
-  // Debita sem re-acionar verificarCalibracaoPeriodica
   var rd = await supa.rpc('adicionar_tokens', { p_user_id: userId, p_quantidade: -2 });
   if (!rd.error) { tokens -= 2; atualizarUI_tokens(); }
   calibPeriodRod = false;
@@ -369,6 +527,12 @@ async function iniciarAnalise() {
       ehCalib:   false
     });
 
+    // Enviar para IA se habilitada
+    if (iaHabilitada && apiEndpointIA) {
+      console.log('Enviando análise para IA...');
+      await enviarParaIA(payload);
+    }
+
     await debitarTokens(custo);
 
   } catch(e) {
@@ -418,7 +582,6 @@ async function enviarAoRender(payload) {
   });
   return res.json();
 }
-
 
 /* ══════════════════════════════════════════════════════════
    RELATÓRIO VISUAL
@@ -507,7 +670,6 @@ function exibirRelatorioVisual(opts) {
         + '<span style="font-family:var(--mono);font-size:8px;color:var(--muted)">■ Silêncio · ' + silP + '%</span>'
         + '</div>';
   html += '</div>';
-
 
   // Delta vs calibração
   if (opts.delta) {
@@ -598,8 +760,7 @@ function desenharRadar(v) {
   var n = vals.length;
   ctx.clearRect(0, 0, 260, 260);
 
-
-// Anéis de grade
+  // Anéis de grade
   for (var ring = 1; ring <= 4; ring++) {
     ctx.beginPath();
     for (var i = 0; i < n; i++) {
@@ -844,4 +1005,133 @@ function confirmarLogout() {
     sessionStorage.removeItem('elayon_calibrado');
     window.location.href = LOGIN_URL;
   });
+}
+
+/* ── Radar ── */
+function desenharRadar(v) {
+  var canvas = document.getElementById('radarCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var cx = 130, cy = 130, r = 95;
+  var labels = ['Energia','Continuidade','Estabilidade','Voz\n(inv. silêncio)','Fluxo\n(inv. osc.)','Presença'];
+  var vals = [
+    v.engP  / 100,
+    v.contP / 100,
+    v.stab  / 100,
+    1 - v.silP / 100,
+    1 - v.oscP / 100,
+    Math.min(1, v.dur / 30)
+  ];
+  var n = vals.length;
+  ctx.clearRect(0, 0, 260, 260);
+
+  // Anéis de grade
+  for (var ring = 1; ring <= 4; ring++) {
+    ctx.beginPath();
+    for (var i = 0; i < n; i++) {
+      var ang = (Math.PI * 2 * i / n) - Math.PI / 2;
+      var rr  = r * ring / 4;
+      i === 0 ? ctx.moveTo(cx + rr * Math.cos(ang), cy + rr * Math.sin(ang))
+              : ctx.lineTo(cx + rr * Math.cos(ang), cy + rr * Math.sin(ang));
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(62,207,207,0.1)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Eixos e labels
+  for (var i = 0; i < n; i++) {
+    var ang = (Math.PI * 2 * i / n) - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + r * Math.cos(ang), cy + r * Math.sin(ang));
+    ctx.strokeStyle = 'rgba(62,207,207,0.12)';
+    ctx.stroke();
+    var lx = cx + (r + 20) * Math.cos(ang);
+    var ly = cy + (r + 20) * Math.sin(ang);
+    ctx.fillStyle = '#4a7a80';
+    ctx.font = '8px Share Tech Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    var partes = labels[i].split('\n');
+    partes.forEach(function(p, pi) {
+      ctx.fillText(p, lx, ly + (pi - (partes.length-1)/2) * 11);
+    });
+  }
+
+  // Polígono
+  ctx.beginPath();
+  for (var i = 0; i < n; i++) {
+    var ang = (Math.PI * 2 * i / n) - Math.PI / 2;
+    var rv  = r * vals[i];
+    i === 0 ? ctx.moveTo(cx + rv * Math.cos(ang), cy + rv * Math.sin(ang))
+            : ctx.lineTo(cx + rv * Math.cos(ang), cy + rv * Math.sin(ang));
+  }
+  ctx.closePath();
+  ctx.fillStyle   = 'rgba(62,207,207,0.18)';
+  ctx.fill();
+  ctx.strokeStyle = '#3ecfcf';
+  ctx.lineWidth   = 2;
+  ctx.stroke();
+
+  // Pontos
+  for (var i = 0; i < n; i++) {
+    var ang = (Math.PI * 2 * i / n) - Math.PI / 2;
+    var rv  = r * vals[i];
+    ctx.beginPath();
+    ctx.arc(cx + rv * Math.cos(ang), cy + rv * Math.sin(ang), 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#3ecfcf';
+    ctx.fill();
+  }
+}
+
+/* ── Mapa de silêncio ── */
+function desenharMapaSilencio(silPct) {
+  var canvas = document.getElementById('silCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  var blocos  = 88;
+  var bw      = w / blocos;
+
+  for (var i = 0; i < blocos; i++) {
+    var eSil = (i < 3 || i > blocos - 4) ? true : (Math.random() * 100 < silPct);
+    if (eSil) {
+      ctx.fillStyle = 'rgba(74,122,128,0.12)';
+      ctx.fillRect(i * bw, 0, bw - 1, h);
+      ctx.fillStyle = 'rgba(74,122,128,0.25)';
+      ctx.fillRect(i * bw + bw/2 - 0.5, h * 0.35, 1, h * 0.3);
+    } else {
+      var alt  = (0.25 + Math.random() * 0.65) * h;
+      var yOff = (h - alt) / 2;
+      ctx.fillStyle = 'rgba(62,207,207,0.65)';
+      ctx.fillRect(i * bw, yOff, bw - 1, alt);
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   TIPO DE ANÁLISE
+══════════════════════════════════════════════════════════ */
+function selecionarTipo(tipo) {
+  tipoAnalise = tipo;
+  document.getElementById('tipoUnica').className   = 'tipo-btn' + (tipo==='unica'   ? ' ativo' : '');
+  document.getElementById('tipoMemoria').className = 'tipo-btn' + (tipo==='memoria' ? ' ativo' : '');
+  document.getElementById('custoTexto').textContent = tipo === 'unica' ? '1 token' : '2 tokens';
+  atualizarUI_tokens();
+}
+
+/* ══════════════════════════════════════════════════════════
+   DELTA
+══════════════════════════════════════════════════════════ */
+function calcularDelta(sessao, ref) {
+  if (!ref) return null;
+  var campos = ['silence_pct','energy_pct','oscillation_pct','continuity_pct','pause_count','mean_pause_ms'];
+  var delta  = {};
+  campos.forEach(function(c) {
+    delta[c] = parseFloat(((sessao[c]||0) - (ref[c]||0)).toFixed(2));
+  });
+  return delta;
 }
