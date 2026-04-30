@@ -37,17 +37,31 @@
     .page { position: relative; z-index: 1; width: 100%; max-width: 480px; }
 
     /* ── HEADER ── */
-    .site-header {
-      width: 100%; display: flex; justify-content: space-between; align-items: center;
-      padding: 22px 0 18px; border-bottom: 1px solid var(--border); margin-bottom: 30px;
-    }
-    .logo-box { display: flex; align-items: center; gap: 12px; }
-    .logo-box img { height: 46px; width: 46px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
-    .logo-text { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; line-height: 1.8; }
-    .hud-info { font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: right; line-height: 1.9; }
-    .hud-val  { color: var(--cyan); font-weight: bold; }
-    .hud-sub  { font-size: 8px; color: var(--border); display: block; }
-    .hud-calib { font-size: 8px; color: var(--teal); display: block; margin-top: 2px; }
+.site-header {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  padding: 22px 0 18px; border-bottom: 1px solid var(--border); margin-bottom: 30px;
+}
+.logo-box { display: flex; align-items: center; gap: 12px; }
+.logo-box img { height: 46px; width: 46px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
+.logo-text { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; line-height: 1.8; }
+.hud-info { font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: right; line-height: 1.9; }
+.hud-val  { color: var(--cyan); font-weight: bold; }
+.hud-sub  { font-size: 8px; color: var(--border); display: block; }
+.hud-calib { font-size: 8px; color: var(--teal); display: block; margin-top: 2px; }
+
+/* ── ANÁLISES RECENTES ── */
+.analise-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border-radius: 12px;
+  background: var(--bg); border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.analise-nome { font-family: var(--mono); font-size: 10px; color: var(--text); flex: 1; }
+.analise-data { font-family: var(--mono); font-size: 8px; color: var(--muted); margin-right: 10px; }
+.analise-acoes { display: flex; gap: 6px; }
+.analise-btn { padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); font-family: var(--mono); font-size: 8px; cursor: pointer; transition: 0.2s; color: var(--text); }
+.analise-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.analise-rename { width: 100px; }
 
     /* ── HERO ── */
     .hero { text-align: center; padding: 6px 0 24px; }
@@ -244,9 +258,28 @@
     /* Fases de calibração */
     .fases-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
     .fase-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 8px; }
-    .fase-num { font-family: var(--mono); font-size: 10px; color: var(--cyan); font-weight: bold; }
+   
+/* ── ANÁLISES RECENTES ── */
+.analise-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border-radius: 12px;
+  background: var(--bg); border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.analise-nome { font-family: var(--mono); font-size: 10px; color: var(--text); flex: 1; }
+.analise-data { font-family: var(--mono); font-size: 8px; color: var(--muted); margin-right: 10px; }
+.analise-acoes { display: flex; gap: 6px; }
+.analise-btn { padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); font-family: var(--mono); font-size: 8px; cursor: pointer; transition: 0.2s; color: var(--text); }
+.analise-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.analise-rename { width: 100px; }
+
+
+
+ .fase-num { font-family: var(--mono); font-size: 10px; color: var(--cyan); font-weight: bold; }
     .fase-nome { font-family: var(--mono); font-size: 9px; color: var(--muted); }
     .fase-estado { font-family: var(--mono); font-size: 8px; color: var(--teal); letter-spacing: 1px; text-align: right; }
+
+
   </style>
 </head>
 <body>
@@ -361,6 +394,53 @@
       Tokens insuficientes.<br>Recarregue no painel Elayon.
     </div>
   </div>
+
+<!-- ANÁLISES RECENTES (3 últimas) -->
+<div class="card" id="cardAnalises">
+  <span class="card-label">Análises Recentes</span>
+  <div id="analisesList" style="display: flex; flex-direction: column; gap: 10px;">
+    <!-- Preenchido dinamicamente pelo app.js -->
+  </div>
+  <p style="font-size: 12px; color: var(--muted); margin-top: 14px; text-align: center;">
+    Máximo de 3 análises armazenadas
+  </p>
+</div>
+
+<!-- BOTÃO CONEXÃO IA -->
+<div class="card">
+  <span class="card-label">Assistência IA</span>
+  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+    <input type="checkbox" id="toggleIA" style="width: 18px; height: 18px; cursor: pointer;">
+    <label for="toggleIA" style="font-size: 14px; color: var(--text); cursor: pointer; flex: 1;">
+      Habilitar conexão com IA assistente
+    </label>
+  </div>
+  <p style="font-size: 12px; color: var(--muted); line-height: 1.6;">
+    Quando habilitado, o sistema enviará automaticamente as análises para sua IA assistente, que alinhará a resposta ao padrão detectado.
+  </p>
+</div>
+
+<!-- CAMPOS DE CAMINHO DE API -->
+<div class="card">
+  <span class="card-label">Configuração de Fluxo</span>
+  <div style="margin-bottom: 12px;">
+    <label style="display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase;">
+      Endpoint de API (origem e destino)
+    </label>
+    <input 
+      type="text" 
+      id="apiEndpoint" 
+      placeholder="https://sua-api.com/endpoint"
+      style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-family: var(--mono); font-size: 11px; color: var(--text); background: var(--bg);"
+    />
+    <p style="font-size: 10px; color: var(--muted); margin-top: 6px;">
+      Será usado como origem (entrada) e destino (saída) das análises
+    </p>
+  </div>
+  <button class="btn btn-secondary" onclick="salvarConfiguracao()" style="margin-top: 10px;">
+    Salvar Configuração
+  </button>
+</div>
 
   <!-- RESULTADO -->
   <div class="card hidden" id="cardResultado">
