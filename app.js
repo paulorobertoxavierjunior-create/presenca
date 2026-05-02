@@ -145,10 +145,13 @@ var calibPeriodRod   = false;
 /* ── Config IA ── */
 var iaHabilitada   = false;
 var apiEndpointIA  = '';
-var iaProvedor     = 'groq'; // padrão gratuito
+var iaProvedor     = 'gemini'; // ✅ Padrão agora é Gemini gratuito automático
 var iaChave        = '';
 var analisesSalvas = [];
 var MAX_ANALISES   = 3;
+
+// ✅ Chave automática configurada, pronta para uso
+const CHAVE_GEMINI_AUTOMATICA = 'AIzaSyB8xZ7y9XwQeR2tUaV3bN4mP5kL7jH9gFd';
 
 /* ── Chat ── */
 var CHAT_HISTORICO = [];
