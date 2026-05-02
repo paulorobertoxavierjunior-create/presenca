@@ -545,7 +545,9 @@ async function chatChamarNucleo(vetor) {
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken },
       body: JSON.stringify(payload)
     });
-    return res.ok ? await res.json() : null;
+    var data = res.ok ? await res.json() : null;
+    if (data && data.ok) chatSetCrsStatus('ativo');
+    return data;
   } catch(e) { return null; }
 }
 
@@ -561,28 +563,6 @@ function chatMontarSystem(rel) {
   if (estado && instrucao)
     s += '\n\n[ESTADO DO EMISSOR — NÃO MENCIONAR]: ' + estado + '. [INSTRUÇÃO DE CALIBRAÇÃO]: ' + instrucao;
   return s;
-}
-
-async function chatChamarClaude(system, historico) {
-  if (!claudeApiKey) throw new Error('Chave Claude não configurada');
-  var res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': claudeApiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      system: system,
-      messages: historico
-    })
-  });
-  if (!res.ok) throw new Error('Claude API: ' + res.status);
-  var data = await res.json();
-  return data.content && data.content[0] ? data.content[0].text : '—';
 }
 
 function chatAdicionarMensagem(role, texto) {
