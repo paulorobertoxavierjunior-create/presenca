@@ -69,20 +69,20 @@ function carregarConfigIA() {
 function salvarConfiguracao() {
   var endpointEl = document.getElementById('apiEndpoint');
   var keyEl      = document.getElementById('claudeApiKey');
+  var provEl     = document.getElementById('iaProvedor');
 
-  if (endpointEl && endpointEl.value.trim()) {
-    apiEndpointIA = endpointEl.value.trim();
-  }
-  if (keyEl && keyEl.value.trim()) {
-    claudeApiKey = keyEl.value.trim();
-    localStorage.setItem('elayon_claude_key', claudeApiKey);
-  }
+  if (endpointEl && endpointEl.value.trim()) apiEndpointIA = endpointEl.value.trim();
+  if (keyEl      && keyEl.value.trim())      iaChave       = keyEl.value.trim();
+  if (provEl)                                iaProvedor    = provEl.value;
 
+  localStorage.setItem('elayon_claude_key', iaChave);
   localStorage.setItem('elayon_ia_config', JSON.stringify({
     enabled:  iaHabilitada,
-    endpoint: apiEndpointIA
+    endpoint: apiEndpointIA,
+    provedor: iaProvedor,
+    chave:    iaChave
   }));
-  alert('Configuração salva com sucesso!');
+  alert('Configuração salva. Pode usar o chat.');
 }
 
 function toggleIA(checked) {
