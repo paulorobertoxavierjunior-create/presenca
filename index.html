@@ -385,9 +385,14 @@
     <input type="text" id="apiEndpoint" class="field-input" placeholder="https://sua-api.com/endpoint" />
     <p style="font-size:10px;color:var(--muted);margin-top:-8px;margin-bottom:14px;">Usado como origem e destino das análises externas</p>
 
-    <label class="field-label">Chave Claude API</label>
-    <input type="password" id="claudeApiKey" class="field-input" placeholder="sk-ant-..." />
-    <p style="font-size:10px;color:var(--muted);margin-top:-8px;margin-bottom:14px;">Salva localmente. Nunca enviada a servidores externos.</p>
+    <label class="field-label">Conexão com IA</label>
+<button id="btnConectarIA" class="btn btn-primary" style="width:100%;padding:10px 12px;margin:6px 0 8px 0;">
+  🚀 CONECTAR GEMINI GRATUITO
+</button>
+<div id="statusConexao" style="margin-bottom:14px;display:none;">
+  <span id="textoStatus" style="font-size:12px;"></span>
+</div>
+<p style="font-size:10px;color:var(--muted);margin-top:-8px;">Sem conta, sem chave, sem custos — funciona calibrado pelo CRS</p>
 
     <button class="btn btn-primary" onclick="salvarConfiguracao()">Salvar configuração</button>
   </div>
