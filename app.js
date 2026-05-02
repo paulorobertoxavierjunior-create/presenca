@@ -169,7 +169,6 @@ async function enviarParaIA(payload) {
   } catch(e) { console.error('enviarParaIA:', e); }
 }
 
-
 /* ══════════════════════════════════════════════════════════
    BOOT
 ══════════════════════════════════════════════════════════ */
@@ -396,7 +395,6 @@ async function enviarAoRender(payload) {
   return res.json();
 }
 
-
 /* ══════════════════════════════════════════════════════════
    CHAT CRS SILENCIOSO — MULTI-IA
 ══════════════════════════════════════════════════════════ */
@@ -503,6 +501,8 @@ function chatSetCrsStatus(estado) {
   label.textContent = estado==='lendo' ? 'CRS LENDO' : estado==='ativo' ? 'CRS ATIVO' : 'CRS INATIVO';
 }
 
+
+
 /* ══════════════════════════════════════════════════════════
    RELATÓRIO VISUAL
 ══════════════════════════════════════════════════════════ */
@@ -554,8 +554,6 @@ function exibirRelatorioVisual(opts) {
   html += '<button class="btn btn-ghost" style="margin-top:18px;" onclick="document.getElementById(\'cardResultado\').classList.add(\'hidden\')">Encerrar visualização</button>';
   card.innerHTML = html; card.scrollIntoView({ behavior: 'smooth' });
   setTimeout(function() { desenharRadar({ silP:silP, engP:engP, oscP:oscP, contP:contP, dur:dur, stab:snap.estabilidade||0 }); desenharMapaSilencio(silP); }, 100);
-}
-
 }
 
 /* ══════════════════════════════════════════════════════════
