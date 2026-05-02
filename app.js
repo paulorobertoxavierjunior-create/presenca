@@ -49,9 +49,11 @@ function carregarConfigIA() {
       var parsed = JSON.parse(cfg);
       iaHabilitada  = parsed.enabled  || false;
       apiEndpointIA = parsed.endpoint || '';
+      iaProvedor    = parsed.provedor || 'gemini';
+      iaChave       = parsed.chave    || '';
     } catch(e) {}
   }
-  claudeApiKey = localStorage.getItem('elayon_claude_key') || '';
+  if (!iaChave) iaChave = localStorage.getItem('elayon_claude_key') || '';
 
   var analises = localStorage.getItem('elayon_analises');
   if (analises) { try { analisesSalvas = JSON.parse(analises); } catch(e) {} }
@@ -61,9 +63,11 @@ function carregarConfigIA() {
   var toggleEl   = document.getElementById('toggleIA');
   var endpointEl = document.getElementById('apiEndpoint');
   var keyEl      = document.getElementById('claudeApiKey');
-  if (toggleEl)   toggleEl.checked  = iaHabilitada;
-  if (endpointEl) endpointEl.value  = apiEndpointIA;
-  if (keyEl)      keyEl.value       = claudeApiKey;
+  var provEl     = document.getElementById('iaProvedor');
+  if (toggleEl)   toggleEl.checked = iaHabilitada;
+  if (endpointEl) endpointEl.value = apiEndpointIA;
+  if (keyEl)      keyEl.value      = iaChave;
+  if (provEl)     provEl.value     = iaProvedor;
 }
 
 function salvarConfiguracao() {
@@ -84,15 +88,6 @@ function salvarConfiguracao() {
   }));
   alert('Configuração salva. Pode usar o chat.');
 }
-
-function toggleIA(checked) {
-  iaHabilitada = checked;
-  localStorage.setItem('elayon_ia_config', JSON.stringify({
-    enabled:  iaHabilitada,
-    endpoint: apiEndpointIA
-  }));
-}
-
 /* ── Análises salvas ── */
 function adicionarAnalise(dados, nomeCustomizado) {
   var timestamp = new Date().toLocaleString('pt-BR');
