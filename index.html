@@ -385,17 +385,23 @@
     <input type="text" id="apiEndpoint" class="field-input" placeholder="https://sua-api.com/endpoint" />
     <p style="font-size:10px;color:var(--muted);margin-top:-8px;margin-bottom:14px;">Usado como origem e destino das análises externas</p>
 
-    <label class="field-label">Conexão com IA</label>
-<button id="btnConectarIA" class="btn btn-primary" style="width:100%;padding:10px 12px;margin:6px 0 8px 0;">
-  🚀 CONECTAR GEMINI GRATUITO
-</button>
-<div id="statusConexao" style="margin-bottom:14px;display:none;">
-  <span id="textoStatus" style="font-size:12px;"></span>
-</div>
-<p style="font-size:10px;color:var(--muted);margin-top:-8px;">Sem conta, sem chave, sem custos — funciona calibrado pelo CRS</p>
+    <label class="field-label">Provedor de IA</label>
+    <select id="iaProvedor" class="field-input" onchange="renderizarNotaProvedor()">
+      <option value="groq">Groq — LLaMA 3 ✓ Gratuito</option>
+      <option value="gemini">Gemini — Google ✓ Gratuito</option>
+      <option value="mistral">Mistral AI ✓ Gratuito</option>
+      <option value="claude">Claude — Anthropic (Pago)</option>
+      <option value="openai">GPT — OpenAI (Pago)</option>
+    </select>
+    <p id="iaProvedorNota" style="font-size:10px;color:var(--teal);margin-top:-8px;margin-bottom:14px;"></p>
 
-    <button class="btn btn-primary" onclick="salvarConfiguracao()">Salvar configuração</button>
-  </div>
+    <label class="field-label">Chave da IA</label>
+    <input type="password" id="claudeApiKey" class="field-input" placeholder="Cole sua chave aqui..." />
+    <p style="font-size:10px;color:var(--muted);margin-top:-8px;margin-bottom:14px;">
+      Groq gratuito → console.groq.com · Gemini gratuito → aistudio.google.com/apikey
+    </p>
+
+    <button class="btn btn-primary" onclick="salvarConfiguracao()">Salvar e ativar</button>
 
   <!-- RESULTADO -->
   <div class="card hidden" id="cardResultado">
