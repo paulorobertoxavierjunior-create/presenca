@@ -42,7 +42,7 @@ var IA_PROVEDORES = {
   groq: {
     urlFn: function() { return 'https://api.groq.com/openai/v1/chat/completions'; },
     headers: function(k) { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + k }; },
-    body: function(sys, hist) { return JSON.stringify({ model: 'llama3-8b-8192', max_tokens: 800, messages: [{ role: 'system', content: sys }].concat(hist) }); },
+    body: function(sys, hist) { return JSON.stringify({ model: 'llama-3.3-70b-versatile', max_tokens: 800, messages: [{ role: 'system', content: sys }].concat(hist) }); },
     extrair: function(d) { return d.choices && d.choices[0] ? d.choices[0].message.content : '—'; }
   },
   mistral: {
