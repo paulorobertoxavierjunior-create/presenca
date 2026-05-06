@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Elayon · Presença Lab Chat</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    /* ── LAYOUT ── */
+    body { padding: 0; }
+    .shell { max-width: 680px; padding: 16px; }
+
+    /* ── HEADER ── */
+    .lab-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px; background: #fff; border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .lab-titulo { font-weight: bold; font-size: 15px; color: var(--primary-dark); }
+    .lab-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; transition: 0.3s; }
+    .status-dot.ok   { background: var(--ok); }
+    .status-dot.busy { background: var(--warn); animation: blink 0.8s infinite; }
+    .status-dot.err  { background: var(--err); }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* ── DASHBOARD ── */
+    .dashboard {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      margin-bottom: 12px;
+    }
+    .dash-item {
+      background: #fff; border: 1px solid var(--line); border-radius: 12px;
+      padding: 10px 12px; text-align: center;
+    }
+    .dash-label { font-size: 10px; color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .dash-val { font-size: 20px; font-weight: bold; color: var(--primary-dark); line-height: 1; }
+    .dash-val.destaque { color: var(--primary); }
+    .dash-sub { font-size: 10px; color: var(--muted); margin-top: 2px; display: block; }
+
+    .crs-estado {
+      background: #fff; border: 1px solid var(--line); border-radius: 12px;
+      padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .crs-estado-label { font-size: 11px; color: var(--muted); }
+    .crs-estado-val { font-size: 13px; font-weight: bold; color: var(--primary-dark); max-width: 60%; text-align: right; }
+    .crs-instrucao { font-size: 11px; color: var(--muted); text-align: right; max-width: 60%; }
+
+    /* ── CHAT ── */
+    .chat-area {
+      min-height: 260px; max-height: 380px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 10px;
+      padding: 4px 0; margin-bottom: 14px;
+      scrollbar-width: thin;
+    }
+    .msg { max-width: 88%; font-size: 14px; line-height: 1.65; word-break: break-word; }
+    .msg.user    { align-self: flex-end; }
+    .msg.ia      { align-self: flex-start; }
+    .msg.sistema { align-self: center; max-width: 100%; }
+    .bubble {
+      padding: 10px 14px; border-radius: 16px; display: inline-block;
+    }
+    .msg.user .bubble    { background: var(--primary); color: #fff; border-radius: 16px 16px 4px 16px; }
+    .msg.ia   .bubble    { background: #fff; border: 1px solid var(--line); color: var(--text); border-radius: 16px 16px 16px 4px; }
+    .msg.sistema .bubble { background: #f4fbfc; border: 1px solid var(--line); color: var(--muted); font-size: 12px; border-radius: 10px; }
+    .msg-meta { font-size: 10px; color: var(--muted); margin-top: 3px; padding: 0 4px; }
+    .msg.user .msg-meta { text-align: right; }
+
+    /* ── ÁUDIO ── */
+    .audio-section {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px;
+      padding: 16px; margin-bottom: 12px;
+    }
+    .audio-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .mic-btn {
+      width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--line);
+      background: #f4fbfc; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; transition: 0.2s; flex-shrink: 0;
+    }
+    .mic-btn.gravando { border-color: var(--err); background: #fff0f2; animation: pulseMic 1.2s infinite; }
+    .mic-btn svg { width: 24px; height: 24px; stroke: var(--primary-dark); fill: none; stroke-width: 2; }
+    .mic-btn.gravando svg { stroke: var(--err); }
+    @keyframes pulseMic { 0%,100%{box-shadow:0 0 0 0 rgba(166,60,74,0.2)} 50%{box-shadow:0 0 0 10px rgba(166,60,74,0)} }
+    .mic-info { flex: 1; }
+    .mic-estado-txt { font-size: 13px; color: var(--text); font-weight: bold; }
+    .mic-timer { font-size: 22px; font-weight: bold; color: var(--primary); font-variant-numeric: tabular-nums; }
+    .transcricao-preview {
+      background: #f4fbfc; border: 1px solid var(--line); border-radius: 10px;
+      padding: 10px 12px; font-size: 13px; color: var(--text); min-height: 36px;
+      line-height: 1.5; margin-bottom: 10px; white-space: pre-wrap;
+    }
+    .audio-btns { display: flex; gap: 8px; }
+    .btn-confirmar { background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; cursor: pointer; flex: 1; }
+    .btn-refazer   { background: #fff; color: var(--primary-dark); border: 1px solid var(--line); padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+    .btn-confirmar:disabled, .btn-refazer:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── INPUT TEXTO ── */
+    .input-row { display: flex; gap: 8px; align-items: flex-end; }
+    .input-txt {
+      flex: 1; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px;
+      font-size: 14px; resize: none; outline: none; font-family: Arial, sans-serif;
+      max-height: 80px; transition: border-color 0.2s;
+    }
+    .input-txt:focus { border-color: var(--primary); }
+    .btn-send {
+      width: 42px; height: 42px; border-radius: 10px; background: var(--primary);
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .btn-send svg { width: 16px; height: 16px; fill: #fff; }
+    .btn-send:disabled { background: var(--line); cursor: not-allowed; }
+
+    /* ── CONFIG COLAPSÁVEL ── */
+    .config-toggle {
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; padding: 4px 0; margin-bottom: 8px;
+      font-size: 13px; font-weight: bold; color: var(--primary-dark);
+    }
+    .config-body { display: none; }
+    .config-body.aberto { display: block; }
+    input.campo, select.campo {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--line);
+      border-radius: 8px; font-size: 13px; background: #fff; margin-bottom: 8px;
+    }
+    .nota-api { font-size: 11px; color: var(--muted); margin-bottom: 10px; display: block; }
+
+    .sep-h { height: 1px; background: var(--line); margin: 10px 0; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER FIXO -->
+<div class="lab-header">
+  <div class="lab-titulo">⬡ Elayon · Presença Lab</div>
+  <div class="lab-status">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusTxt">iniciando</span>
+  </div>
+</div>
+
+<main class="shell">
+
+  <!-- DASHBOARD CRS -->
+  <div class="dashboard" id="dashboard">
+    <div class="dash-item">
+      <span class="dash-label">Silêncio</span>
+      <div class="dash-val destaque" id="dSilencio">—</div>
+      <span class="dash-sub">% do tempo</span>
+    </div>
+    <div class="dash-item">
+      <span class="dash-label">Energia</span>
+      <div class="dash-val destaque" id="dEnergia">—</div>
+      <span class="dash-sub">% RMS</span>
+    </div>
+    <div class="dash-item">
+      <span class="dash-label">Pausas</span>
+      <div class="dash-val" id="dPausas">—</div>
+      <span class="dash-sub">detectadas</span>
+    </div>
+    <div class="dash-item">
+      <span class="dash-label">Oscilação</span>
+      <div class="dash-val" id="dOscilacao">—</div>
+      <span class="dash-sub">%</span>
+    </div>
+    <div class="dash-item">
+      <span class="dash-label">Continuidade</span>
+      <div class="dash-val" id="dContinuidade">—</div>
+      <span class="dash-sub">%</span>
+    </div>
+    <div class="dash-item">
+      <span class="dash-label">Duração</span>
+      <div class="dash-val" id="dDuracao">—</div>
+      <span class="dash-sub">segundos</span>
+    </div>
+  </div>
+
+  <div class="crs-estado">
+    <div>
+      <span class="crs-estado-label">Estado CRS</span>
+      <div class="crs-estado-val" id="crsEstado">Aguardando leitura</div>
+    </div>
+    <div style="text-align:right">
+      <span class="crs-estado-label">Instrução à IA</span>
+      <div class="crs-instrucao" id="crsInstrucao">—</div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="card" style="padding: 16px;">
+    <div class="chat-area" id="chatArea"></div>
+
+    <!-- ÁREA DE ÁUDIO -->
+    <div class="audio-section" id="audioSection">
+      <div class="audio-top">
+        <button class="mic-btn" id="micBtn" title="Gravar voz">
+          <svg viewBox="0 0 24 24">
+            <rect x="9" y="2" width="6" height="12" rx="3"/>
+            <path d="M5 10a7 7 0 0 0 14 0"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
+        <div class="mic-info">
+          <div class="mic-estado-txt" id="micEstadoTxt">Toque para gravar</div>
+          <div class="mic-timer" id="micTimer">00:00</div>
+        </div>
+      </div>
+
+      <div class="transcricao-preview" id="transcricaoPreview" style="display:none;"></div>
+
+      <div class="audio-btns" id="audioBtns" style="display:none;">
+        <button class="btn-confirmar" id="btnConfirmar">Confirmar e enviar</button>
+        <button class="btn-refazer" id="btnRefazer">Refazer</button>
+      </div>
+    </div>
+
+    <div class="sep-h"></div>
+
+    <!-- INPUT TEXTO -->
+    <div class="input-row">
+      <textarea class="input-txt" id="inputTxt" rows="1" placeholder="Ou escreva aqui..."></textarea>
+      <button class="btn-send" id="btnSend" disabled>
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- CONFIGURAÇÃO -->
+  <div class="card">
+    <div class="config-toggle" id="configToggle">
+      <span>⚙ Configuração de API</span>
+      <span id="configSeta">▼</span>
+    </div>
+    <div class="config-body" id="configBody">
+      <select class="campo" id="provedor">
+        <option value="gemini">Gemini — Google (Gratuito)</option>
+        <option value="groq">Groq — LLaMA (Gratuito)</option>
+        <option value="mistral">Mistral AI (Gratuito)</option>
+        <option value="claude">Claude — Anthropic (Pago)</option>
+        <option value="openai">GPT — OpenAI (Pago)</option>
+      </select>
+      <span class="nota-api" id="notaApi"></span>
+      <input type="password" class="campo" id="campoChave" placeholder="Cole sua chave aqui..."/>
+      <div class="row">
+        <button class="btn" id="btnSalvarConfig">Salvar e ativar</button>
+        <button class="btn secondary" id="btnLimparChat">Limpar chat</button>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted);" id="configStatus"></div>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="card">
+    <div class="config-toggle" id="logToggle">
+      <span>📋 Log técnico</span>
+      <span id="logSeta">▼</span>
+    </div>
+    <div class="config-body" id="logBody">
+      <div class="log" id="logBox"></div>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn secondary" id="btnLimparLog">Limpar log</button>
+        <a class="btn secondary" href="presenca-lab.html">← Lab</a>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="js/base.js"></script>
+<script>
+/* ════════════════════════════════════
+   PROVEDORES
+════════════════════════════════════ */
+var PROVEDORES = {
+  gemini: {
+    nota: 'Gratuito · aistudio.google.com/apikey · AIza...',
+    urlFn: function(k) { return 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+k; },
+    headers: function() { return {'Content-Type':'application/json'}; },
+    body: function(sys, hist) {
+      var contents = hist.map(function(m){ return {role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}; });
+      return JSON.stringify({system_instruction:{parts:[{text:sys}]},contents:contents,generationConfig:{maxOutputTokens:700,temperature:0.85}});
+    },
+    extrair: function(d) { return d.candidates&&d.candidates[0]?d.candidates[0].content.parts[0].text.trim():'—'; },
+    transcrever: function(k, base64) {
+      var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+k;
+      return fetch(url, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        contents:[{parts:[
+          {text:'Transcreva exatamente o que foi dito neste áudio em português brasileiro. Retorne apenas o texto, sem explicações.'},
+          {inline_data:{mime_type:'audio/webm',data:base64}}
+        ]}]
+      })}).then(function(r){return r.json();}).then(function(d){return d.candidates&&d.candidates[0]?d.candidates[0].content.parts[0].text.trim():'';});
+    }
+  },
+  groq: {
+    nota: 'Gratuito · console.groq.com · gsk_...',
+    urlFn: function() { return 'https://api.groq.com/openai/v1/chat/completions'; },
+    headers: function(k) { return {'Content-Type':'application/json','Authorization':'Bearer '+k}; },
+    body: function(sys,hist) { return JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:700,messages:[{role:'system',content:sys}].concat(hist)}); },
+    extrair: function(d) { return d.choices&&d.choices[0]?d.choices[0].message.content.trim():'—'; },
+    transcrever: null // Groq Whisper requer form-data, usa Gemini como fallback
+  },
+  mistral: {
+    nota: 'Gratuito · console.mistral.ai',
+    urlFn: function() { return 'https://api.mistral.ai/v1/chat/completions'; },
+    headers: function(k) { return {'Content-Type':'application/json','Authorization':'Bearer '+k}; },
+    body: function(sys,hist) { return JSON.stringify({model:'mistral-small-latest',max_tokens:700,messages:[{role:'system',content:sys}].concat(hist)}); },
+    extrair: function(d) { return d.choices&&d.choices[0]?d.choices[0].message.content.trim():'—'; },
+    transcrever: null
+  },
+  claude: {
+    nota: 'Pago · console.anthropic.com · sk-ant-...',
+    urlFn: function() { return 'https://api.anthropic.com/v1/messages'; },
+    headers: function(k) { return {'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}; },
+    body: function(sys,hist) { return JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:700,system:sys,messages:hist}); },
+    extrair: function(d) { return d.content&&d.content[0]?d.content[0].text.trim():'—'; },
+    transcrever: null
+  },
+  openai: {
+    nota: 'Pago · platform.openai.com · sk-...',
+    urlFn: function() { return 'https://api.openai.com/v1/chat/completions'; },
+    headers: function(k) { return {'Content-Type':'application/json','Authorization':'Bearer '+k}; },
+    body: function(sys,hist) { return JSON.stringify({model:'gpt-4o-mini',max_tokens:700,messages:[{role:'system',content:sys}].concat(hist)}); },
+    extrair: function(d) { return d.choices&&d.choices[0]?d.choices[0].message.content.trim():'—'; },
+    transcrever: null
+  }
+};
+
+/* ════════════════════════════════════
+   ESTADO
+════════════════════════════════════ */
+var CRS_ENDPOINT = 'https://nucleo-crs-elayon.onrender.com/api/crs/analisar';
+var chaveAtiva = '', provedorAtivo = 'gemini', historico = [];
+var micGravando = false, micRec = null, micStream = null, micChunks = [], micSeg = 0, micInt = null;
+var audioBlob = null, textoTranscrito = '';
+var ultimasMedricas = null;
+
+var SYSTEM = 'Você é uma presença acolhedora do sistema Elayon. '
+  + 'Responda em português brasileiro. Seja direto, caloroso e humano. '
+  + 'Seu único objetivo é ajudar o emissor a se ver com amor — a si mesmo e ao próximo. '
+  + 'Conduza a conversa com suavidade, profundidade e intenção. '
+  + 'Nunca mencione CRS, calibração ou análise de áudio — a menos que o usuário pergunte diretamente.';
+
+/* ════════════════════════════════════
+   BOOT
+════════════════════════════════════ */
+(function boot() {
+  chaveAtiva = localStorage.getItem('lab_gemini_key') || '';
+  var cfg = localStorage.getItem('elayon_ia_config');
+  if (cfg) { try { var p=JSON.parse(cfg); chaveAtiva=chaveAtiva||p.chave||''; provedorAtivo=p.provedor||'gemini'; } catch(e){} }
+  if (chaveAtiva) { document.getElementById('campoChave').value=chaveAtiva; document.getElementById('btnSend').disabled=false; setStatus('ok','Pronto'); }
+  else { setStatus('','config necessária'); }
+  document.getElementById('provedor').value = provedorAtivo;
+  atualizarNota();
+  msg('sistema','Sistema Elayon ativo. Grave sua voz ou escreva.');
+  log('Boot completo · provedor: '+provedorAtivo, 'ok');
+})();
+
+/* ════════════════════════════════════
+   HELPERS
+════════════════════════════════════ */
+function log(m,t){ ELAYON_LAB.appendLog(m,t||'ok'); }
+function fmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+
+function setStatus(tipo, txt) {
+  var dot = document.getElementById('statusDot');
+  var t   = document.getElementById('statusTxt');
+  dot.className = 'status-dot' + (tipo ? ' '+tipo : '');
+  t.textContent = txt;
+}
+
+function msg(role, texto, ts) {
+  var area = document.getElementById('chatArea');
+  var div  = document.createElement('div'); div.className = 'msg '+role;
+  var bub  = document.createElement('div'); bub.className = 'bubble'; bub.textContent = texto;
+  var meta = document.createElement('div'); meta.className = 'msg-meta';
+  meta.textContent = ts || new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  div.appendChild(bub); div.appendChild(meta);
+  area.appendChild(div); area.scrollTop = area.scrollHeight;
+}
+
+function typing(mostrar) {
+  var area = document.getElementById('chatArea');
+  var ex = document.getElementById('chatTyping'); if(ex) ex.remove();
+  if (!mostrar) return;
+  var div = document.createElement('div'); div.id='chatTyping'; div.className='msg ia';
+  div.innerHTML='<div class="bubble" style="color:var(--muted)">···</div>';
+  area.appendChild(div); area.scrollTop=area.scrollHeight;
+}
+
+function atualizarDashboard(m) {
+  if (!m) return;
+  document.getElementById('dSilencio').textContent    = m.silence_pct + '%';
+  document.getElementById('dEnergia').textContent     = m.energy_pct + '%';
+  document.getElementById('dPausas').textContent      = m.pause_count;
+  document.getElementById('dOscilacao').textContent   = m.oscillation_pct + '%';
+  document.getElementById('dContinuidade').textContent= m.continuity_pct + '%';
+  document.getElementById('dDuracao').textContent     = m.duration_sec + 's';
+}
+
+function atualizarCRS(rel) {
+  if (!rel || !rel.ok) return;
+  document.getElementById('crsEstado').textContent    = rel.analise_sugestiva || '—';
+  document.getElementById('crsInstrucao').textContent = rel.sugestao_ia || '—';
+}
+
+function atualizarNota() {
+  var p = document.getElementById('provedor').value;
+  document.getElementById('notaApi').textContent = PROVEDORES[p] ? PROVEDORES[p].nota : '';
+}
+
+/* ════════════════════════════════════
+   MICROFONE
+════════════════════════════════════ */
+document.getElementById('micBtn').addEventListener('click', function() {
+  if (micGravando) pararMic(); else iniciarMic();
+});
+
+function iniciarMic() {
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(s) {
+    micStream=s; micChunks=[]; micRec=new MediaRecorder(s);
+    micRec.ondataavailable=function(ev){if(ev.data.size>0)micChunks.push(ev.data);};
+    micRec.start(100); micGravando=true; micSeg=0;
+    micInt=setInterval(function(){micSeg++;document.getElementById('micTimer').textContent=fmt(micSeg);},1000);
+    document.getElementById('micBtn').classList.add('gravando');
+    document.getElementById('micEstadoTxt').textContent='Gravando... toque para encerrar';
+    document.getElementById('transcricaoPreview').style.display='none';
+    document.getElementById('audioBtns').style.display='none';
+    log('Gravação iniciada','ok');
+  }).catch(function(e){ log('Microfone: '+e.message,'err'); });
+}
+
+function pararMic() {
+  clearInterval(micInt); micGravando=false;
+  document.getElementById('micBtn').classList.remove('gravando');
+  document.getElementById('micEstadoTxt').textContent='Transcrevendo...';
+  setStatus('busy','transcrevendo');
+
+  micRec.onstop = async function() {
+    audioBlob = new Blob(micChunks, {type:'audio/webm'});
+    log('Áudio: '+Math.round(audioBlob.size/1024)+'KB','ok');
+
+    // Extrai métricas
+    ultimasMedricas = await extrairMetricas(audioBlob);
+    atualizarDashboard(ultimasMedricas);
+    log('Métricas extraídas','ok');
+
+    // Transcreve
+    try {
+      var prov = PROVEDORES[provedorAtivo];
+      var transcFn = prov.transcrever || PROVEDORES['gemini'].transcrever;
+      var base64 = await blobToBase64(audioBlob);
+      textoTranscrito = await transcFn(chaveAtiva, base64);
+      document.getElementById('transcricaoPreview').textContent = textoTranscrito || '(sem fala detectada)';
+      document.getElementById('transcricaoPreview').style.display='block';
+      document.getElementById('audioBtns').style.display='flex';
+      document.getElementById('micEstadoTxt').textContent='Confirme o texto';
+      setStatus('ok','aguardando confirmação');
+      log('Transcrição: "'+textoTranscrito.slice(0,50)+'"','ok');
+    } catch(e) {
+      log('Erro transcrição: '+e.message,'err');
+      document.getElementById('micEstadoTxt').textContent='Erro — tente novamente';
+      setStatus('err','erro transcrição');
+    }
+  };
+
+  micRec.stop(); micStream.getTracks().forEach(function(t){t.stop();});
+}
+
+document.getElementById('btnConfirmar').addEventListener('click', async function() {
+  if (!textoTranscrito) return;
+  document.getElementById('transcricaoPreview').style.display='none';
+  document.getElementById('audioBtns').style.display='none';
+  document.getElementById('micEstadoTxt').textContent='Toque para gravar';
+  document.getElementById('micTimer').textContent='00:00';
+  await enviarMensagem(textoTranscrito, ultimasMedricas);
+  textoTranscrito=''; audioBlob=null;
+});
+
+document.getElementById('btnRefazer').addEventListener('click', function() {
+  textoTranscrito=''; audioBlob=null; ultimasMedricas=null;
+  document.getElementById('transcricaoPreview').style.display='none';
+  document.getElementById('audioBtns').style.display='none';
+  document.getElementById('micEstadoTxt').textContent='Toque para gravar novamente';
+  document.getElementById('micTimer').textContent='00:00';
+  setStatus('ok','Pronto');
+  log('Gravação descartada','warn');
+});
+
+/* ════════════════════════════════════
+   INPUT TEXTO
+════════════════════════════════════ */
+document.getElementById('inputTxt').addEventListener('keydown', function(e) {
+  if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();enviarTexto();}
+});
+document.getElementById('inputTxt').addEventListener('input', function(){
+  this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,80)+'px';
+});
+document.getElementById('btnSend').addEventListener('click', enviarTexto);
+
+function enviarTexto() {
+  var txt = document.getElementById('inputTxt').value.trim();
+  if (!txt || !chaveAtiva) return;
+  document.getElementById('inputTxt').value=''; document.getElementById('inputTxt').style.height='auto';
+  enviarMensagem(txt, null);
+}
+
+/* ════════════════════════════════════
+   FLUXO PRINCIPAL
+════════════════════════════════════ */
+async function enviarMensagem(texto, metricas) {
+  msg('user', texto);
+  historico.push({role:'user',content:texto});
+  typing(true);
+  setStatus('busy','processando');
+  document.getElementById('btnSend').disabled=true;
+
+  try {
+    // CRS
+    var relatorio = null;
+    if (metricas) {
+      log('Enviando ao CRS...','ok');
+      relatorio = await chamarCRS(metricas);
+      if (relatorio && relatorio.ok) { atualizarCRS(relatorio); log('CRS: '+relatorio.analise_sugestiva,'ok'); }
+      else { log('CRS sem resposta — continuando','warn'); }
+    }
+
+    // System prompt calibrado
+    var sys = SYSTEM;
+    if (relatorio && relatorio.ok && relatorio.analise_sugestiva) {
+      sys += '\n\n[LEITURA INTERNA — NÃO REVELAR]: Estado do emissor: '
+           + relatorio.analise_sugestiva + '. Instrução: ' + (relatorio.sugestao_ia||'');
+    }
+
+    // IA responde
+    var prov = PROVEDORES[provedorAtivo];
+    var url  = prov.urlFn(chaveAtiva);
+    var res  = await fetch(url, {method:'POST',headers:prov.headers(chaveAtiva),body:prov.body(sys,historico)});
+    if (!res.ok) { var e=await res.text(); throw new Error('IA '+res.status+': '+e.slice(0,120)); }
+    var resposta = prov.extrair(await res.json());
+
+    typing(false);
+    msg('ia', resposta);
+    historico.push({role:'assistant',content:resposta});
+    if (historico.length>20) historico=historico.slice(-20);
+    setStatus('ok','Pronto');
+    log('Resposta gerada','ok');
+
+  } catch(e) {
+    typing(false);
+    msg('sistema','Erro: '+e.message);
+    setStatus('err',e.message.slice(0,40));
+    log('ERRO: '+e.message,'err');
+  }
+
+  document.getElementById('btnSend').disabled=false;
+}
+
+/* ════════════════════════════════════
+   CRS
+════════════════════════════════════ */
+async function chamarCRS(metricas) {
+  try {
+    var res = await fetch(CRS_ENDPOINT, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(metricas)
+    });
+    return res.ok ? await res.json() : null;
+  } catch(e) { return null; }
+}
+
+/* ════════════════════════════════════
+   EXTRAÇÃO DE MÉTRICAS
+════════════════════════════════════ */
+async function extrairMetricas(blob) {
+  var url = URL.createObjectURL(blob);
+  var ab  = await fetch(url).then(function(r){return r.arrayBuffer();});
+  URL.revokeObjectURL(url);
+  var actx = new (window.AudioContext||window.webkitAudioContext)();
+  var dec; try{dec=await actx.decodeAudioData(ab);}catch(e){await actx.close();return metNulo();}
+  var ch=dec.getChannelData(0), dur=dec.duration, win=Math.floor(dec.sampleRate*0.025), rms=[];
+  for(var i=0;i<ch.length;i+=win){var sum=0,end=Math.min(i+win,ch.length);for(var j=i;j<end;j++)sum+=ch[j]*ch[j];rms.push(Math.sqrt(sum/(end-i)));}
+  var THR=0.015,MF=8,silF=0,pC=0,pL=[],inP=false,pLen=0;
+  for(var k=0;k<rms.length;k++){if(rms[k]<THR){silF++;inP?pLen++:(inP=true,pLen=1);}else{if(inP&&pLen>=MF){pC++;pL.push(pLen*25);}inP=false;pLen=0;}}
+  var silP=rms.length?(silF/rms.length)*100:0, meanP=pL.length?pL.reduce(function(a,b){return a+b;},0)/pL.length:0;
+  var rmM=rms.reduce(function(a,b){return a+b;},0)/rms.length, eng=Math.min(100,rmM*800);
+  var vari=rms.reduce(function(a,v){return a+Math.pow(v-rmM,2);},0)/rms.length, std=Math.sqrt(vari);
+  var osc=Math.min(100,std*1200), cont=Math.max(0,100-silP-osc*0.3);
+  var noise=Math.min(40,std*600), stab=Math.max(0,100-osc*0.6-noise*0.4);
+  await actx.close();
+  return {
+    duration_sec:parseFloat(dur.toFixed(2)), silence_pct:parseFloat(silP.toFixed(2)),
+    pause_count:pC, mean_pause_ms:parseFloat(meanP.toFixed(2)),
+    oscillation_pct:parseFloat(osc.toFixed(2)), continuity_pct:parseFloat(cont.toFixed(2)),
+    energy_pct:parseFloat(eng.toFixed(2)), context:'lab_chat_'+new Date().toISOString(),
+    spectrum_snapshot:{graves:0,medios:0,agudos:0,ruido:parseFloat(noise.toFixed(2)),estabilidade:parseFloat(stab.toFixed(2))}
+  };
+}
+function metNulo(){return{duration_sec:0,silence_pct:0,pause_count:0,mean_pause_ms:0,oscillation_pct:0,continuity_pct:0,energy_pct:0,context:'nulo',spectrum_snapshot:{graves:0,medios:0,agudos:0,ruido:0,estabilidade:0}};}
+
+function blobToBase64(blob){return new Promise(function(res){var r=new FileReader();r.onload=function(e){res(e.target.result.split(',')[1]);};r.readAsDataURL(blob);});}
+
+/* ════════════════════════════════════
+   CONFIG
+════════════════════════════════════ */
+document.getElementById('provedor').addEventListener('change', atualizarNota);
+
+document.getElementById('btnSalvarConfig').addEventListener('click', function() {
+  var chave = document.getElementById('campoChave').value.trim();
+  var prov  = document.getElementById('provedor').value;
+  if (!chave) { document.getElementById('configStatus').textContent='Chave vazia.'; return; }
+  chaveAtiva=chave; provedorAtivo=prov;
+  localStorage.setItem('lab_gemini_key', chave);
+  localStorage.setItem('elayon_ia_config', JSON.stringify({chave:chave,provedor:prov,enabled:true,endpoint:''}));
+  document.getElementById('btnSend').disabled=false;
+  document.getElementById('configStatus').textContent='Salvo · '+prov+' ativo';
+  setStatus('ok','Pronto · '+prov);
+  log('Config salva · '+prov,'ok');
+});
+
+document.getElementById('btnLimparChat').addEventListener('click', function(){
+  historico=[]; document.getElementById('chatArea').innerHTML='';
+  msg('sistema','Chat limpo.'); log('Chat limpo','ok');
+});
+
+/* CONFIG TOGGLE */
+document.getElementById('configToggle').addEventListener('click', function(){
+  var body=document.getElementById('configBody');
+  var seta=document.getElementById('configSeta');
+  body.classList.toggle('aberto');
+  seta.textContent=body.classList.contains('aberto')?'▲':'▼';
+});
+
+/* LOG TOGGLE */
+document.getElementById('logToggle').addEventListener('click', function(){
+  var body=document.getElementById('logBody');
+  var seta=document.getElementById('logSeta');
+  body.classList.toggle('aberto');
+  seta.textContent=body.classList.contains('aberto')?'▲':'▼';
+});
+
+document.getElementById('btnLimparLog').addEventListener('click', function(){ELAYON_LAB.clearLog();});
+</script>
+</body>
+</html>
