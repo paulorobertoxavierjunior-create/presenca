@@ -212,4 +212,155 @@ Observable domains:
 - recovery events
 - recursion metrics
 - synchronization failures
-- governance
+- governance overrides
+
+Hidden critical execution is forbidden.
+
+---
+
+# RULE 15 — SAFE MODE PRIORITY
+
+When instability exceeds tolerance:
+SAFE MODE must activate.
+
+SAFE MODE objectives:
+- reduce complexity
+- stabilize execution
+- suppress escalation
+- preserve continuity
+
+---
+
+# RULE 16 — AGENT LIMITATIONS
+
+Agents may:
+- assist reasoning
+- coordinate execution
+- analyze semantics
+
+Agents may NOT:
+- self-govern
+- override failsafe
+- persist unstable memory
+- create unrestricted recursion
+
+---
+
+# RULE 17 — RECOVERY CHECKPOINTING
+
+The system must maintain:
+- rollback checkpoints
+- synchronization snapshots
+- continuity anchors
+
+Recovery without checkpoints is unsafe.
+
+---
+
+# RULE 18 — DEGRADATION HANDLING
+
+When degradation occurs:
+- isolate instability
+- reduce execution scope
+- preserve recoverability
+- prioritize stabilization
+
+Graceful degradation is mandatory.
+
+---
+
+# RULE 19 — NO SILENT FAILURE
+
+Critical failures must:
+- generate signals
+- update orchestration state
+- trigger recovery analysis
+
+Silent catastrophic failure is forbidden.
+
+---
+
+# RULE 20 — HUMAN OVERSIGHT PRIORITY
+
+Human authority supersedes:
+- autonomous decisions
+- orchestration optimization
+- adaptive behavior
+
+The system exists to assist,
+not replace human governance.
+
+---
+
+# OPERATIONAL HIERARCHY
+
+Authority order:
+
+1. HUMAN OVERSIGHT
+2. FAILSAFE
+3. GOVERNANCE
+4. ORCHESTRATOR
+5. VALIDATION
+6. STATE MACHINE
+7. AGENTS
+8. PROVIDERS
+
+---
+
+# SYSTEM GUARANTEES
+
+The system guarantees:
+- bounded execution
+- recoverable orchestration
+- validated persistence
+- continuity preservation
+- semantic governance
+
+---
+
+# ENFORCEMENT MODEL
+
+Violations trigger:
+- validation review
+- orchestration intervention
+- failsafe escalation
+- recovery protocols
+
+Repeated violations may result in:
+- isolation
+- suspension
+- termination
+
+---
+
+# SYSTEM PHILOSOPHY
+
+Core philosophy:
+
+"Capability without governance
+creates instability."
+
+---
+
+# STATUS
+
+Current status:
+ACTIVE FOUNDATIONAL RULESET
+
+Current version:
+v0.1-alpha
+
+---
+
+# FINAL DIRECTIVE
+
+All modules, agents, providers,
+and orchestration systems must obey
+these rules without exception.
+
+---
+
+# VERSION
+
+SYSTEM RULES:
+v0.1-alpha
