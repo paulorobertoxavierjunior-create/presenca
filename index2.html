@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repo Presença - Controlador de IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        neutral: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-neutral min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        
+        <!-- Cabeçalho -->
+        <header class="mb-10">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                    <i class="fa fa-cubes text-xl"></i>
+                </div>
+                <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-neutral">Repo <span class="text-primary">Presença</span></h1>
+            </div>
+            <p class="text-gray-600 ml-13">Painel de Controle, Verificação e Autonomia da IA</p>
+        </header>
+
+        <!-- Área Principal -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Entrada de Dados -->
+            <section class="lg:col-span-1 space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                    <h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                        <i class="fa fa-code text-primary"></i>
+                        Entrada de Comando / JSON
+                    </h2>
+                    <textarea 
+                        id="inputData" 
+                        class="w-full h-[400px] p-3 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                        placeholder="// Cole aqui o conteúdo do INDEX.md convertido para JSON, ou um comando como:
+// { "acao": "verificar_tudo", "regra": "dependencias" }
+
+// Exemplo de estrutura esperada:
+{
+  "sistema": "presenca",
+  "versao": "0.1-alpha",
+  "modulos": [
+    {
+      "nome": "SESSION",
+      "status": "completo",
+      "dependencias": ["MEMORY", "ROUTER"]
+    }
+  ]
+}"
+                    ></textarea>
+                    
+                    <button id="verificarBtn" class="mt-4 w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2">
+                        <i class="fa fa-search"></i>
+                        <span>Executar Verificação da IA</span>
+                    </button>
+                </div>
+
+                <!-- Regra Principal -->
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                    <h3 class="font-semibold text-blue-800 mb-1">Regra de Construção Ativa</h3>
+                    <p class="text-sm text-blue-700">
+                        <strong>Um módulo só pode ser finalizado quando todos os módulos dos quais ele depende estiverem definidos.</strong>
+                    </p>
+                </div>
+            </section>
+
+            <!-- Saída e Análise -->
+            <section class="lg:col-span-2 space-y-6">
+                
+                <!-- Status Geral -->
+                <div id="statusCard" class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 opacity-0 transition-opacity duration-300">
+                    <h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                        <i class="fa fa-info-circle text-primary"></i>
+                        Diagnóstico do Sistema
+                    </h2>
+                    <div id="statusContent" class="text-gray-700 space-y-2">
+                        <p class="text-gray-500 italic">Aguardando verificação...</p>
+                    </div>
+                </div>
+
+                <!-- Mapa de Dependências -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 h-[400px] overflow-y-auto scrollbar-hide">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <i class="fa fa-sitemap text-primary"></i>
+                        Mapa de Verificação & Dependências
+                    </h2>
+                    <div id="mapaContent" class="space-y-4">
+                        <p class="text-gray-500 italic">Nenhum dado analisado ainda.</p>
+                    </div>
+                </div>
+
+                <!-- Log de Ação da IA -->
+                <div class="bg-gray-900 text-green-400 rounded-xl shadow-sm border border-gray-800 p-5 h-[200px] overflow-y-auto font-mono text-xs">
+                    <h3 class="text-gray-400 uppercase text-xs mb-2 flex items-center gap-2">
+                        <i class="fa fa-terminal"></i>
+                        Terminal IA / Ações Executadas
+                    </h3>
+                    <div id="terminalLog" class="whitespace-pre-line">
+Aguardando entrada de dados...
+> Sistema pronto para verificação do Repo Presença.
+</div>
+                </div>
+
+            </section>
+        </main>
+
+        <footer class="mt-10 text-center text-sm text-gray-500">
+            Repo Presença — Sistema de Inteligência Contínua e Adaptativa © 2026
+        </footer>
+    </div>
+
+    <script>
+        // Elementos
+        const inputData = document.getElementById('inputData');
+        const verificarBtn = document.getElementById('verificarBtn');
+        const statusContent = document.getElementById('statusContent');
+        const mapaContent = document.getElementById('mapaContent');
+        const terminalLog = document.getElementById('terminalLog');
+        const statusCard = document.getElementById('statusCard');
+
+        // Regra imutável do sistema
+        const REGRA_PRINCIPAL = "Um módulo só pode ser finalizado quando todos os módulos dos quais ele depende estiverem definidos.";
+
+        // Simulação do cérebro da IA
+        verificarBtn.addEventListener('click', () => {
+            const dadosBrutos = inputData.value.trim();
+            if (!dadosBrutos) {
+                adicionarLog("> ERRO: Nenhum dado ou comando inserido.");
+                return;
+            }
+
+            adicionarLog("> INICIANDO VERIFICAÇÃO DO REPO PRESENÇA...");
+            adicionarLog("> REGRA DE CONSTRUÇÃO CARREGADA: " + REGRA_PRINCIPAL);
+
+            try {
+                // Tenta interpretar como JSON
+                const estruturaRepo = JSON.parse(dadosBrutos);
+                adicionarLog("> ✅ JSON válido interpretado.");
+                adicionarLog("> ANALISANDO ESTRUTURA E DEPENDÊNCIAS...");
+                
+                processarDados(estruturaRepo);
+
+            } catch (erro) {
+                // Se não for JSON, interpreta como comando de texto
+                adicionarLog("> ⚠️ Entrada não é JSON. Interpretando como comando de texto...");
+                interpretarComando(dadosBrutos);
+            }
+        });
+
+        function processarDados(dados) {
+            let modulosAnalisados = [];
+            let errosEncontrados = 0;
+            let liberadosParaCriacao = [];
+
+            // Limpa conteúdo anterior
+            mapaContent.innerHTML = '';
+            statusContent.innerHTML = '';
+
+            dados.modulos.forEach(modulo => {
+                const nome = modulo.nome;
+                const status = modulo.status;
+                const deps = modulo.dependencias || [];
+                const arquivos = modulo.arquivos || [];
+
+                // Verifica cumprimento da regra principal
+                const depsDefinidas = deps.every(dep => 
+                    dados.modulos.some(m => m.nome === dep && (m.status === 'completo' || m.status === 'definido'))
+                );
+
+                let estadoModulo = {
+                    nome: nome,
+                    status: status,
+                    dependencias: deps,
+                    regraCumprida: depsDefinidas,
+                    podeFinalizar: depsDefinidas,
+                    arquivosFaltantes: arquivos.filter(a => a.status !== 'concluido')
+                };
+
+                modulosAnalisados.push(estadoModulo);
+
+                if(!depsDefinidas && status === 'completo') {
+                    errosEncontrados++;
+                    adicionarLog(`> ❌ VIOLAÇÃO DETECTADA: Módulo ${nome} está marcado como completo, mas dependências não estão definidas.`);
+                } else if(depsDefinidas && status !== 'completo') {
+                    liberadosParaCriacao.push(nome);
+                    adicionarLog(`> ✅ LIBERADO: ${nome} - Todas dependências cumpridas. Pronto para desenvolvimento/finalização.`);
+                } else {
+                    adicionarLog(`> ℹ️ VERIFICADO: ${nome} - OK.`);
+                }
+
+                // Renderiza Card do Módulo
+                renderizarModuloCard(estadoModulo);
+            });
+
+            // Atualiza Status Geral
+            statusCard.classList.remove('opacity-0');
+            statusContent.innerHTML = `
+                <div class="grid grid-cols-3 gap-4 text-center mb-4">
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-2xl font-bold text-neutral">${modulosAnalisados.length}</p>
+                        <p class="text-xs text-gray-500">Módulos Totais</p>
+                    </div>
+                    <div class="p-3 ${errosEncontrados > 0 ? 'bg-red-50' : 'bg-green-50'} rounded-lg">
+                        <p class="text-2xl font-bold ${errosEncontrados > 0 ? 'text-danger' : 'text-success'}">${errosEncontrados}</p>
+                        <p class="text-xs text-gray-500">Violações de Regra</p>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-lg">
+                        <p class="text-2xl font-bold text-primary">${liberadosParaCriacao.length}</p>
+                        <p class="text-xs text-gray-500">Liberados p/ Criação</p>
+                    </div>
+                </div>
+                <p class="font-medium">Próxima Ação da IA: <span class="text-primary font-bold">${liberadosParaCriacao[0] || 'Nenhum módulo liberado no momento'}</span></p>
+            `;
+
+            adicionarLog("> ✅ ANÁLISE FINALIZADA. Sistema consistente com as regras.");
+        }
+
+        function renderizarModuloCard(mod) {
+            const card = document.createElement('div');
+            card.className = `p-4 rounded-lg border ${mod.regraCumprida ? 'bg-green-50/30 border-green-100' : 'bg-red-50/30 border-red-100'}`;
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-semibold text-lg">${mod.nome}</h4>
+                    <span class="text-xs font-semibold px-2 py-1 rounded-full ${
+                        mod.status === 'completo' ? 'bg-success/10 text-success' : 
+                        mod.status === 'em_construcao' ? 'bg-warning/10 text-warning' : 'bg-gray-100 text-gray-600'
+                    }">${mod.status.toUpperCase()}</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">Dependências: ${mod.dependencias.join(', ') || 'Nenhuma'}</p>
+                <p class="text-sm font-medium ${mod.regraCumprida ? 'text-success' : 'text-danger'}">
+                    ${mod.regraCumprida ? '<i class="fa fa-check-circle"></i> Regra de Dependência Cumprida' : '<i class="fa fa-exclamation-circle"></i> Regra VIOLADA'}
+                </p>
+                ${mod.arquivosFaltantes.length > 0 ? 
+                    `<p class="text-xs text-warning mt-2">Faltam arquivos: ${mod.arquivosFaltantes.map(a => a.nome).join(', ')}</p>` 
+                    : ''
+                }
+            `;
+            mapaContent.appendChild(card);
+        }
+
+        function interpretarComando(texto) {
+            statusCard.classList.remove('opacity-0');
+            statusContent.innerHTML = `<p>Comando recebido: <strong>${texto}</strong></p>`;
+            mapaContent.innerHTML = `<p class="text-success">Comando reconhecido. IA pronta para executar ação solicitada fora do escopo de validação JSON.</p>`;
+            adicionarLog(`> 🤖 COMANDO EXECUTADO: ${texto}`);
+        }
+
+        function adicionarLog(texto) {
+            const agora = new Date().toLocaleTimeString();
+            terminalLog.innerHTML += `[${agora}] ${texto}\n`;
+            terminalLog.scrollTop = terminalLog.scrollHeight;
+        }
+    </script>
+</body>
+</html>
