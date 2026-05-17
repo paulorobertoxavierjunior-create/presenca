@@ -201,3 +201,40 @@ Organizado por blocos, conforme seu planejamento.
 
 # 🔗 MAPA DE DEPENDÊNCIAS GLOBAL
 
+
+Regra de construção: **Um módulo só pode ser finalizado quando todos os módulos dos quais ele depende estiverem definidos.**
+
+---
+
+# 🤖 INSTRUÇÕES DE AUTONOMIA PARA A IA
+
+1. **Leitura Obrigatória:** Consultar este `INDEX.md` antes de qualquer tarefa.
+2. **Criação:** Gerar arquivos faltantes seguindo o padrão de estilo, profundidade e terminologia já estabelecidos nos arquivos existentes (como `SESSION_ENGINE.md` e `ROUTER.md`).
+3. **Correção:** Detectar e corrigir automaticamente:
+   - Inconsistências de nomenclatura
+   - Regras conflitantes entre módulos
+   - Dependências não declaradas
+   - Falta de clareza em definições
+4. **Relatório:** Ao concluir um bloco, apresentar um resumo do que foi criado e ajustado.
+5. **Limite:** Nunca alterar arquivos marcados com Autonomia 0 ou 1 sem solicitar autorização explícita.
+
+---
+
+# 🚀 PRÓXIMA AÇÃO DE CONSTRUÇÃO
+
+> **ORDEM DE EXECUÇÃO DEFINIDA:**
+> 1. CONTEXT ENGINE → Começar por `CONTEXT_BUILDER.md`
+> 2. Depois: `CONTEXT_WINDOW_MODEL.md`
+> 3. Depois: `CONTEXT_FUSION_LAYER.md`
+
+> 🎯 Objetivo: Completar a capacidade de **entender o que está acontecendo**, para depois começar a dar notas e priorizar.
+
+---
+
+# VERSION
+
+SYSTEM INDEX:
+v0.1-alpha
+Última atualização: conforme definição do mapa
+
+
