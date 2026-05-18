@@ -1,0 +1,71 @@
+{
+  "sistema": "Elayon Presença",
+  "versao": "4.0",
+  "protocolo": "CRS",
+  "status_geral": "operacional",
+  "descricao": "Arquivo de teste validação da estrutura e fluxo de dados",
+  "regras": [
+    "Um módulo só pode ser finalizado quando todos os módulos dos quais ele depende estiverem definidos",
+    "A calibração é silenciosa e não interfere na mensagem",
+    "Máximo de 3 sessões armazenadas em memória FIFO"
+  ],
+  "dados_ambiente": {
+    "nucleo": "https://nucleo-crs-elayon.onrender.com",
+    "supabase": "conectado",
+    "provedor_padrao": "groq",
+    "tokens_disponiveis": 150
+  },
+  "calibracao": {
+    "fase_01": {
+      "estado": "estavel",
+      "confianca": 0.92,
+      "descricao": "Padrão rítmico constante, sem variações bruscas"
+    },
+    "fase_02": {
+      "intencao": "esclarecer",
+      "confianca": 0.87,
+      "descricao": "Busca por clareza ou confirmação de informação"
+    },
+    "fase_03": {
+      "comprometimento": "alto",
+      "confianca": 0.95,
+      "descricao": "Engajamento total com o tema abordado"
+    },
+    "ultima_atualizacao": "20260517-2016"
+  },
+  "sessoes": [
+    {
+      "id": "sess_001",
+      "duracao_seg": 12.4,
+      "silencio_pct": 8.2,
+      "pausas": 3,
+      "energia": 0.76,
+      "estabilidade": 0.89,
+      "analise": "Fluxo moderado, tom calmo"
+    },
+    {
+      "id": "sess_002",
+      "duracao_seg": 8.7,
+      "silencio_pct": 12.5,
+      "pausas": 5,
+      "energia": 0.61,
+      "estabilidade": 0.72,
+      "analise": "Reflexivo, necessita de confirmação"
+    }
+  ],
+  "saida_ia": {
+    "instrucao_calibracao": "Manter tom claro, responder com objetividade e validar pontos importantes",
+    "vetor_tecnico": {
+      "ritmo": 0.65,
+      "continuidade": 0.81,
+      "carga_emocional": 0.34,
+      "nivel_raciocinio": "medio"
+    }
+  },
+  "dependencias": [
+    "SESSION_ENGINE",
+    "MEMORY_ENGINE",
+    "CONTEXT_ENGINE"
+  ],
+  "teste_validacao": true
+}
