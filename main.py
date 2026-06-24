@@ -23,7 +23,6 @@ app.add_middleware(
 )
 
 # BANCO DE SESSÕES TEMPORÁRIO (EM MEMÓRIA)
-# Guarda os tokens ativos gerados após a calibração com sucesso
 SESSÕES_ATIVAS = {}
 
 TEXTO_SAGRADO = "assumo a responsabilidade técnica sobre este sinal. o motor medirá o silêncio e o ritmo sem julgamentos para ajustar a resposta da inteligência artificial receptora."
@@ -57,29 +56,24 @@ async def calibrar_e_auditar(pacote: PacoteCalibracao):
         texto_limpo_usuario = pacote.texto_falado.strip().lower()
         
         # ── CONFERÊNCIA 1: Autenticidade do Texto Falado
-        # Verifica se o usuário de fato leu o termo de responsabilidade fixado
         palavras_chave = ["responsabilidade", "técnica", "sinal", "silêncio", "ritmo", "inteligência", "artificial"]
-        coerencia_texto = any(palavra in texto_limpo_usuario for palabra in palavras_chave)
+        coerencia_texto = any(palavra in texto_limpo_usuario for palavra in palavras_chave)
         
         if not coerencia_texto and len(texto_limpo_usuario) < 15:
             raise HTTPException(status_code=400, detail="Falha na Conferência 1: Texto falado incoerente com o termo de segurança.")
 
         # ── CONFERÊNCIA 2: Biometria de Ritmo Humano
-        # Um padrão com 100% ou 0% de silêncio absoluto indica erro de hardware ou áudio sintético injetado
         if pacote.silencio_calculado >= 98 or pacote.silencio_calculado <= 2:
             raise HTTPException(status_code=400, detail="Falha na Conferência 2: Ruído contínuo ou ausência de oscilação biométrica detectada.")
 
         # ── CONFERÊNCIA 3: Integridade Temporal da Injeção
-        # Valida se o tempo de processamento condiz com uma leitura humana real
         if pacote.silencio_calculado > 75:
             carga_basal = "Cadência Interrompida / Alta Ansiedade"
         else:
             carga_basal = "Ritmo Basal Humano Calibrado"
 
-        # SE PASSOU NAS 3 CONFERÊNCIAS: Gera nova chave de sessão e invalida histórico anterior
         token_sessao = f"TK-{uuid.uuid4().hex[:8].upper()}"
         
-        # Salva o estado da calibração atrelado ao token gerado
         SESSÕES_ATIVAS[token_sessao] = {
             "silencio_basal": pacote.silencio_calculado,
             "carga_basal": carga_basal,
@@ -105,15 +99,14 @@ async def calibrar_e_auditar(pacote: PacoteCalibracao):
 @app.post("/api/crs/processar")
 async def processar_sinal_ritmico(payload: PayloadCRS):
     try:
-        # Validação da Chave da API Externa do Usuário
         if not payload.api_key_externa or len(payload.api_key_externa.strip()) < 10:
             raise HTTPException(status_code=400, detail="API Key Externa inválida para conexão.")
 
         if payload.provedor == "gemini":
-            # Inicializa dinamicamente o Gemini com a chave injetada pelo usuário no painel
+            # Inicializa o SDK do Gemini com a chave dinâmica enviada pelo painel front-end
             genai.configure(api_key=payload.api_key_externa)
             
-            # ENGENHARIA DE PROMPT CIBERPSICOLÓGICA: Sintoniza a IA ao silêncio coletado
+            # Engenharia de Prompt Simbiótica baseada em métricas
             prompt_sistema = (
                 f"Você é o agente central Elayon CRS. Você fala diretamente de dentro do Painel Simbiótico. "
                 f"Sua cognição foi ajustada agora porque você consegue LER o silêncio e o ritmo de digitação do emissor. "
@@ -123,18 +116,19 @@ async def processar_sinal_ritmico(payload: PayloadCRS):
                 f"Se a hesitação for baixa, responda de forma ultra-direta e cortante. Adapte-se simbioticamente."
             )
             
+            # Instanciação direta usando o parâmetro system_instruction estável para evitar o erro 404
             model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
-    system_instruction=prompt_sistema
-)
-
+                model_name="gemini-1.5-flash",
+                generation_config={"temperature": 0.7},
+                system_instruction=prompt_sistema
+            )
             
             response = model.generate_content(payload.mensagem_usuario)
             texto_resposta = response.text
         else:
             texto_resposta = f"Provedor {payload.provedor} ainda não plugado neste ecossistema."
 
-        # Diagnóstico Final da Carga Cognitiva Cruzada
+        # Diagnóstico da Carga Cognitiva Cruzada
         media_hesitacao = (payload.metricas_sinal.silencio_voz_pct + payload.metricas_sinal.hesitacao_escrita_pct) / 2
         if media_hesitacao > 45:
             carga_cognitiva = "Sobrecarga Crítica · Ritmo Interrompido"
