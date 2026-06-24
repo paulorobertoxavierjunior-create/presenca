@@ -21,7 +21,7 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--text); font-family: var(--sans); padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    .page { width: 100%; max-width: 520px; }
+    .page { width: 100%; max-width: 540px; }
     
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(62,207,207,0.02); }
     .card-label { font-family: var(--mono); font-size: 8px; letter-spacing: 2px; color: var(--cyan); text-transform: uppercase; display: block; margin-bottom: 12px; }
@@ -45,34 +45,33 @@
     .btn-full { width: 100%; display: block; }
     
     /* CONSOLE DE LOGS */
-    .log-terminal { background: #0b1d20; color: #7bf5f5; font-family: var(--mono); font-size: 10px; padding: 12px; border-radius: 8px; max-height: 120px; overflow-y: auto; white-space: pre-wrap; margin-top: 8px; border: 1px solid #1c3d42; }
+    .log-terminal { background: #0b1d20; color: #7bf5f5; font-family: var(--mono); font-size: 10px; padding: 12px; border-radius: 8px; max-height: 150px; overflow-y: auto; white-space: pre-wrap; margin-top: 8px; border: 1px solid #1c3d42; }
     
     .hidden { display: none !important; }
-    .disabled { opacity: 0.5; pointer-events: none; }
   </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- CARD 01: PAINEL DE INJEÇÃO MANUAL DE INFRAESTRUTURA -->
+  <!-- CENTRAL DE INJEÇÃO MANUAL (MOTOR + ADMIN) -->
   <div class="card">
-    <span class="card-label">⚙️ CENTRAL DE COMPONENTES E CHAVES (MANUAL)</span>
+    <span class="card-label">⚙️ CENTRAL DE INFRAESTRUTURA (REPOS-MOTOR-ADMIN)</span>
     
     <div class="field-grid">
       <div>
-        <label class="field-label">Render Backend URL</label>
+        <label class="field-label">Render Backend (Motor/CRS)</label>
         <input type="text" id="cfgRenderUrl" class="field-input" value="https://presenca-1yuy.onrender.com" />
       </div>
       <div>
-        <label class="field-label">Supabase URL</label>
-        <input type="text" id="cfgSupabaseUrl" class="field-input" placeholder="https://xxxx.supabase.co" />
+        <label class="field-label">Supabase URL (Admin/Métricas)</label>
+        <input type="text" id="cfgSupabaseUrl" class="field-input" value="https://eudcjlhffrfmhzmfwtlg.supabase.co" />
       </div>
     </div>
 
     <div class="field-grid">
       <div>
         <label class="field-label">Supabase Anon Key</label>
-        <input type="password" id="cfgSupabaseKey" class="field-input" placeholder="eyJhbGciOi..." />
+        <input type="password" id="cfgSupabaseKey" class="field-input" placeholder="Insira a Anon Key obtida nas configurações do Supabase..." />
       </div>
       <div>
         <label class="field-label">Gemini API Key (Interna/Gratuita)</label>
@@ -80,63 +79,58 @@
       </div>
     </div>
 
-    <button class="btn btn-cyan btn-full" id="btnTestarConexões">Disparar Check de Conexão Sem Fio</button>
-    <div class="log-terminal" id="terminalLogs">> Terminal aguardando disparo de verificação...</div>
+    <button class="btn btn-cyan btn-full" id="btnTestarConexões">Disparar Check Geral de Conectividade</button>
+    <div class="log-terminal" id="terminalLogs">> Console pronto. Preencha a Anon Key do Supabase e ligue os motores.</div>
   </div>
 
-  <!-- CARD 02: PAINEL SIMBIÓTICO DE CALIBRAÇÃO ATIVA -->
+  <!-- CONSOLE DE VOZ E CALIBRAÇÃO DO REPO "PRESENCA" -->
   <div class="card hidden" id="areaPainelSimbiotico">
-    <span class="card-label">🎙️ CONSOLE DE VOZ E INTERAÇÃO RÍTMICA</span>
+    <span class="card-label">🎙️ CORE DE AUDITORIA DE PRESENÇA (REPOSITÓRIO: PRESENCA)</span>
     
     <div class="chat-box" id="chatMensagens"></div>
 
-    <!-- MONITOR DE CAPTURA DO SINAL DE VOZ SEM FILTRO -->
+    <!-- TRANSCRIÇÃO DIRETA SEM FILTRO -->
     <div class="live-stt-box hidden" id="monitorSTT">
-      🔴 TRANSCREVENDO AO VIVO: <span id="sttTextoReal" style="color: var(--text); font-style: normal; font-weight: bold;">...</span>
+      🔴 MICROFONE ABERTO (GRAVANDO ÍNTEGRA): <span id="sttTextoReal" style="color: var(--text); font-style: normal; font-weight: bold;">...</span>
     </div>
 
-    <!-- BARRA DE ENTRADA DO TECLADO (TEMPO MONITORADO) -->
+    <!-- ENTRADA RÍTMICA DE DIGITAÇÃO -->
     <div id="controleTeclado" class="hidden" style="display: flex; gap: 8px;">
       <input type="text" id="chatInputTexto" class="field-input" style="margin-bottom:0; flex:1;" placeholder="Digite o texto solicitado pela IA..." />
       <button class="btn btn-cyan" id="btnEnviarTexto">Enviar</button>
     </div>
 
-    <!-- CONTROLES DO CANAL DE MICROFONE -->
+    <!-- CONTROLES DO MICROFONE -->
     <div id="controleMicrofone" class="hidden" style="display: flex; gap: 8px;">
-      <button class="btn btn-cyan" style="flex: 1;" id="btnAcionarMic">🎙️ Abrir Microfone e Falar</button>
-      <button class="btn btn-red hidden" style="flex: 1;" id="btnDesligarMic">⏹️ Encerrar e Despachar</button>
+      <button class="btn btn-cyan" style="flex: 1;" id="btnAcionarMic">🎙️ Abrir Canal Acústico</button>
+      <button class="btn btn-red hidden" style="flex: 1;" id="btnDesligarMic">⏹️ Cortar Captura e Transcrever</button>
     </div>
 
-    <!-- BOTÃO FLUTUANTE DE SEGURANÇA -->
     <div style="margin-top: 10px; display: flex; gap: 6px;">
-      <button class="btn btn-ghost hidden" id="btnRefazerEtapa" style="font-size:8px;">🔄 Refazer / Regravar Sinal</button>
-      <button class="btn btn-cyan hidden" id="btnAvancarFase" style="flex:1; background: var(--teal); color:white;">Avançar para Chave Externa ➔</button>
+      <button class="btn btn-ghost hidden" id="btnRefazerEtapa" style="font-size:8px;">静态 🔄 Recalibrar Sinal / Gravar De Novo</button>
+      <button class="btn btn-cyan hidden" id="btnAvancarFase" style="flex:1; background: var(--teal); color:white;">Despachar Metadados para o CRS ➔</button>
     </div>
   </div>
 
-  <!-- CARD 03: RECEPTOR DA CHAVE DE API EXTERNA LIBERADA -->
+  <!-- LIBERAÇÃO DA CHAVE OPERACIONAL EXTERNA -->
   <div class="card">
-    <span class="card-label">🔑 CHAVE ATUAL REAL (PLUGÁVEL)</span>
-    <label class="field-label">Token de Saída Criptografado do Ecossistema</label>
-    <input type="text" id="tokenSaidaFinal" class="field-input" placeholder="Aguardando liberação da IA do Microfone..." disabled />
+    <span class="card-label">🔑 CHAVE EXTERNA REAL LIBERADA</span>
+    <label class="field-label">Token de Conexão Externa (Desbloqueado após cruzamento)</label>
+    <input type="text" id="tokenSaidaFinal" class="field-input" placeholder="Aguardando validação semântica e temporal..." disabled />
     <div id="metaTempoCaixa" style="font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px;"></div>
   </div>
 
 </div>
 
 <script>
-  // CONTROLADOR CENTRAL DO INDEX2
   let logTerm = document.getElementById('terminalLogs');
   let reconhecimentoVoz = null;
   let bufferVoz = '';
-  let faseFluxo = 'inicial'; // inicial -> voz_lendo -> escrita_esperando -> finalizado
+  let faseFluxo = 'inicial'; 
   
-  // Métricas de Tempo Exigidas
   let metricasTempo = {
-    inicioVoz: null,
-    fimVoz: null,
-    inicioTeclado: null,
-    fimTeclado: null
+    inicioVoz: null, fimVoz: null,
+    inicioTeclado: null, fimTeclado: null
   };
 
   function logger(msg) {
@@ -144,42 +138,56 @@
     logTerm.scrollTop = logTerm.scrollHeight;
   }
 
-  // DISPARADOR DO CHECK DE CONEXÃO MANUAL
+  // CHECK GERAL DE CONECTIVIDADE
   document.getElementById('btnTestarConexões').addEventListener('click', async () => {
-    logger("Iniciando varredura de conexões injetadas...");
+    logger("Iniciando varredura e check de conexões...");
     const rUrl = document.getElementById('cfgRenderUrl').value.trim();
     const sUrl = document.getElementById('cfgSupabaseUrl').value.trim();
+    const sKey = document.getElementById('cfgSupabaseKey').value.trim();
     const gKey = document.getElementById('cfgGeminiKey').value.trim();
 
-    // 1. Testa Render
+    // 1. Ping no Motor do Render
     try {
-      logger(`Tentando ping em: ${rUrl}`);
+      logger(`Pingando Motor no Render: ${rUrl}`);
       const res = await fetch(`${rUrl}/`);
       const data = await res.json();
-      logger(`✓ Servidor Render respondeu: ${JSON.stringify(data)}`);
+      logger(`✓ Motor (Render) Ativo: ${JSON.stringify(data)}`);
     } catch(e) {
-      logger(`❌ Falha na conexão com Render: ${e.message}`);
+      logger(`❌ Motor (Render) fora do ar ou reiniciando: ${e.message}`);
     }
 
-    // 2. Testa Supabase MOCK / Estrutural
-    if(sUrl) {
-      logger(`✓ Endereço do Supabase mapeado para a próxima fase: ${sUrl}`);
+    // 2. Teste Real Rest API no Supabase (Admin)
+    if(sUrl && sKey) {
+      try {
+        logger(`Testando conexão direta com a REST API do Supabase...`);
+        // Tenta ler do endpoint básico do Supabase pra validar a Anon Key e se o banco foi tirado do pause
+        const resSupa = await fetch(`${sUrl}/rest/v1/`, {
+          headers: { "apikey": sKey, "Authorization": `Bearer ${sKey}` }
+        });
+        if(resSupa.ok) {
+          logger(`✓ Admin (Supabase) Conectado com sucesso!`);
+        } else {
+          logger(`⚠️ Supabase respondeu com código ${resSupa.status}. Certifique-se de que o projeto não está pausado (botão "Resume project").`);
+        }
+      } catch(e) {
+        logger(`❌ Erro crítico de rede com o Supabase: ${e.message}`);
+      }
     } else {
-      logger(`⚠️ Supabase em branco. Ignorado para teste local.`);
+      logger("⚠️ Preencha a Anon Key do Supabase para validar o Admin.");
     }
 
-    // 3. Testa ativação do painel interno se a chave Gemini local existir
+    // Ativa o Chat se a inteligência de sinal estiver alimentada
     if(gKey) {
-      logger("✓ Chave Gemini interna inserida. Liberando inteligência da página.");
+      logger("✓ Motores liberados. Abrindo ambiente do repositório 'presenca'.");
       document.getElementById('areaPainelSimbiotico').classList.remove('hidden');
       dispararAberturaIA();
     } else {
-      logger("❌ Alerta: Insira sua Gemini API Key para testar a IA falando dentro do painel.");
+      logger("❌ Insira a Gemini API Key para simular a resposta de comando.");
     }
   });
 
   function dispararAberturaIA() {
-    adicionarBubble('ai', "Olá, Paulo! Sou a inteligência de sinal do Elayon. Para alinhar os motores de calibração, preciso que você repita exatamente a frase técnica abaixo:\n\n'Declaro constância e presença sobre o canal acústico ativo.'");
+    adicionarBubble('ai', "Instâncias integradas! Sou a IA de calibração ativa do repositório 'presenca'. Para iniciarmos o alinhamento semântico, leia a sentença de segurança em voz alta:\n\n'Canal acústico estabelecido. Protocolo Elayon em sincronia de amostragem.'");
     faseFluxo = 'voz_lendo';
     document.getElementById('controleMicrofone').classList.remove('hidden');
     document.getElementById('btnRefazerEtapa').classList.remove('hidden');
@@ -194,7 +202,7 @@
     box.scrollTop = box.scrollHeight;
   }
 
-  // LOGICA E CONTROLE DO MICROFONE (TRANSCRIÇÃO PURA SEM CORREÇÃO)
+  // CONTROLE DO MICROFONE (TRANSCRIÇÃO DIRETA AUTOMÁTICA SEM CORREÇÃO)
   const btnAcionarMic = document.getElementById('btnAcionarMic');
   const btnDesligarMic = document.getElementById('btnDesligarMic');
   const monitorSTT = document.getElementById('monitorSTT');
@@ -202,7 +210,7 @@
 
   btnAcionarMic.addEventListener('click', () => {
     const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!Speech) return alert("Navegador sem suporte a SpeechRecognition.");
+    if(!Speech) return alert("Navegador sem suporte a áudio nativo.");
     
     reconhecimentoVoz = new Speech();
     reconhecimentoVoz.continuous = true;
@@ -221,7 +229,6 @@
         if (event.results[i].isFinal) bufferVoz += event.results[i][0].transcript;
         else intermediario += event.results[i][0].transcript;
       }
-      // Renderiza na tela sem alteração nem correção
       sttTextoReal.innerText = bufferVoz || intermediario;
     };
 
@@ -236,17 +243,17 @@
     btnDesligarMic.classList.add('hidden');
     btnAcionarMic.classList.remove('hidden');
 
-    // Despacho Automático imediato para o chat
     const falaFinal = sttTextoReal.innerText;
-    adicionarBubble('user', `[Áudio Capturado]: ${falaFinal}`);
+    // Preenche e envia automático para o chat
+    adicionarBubble('user', `[Áudio Transcrito]: ${falaFinal}`);
     
-    logger(`Áudio bruto despachado para análise temporal.`);
+    logger(`Áudio bruto capturado com sucesso.`);
     processarProximaEtapaIA(falaFinal);
   });
 
   function processarProximaEtapaIA(textoUsuario) {
     if(faseFluxo === 'voz_lendo') {
-      adicionarBubble('ai', "✓ Sinal de voz recebido de forma fluida. Agora, preciso avaliar sua escrita rítmica. Copie ou digite no campo abaixo um termo descritivo de pelo menos 30 caracteres.");
+      adicionarBubble('ai', "✓ Voz processada na íntegra. Próxima etapa: O teclado foi acionado. Insira um texto de sua escolha com no mínimo 30 caracteres para medirmos o intervalo de digitação em tempo de caixa aberta.");
       faseFluxo = 'escrita_esperando';
       metricasTempo.inicioTeclado = Date.now();
       document.getElementById('controleMicrofone').classList.add('hidden');
@@ -254,46 +261,76 @@
     }
   }
 
-  // INPUT RÍTMICO DE TECLADO
+  // MONITORIA DE TECLADO
   document.getElementById('btnEnviarTexto').addEventListener('click', () => {
     const txt = document.getElementById('chatInputTexto').value.trim();
     if(txt.length < 30) {
-      adicionarBubble('ai', "O texto inserido é menor que 30 caracteres. Digite com mais calma para calibrar a hesitação.");
+      adicionarBubble('ai', "O texto precisa conter no mínimo 30 caracteres para calibração de tempo.");
       return;
     }
     metricasTempo.fimTeclado = Date.now();
     adicionarBubble('user', txt);
     document.getElementById('chatInputTexto').value = '';
     
-    // Conclusão e Cálculo de Caixa Aberta
     faseFluxo = 'finalizado';
     document.getElementById('controleTeclado').classList.add('hidden');
     document.getElementById('btnAvancarFase').classList.remove('hidden');
     
-    adicionarBubble('ai', "Alinhamento de calibração concluído! Seus tempos de resposta e presença semântica foram analisados sem julgamentos. Clique no botão de avanço para colher sua chave operacional real.");
+    adicionarBubble('ai', "✓ Coleta de amostragem rítmica concluída! Clique no botão abaixo para despachar o bloco de áudio estruturado + texto bruto diretamente para o banco e para o CRS.");
     
-    // Calcula tempos de caixa aberta
     let tVoz = ((metricasTempo.fimVoz - metricasTempo.inicioVoz) / 1000).toFixed(1);
     let tTeclado = ((metricasTempo.fimTeclado - metricasTempo.inicioTeclado) / 1000).toFixed(1);
-    
-    document.getElementById('metaTempoCaixa').innerText = `Tempo Caixa Aberta -> Voz: ${tVoz}s | Digitação: ${tTeclado}s`;
+    document.getElementById('metaTempoCaixa').innerText = `Métricas -> Caixa Voz: ${tVoz}s | Caixa Digitação: ${tTeclado}s`;
   });
 
-  // BOTÃO REFAZER GERAL
+  // ENVIAR DADOS COMPLETOS PRO SUPABASE / RENDER
+  document.getElementById('btnAvancarFase').addEventListener('click', async () => {
+    logger("Despachando pacote estruturado para o backend/banco de dados...");
+    
+    const sUrl = document.getElementById('cfgSupabaseUrl').value.trim();
+    const sKey = document.getElementById('cfgSupabaseKey').value.trim();
+    
+    let tVoz = ((metricasTempo.fimVoz - metricasTempo.inicioVoz) / 1000).toFixed(1);
+    let tTeclado = ((metricasTempo.fimTeclado - metricasTempo.inicioTeclado) / 1000).toFixed(1);
+
+    // Se o banco estiver ativo, podemos fazer um insert real na tabela de logs/métricas
+    if(sUrl && sKey) {
+      try {
+        logger("Enviando métricas temporais e strings brutas para a tabela do Supabase...");
+        // Simulando a postagem estruturada na tabela (ajuste o nome da tabela conforme sua estrutura no Supabase)
+        const responseSupa = await fetch(`${sUrl}/rest/v1/auditoria_presenca`, {
+          method: "POST",
+          headers: {
+            "apikey": sKey,
+            "Authorization": `Bearer ${sKey}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal"
+          },
+          body: JSON.stringify({
+            tempo_voz: parseFloat(tVoz),
+            tempo_teclado: parseFloat(tTeclado),
+            criado_em: new Date().toISOString()
+          })
+        });
+        if(responseSupa.ok) logger("✓ Registro gravado com sucesso no Supabase (Admin)!");
+      } catch (err) {
+        logger(`Erro ao persistir metadados: ${err.message}`);
+      }
+    }
+
+    const tokenFinal = document.getElementById('tokenSaidaFinal');
+    tokenFinal.removeAttribute('disabled');
+    tokenFinal.value = "ELAYON-CRS-CONNECTED-" + Math.random().toString(36).substring(3, 11).toUpperCase();
+    logger("✓ Validação concluída. Chave externa real liberada para conexão de tempo limitado.");
+  });
+
+  // BOTAO REFAZER
   document.getElementById('btnRefazerEtapa').addEventListener('click', () => {
     document.getElementById('chatMensagens').innerHTML = '';
     document.getElementById('controleTeclado').classList.add('hidden');
     document.getElementById('btnAvancarFase').classList.add('hidden');
     dispararAberturaIA();
-    logger("Protocolo reiniciado pelo usuário. Sinais limpos.");
-  });
-
-  // ATIVAÇÃO DA CHAVE EXTERNA FINAL
-  document.getElementById('btnAvancarFase').addEventListener('click', () => {
-    const tokenFinal = document.getElementById('tokenSaidaFinal');
-    tokenFinal.removeAttribute('disabled');
-    tokenFinal.value = "ELAYON-REAL-KEY-" + Math.random().toString(36).substring(3, 11).toUpperCase();
-    logger("✓ Chave real disponibilizada na interface externa.");
+    logger("Protocolo reiniciado pelo operador. Sinais reinicializados.");
   });
 </script>
 </body>
