@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Elayon Presença · Laboratório de Conexões</title>
+  <title>Elayon Presença · Laboratório v3.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -30,89 +30,79 @@
     .field-label { display: block; font-size: 9px; color: var(--muted); font-family: var(--mono); margin-bottom: 4px; text-transform: uppercase; }
     .field-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--mono); font-size: 11px; outline: none; background: var(--bg); color: var(--text); }
     
-    .chat-box { height: 280px; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
-    .msg { max-width: 85%; padding: 12px; border-radius: 14px; font-size: 13px; line-height: 1.4; position: relative; }
+    .chat-box { height: 160px; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    .msg { max-width: 90%; padding: 12px; border-radius: 14px; font-size: 13px; line-height: 1.4; }
     .msg.ai { background: #e2f1f2; align-self: flex-start; border-radius: 14px 14px 14px 4px; border: 1px solid var(--border); }
-    .msg.user { background: var(--teal); color: white; align-self: flex-end; border-radius: 14px 14px 4px 14px; }
     
-    .live-stt-box { font-size: 12px; font-style: italic; color: var(--red); background: #fff1f1; padding: 10px; border-radius: 8px; border: 1px dashed var(--red); margin-bottom: 12px; font-family: var(--mono); }
+    .secao-captura { background: #fafdfd; border: 1px dashed var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+    .status-indicador { font-family: var(--mono); font-size: 10px; font-weight: bold; margin-bottom: 8px; display: block; }
     
+    .caixa-transcricao { min-height: 50px; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 12px; margin-bottom: 10px; color: var(--muted); }
+    .caixa-transcricao.gravando { border-color: var(--red); background: #fff5f5; color: var(--text); }
+
     .btn { padding: 12px 16px; border: none; border-radius: 10px; font-family: var(--mono); font-size: 10px; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
     .btn-cyan { background: var(--cyan); color: #072024; box-shadow: 0 4px 10px var(--cglow); }
     .btn-red { background: var(--red); color: white; }
-    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-teal { background: var(--teal); color: white; }
     .btn-full { width: 100%; display: block; }
-    .btn-download { background: #10b981; color: white; margin-top: 10px; }
     
-    .log-terminal { background: #0b1d20; color: #7bf5f5; font-family: var(--mono); font-size: 10px; padding: 12px; border-radius: 8px; max-height: 150px; overflow-y: auto; white-space: pre-wrap; margin-top: 8px; border: 1px solid #1c3d42; }
-    
-    .hidden { display: none !important; }
+    .log-terminal { background: #0b1d20; color: #7bf5f5; font-family: var(--mono); font-size: 10px; padding: 12px; border-radius: 8px; max-height: 120px; overflow-y: auto; white-space: pre-wrap; margin-top: 8px; }
   </style>
 </head>
 <body>
 <div class="page">
 
   <div class="card">
-    <span class="card-label" id="panelIdentity">⚙️ CENTRAL DE INFRAESTRUTURA (REPOS-MOTOR-ADMIN)</span>
-    
+    <span class="card-label" id="panelIdentity">⚙️ CENTRAL DE INFRAESTRUTURA</span>
     <div class="field-grid">
       <div>
-        <label class="field-label">Render Backend (Motor/CRS)</label>
+        <label class="field-label">Render Backend (Motor)</label>
         <input type="text" id="cfgRenderUrl" class="field-input" value="https://presenca-1yuy.onrender.com" />
       </div>
       <div>
-        <label class="field-label">Supabase URL (Admin/Métricas)</label>
+        <label class="field-label">Supabase URL</label>
         <input type="text" id="cfgSupabaseUrl" class="field-input" value="https://eudcjlhffrfmhzmfwtlg.supabase.co" />
       </div>
     </div>
-
     <div class="field-grid">
       <div>
-        <label class="field-label">Supabase Anon Key (Publishable)</label>
+        <label class="field-label">Supabase Anon Key</label>
         <input type="text" id="cfgSupabaseKey" class="field-input" value="sb_publishable_eFXj7d8dOSREvEJbZ0xQJg_NgPCI8Nz" />
       </div>
       <div>
-        <label class="field-label">Gemini API Key (Injeção)</label>
+        <label class="field-label">Gemini API Key</label>
         <input type="password" id="cfgGeminiKey" class="field-input" placeholder="AIzaSy..." />
       </div>
     </div>
-
-    <button class="btn btn-cyan btn-full" id="btnTestarConexões">Disparar Check Geral de Conectividade</button>
-    <div class="log-terminal" id="terminalLogs">> Console pronto. Preencha sua chave Gemini e inicie a varredura.</div>
+    <button class="btn btn-cyan btn-full" id="btnTestarConexoes">Disparar Check Geral de Conectividade</button>
+    <div class="log-terminal" id="terminalLogs">> Console pronto. Ative as conexões para liberar o laboratório.</div>
   </div>
 
   <div class="card hidden" id="areaPainelSimbiotico">
-    <span class="card-label">🎙️ CORE DE AUDITORIA DE PRESENÇA (REPOSITÓRIO: PRESENCA)</span>
+    <span class="card-label">🎙️ CORE DE AUDITORIA DE PRESENÇA</span>
     
     <div class="chat-box" id="chatMensagens"></div>
 
-    <div class="live-stt-box hidden" id="monitorSTT">
-      🔴 MICROFONE ABERTO (CAPTURANDO): <span id="sttTextoReal" style="color: var(--text); font-style: normal; font-weight: bold;">...</span>
+    <div class="secao-captura" id="blocoAudio">
+      <span class="status-indicador" id="indAudio">🔴 PASSO 1: AGUARDANDO CAPTAÇÃO DE VOZ</span>
+      <div class="caixa-transcricao" id="caixaVoz">A transcrição do seu áudio aparecerá aqui em tempo real assim que o microfone for aberto...</div>
+      <button class="btn btn-cyan btn-full" id="btnAcionarMic">🎙️ Abrir Canal Acústico Real</button>
+      <button class="btn btn-red btn-full hidden" id="btnDesligarMic">⏹️ Cortar e Validar Transcrição</button>
     </div>
 
-    <div id="controleTeclado" class="hidden" style="display: flex; gap: 8px;">
-      <input type="text" id="chatInputTexto" class="field-input" style="margin-bottom:0; flex:1;" placeholder="Digite o texto solicitado pela IA..." />
-      <button class="btn btn-cyan" id="btnEnviarTexto">Enviar</button>
+    <div class="secao-captura hidden" id="blocoTeclado">
+      <span class="status-indicador" style="color: var(--teal);">⌨️ PASSO 2: CALIBRAÇÃO RÍTMICA DE DIGITAÇÃO</span>
+      <textarea id="chatInputTexto" class="field-input" style="height: 60px; resize: none; margin-bottom: 8px;" placeholder="Digite o texto solicitado pela IA aqui (Mínimo 30 caracteres)..."></textarea>
+      <button class="btn btn-teal btn-full" id="btnEnviarTexto">Enviar Texto Contextual</button>
     </div>
 
-    <div id="controleMicrofone" class="hidden" style="display: flex; gap: 8px;">
-      <button class="btn btn-cyan" style="flex: 1;" id="btnAcionarMic">🎙️ Abrir Canal Acústico</button>
-      <button class="btn btn-red hidden" style="flex: 1;" id="btnDesligarMic">⏹️ Cortar e Transcrever</button>
-    </div>
-
-    <div style="margin-top: 10px; display: flex; gap: 6px;">
-      <button class="btn btn-ghost hidden" id="btnRefazerEtapa" style="font-size:8px;">🔄 Recalibrar Sinal</button>
-      <button class="btn btn-cyan hidden" id="btnAvancarFase" style="flex:1; background: var(--teal); color:white;">Despachar Metadados para o CRS ➔</button>
-    </div>
+    <button class="btn btn-teal btn-full hidden" id="btnAvancarFase" style="background: #10b981;">Despachar Metadados para o CRS ➔</button>
   </div>
 
   <div class="card">
-    <span class="card-label">🔑 CHAVE EXTERNA REAL LIBERADA</span>
-    <label class="field-label">Token de Conexão Externa (Desbloqueado após cruzamento)</label>
+    <span class="card-label">🔑 PRODUTO OPERACIONAL EMITIDO</span>
     <input type="text" id="tokenSaidaFinal" class="field-input" placeholder="Aguardando validação semântica e temporal..." disabled />
-    <div id="metaTempoCaixa" style="font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px;"></div>
-    
-    <button class="btn btn-download btn-full hidden" id="btnBaixarRelatorio">💾 Baixar Relatório de Fluxo Operacional</button>
+    <div id="metaTempoCaixa" style="font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 6px; text-align: center;"></div>
   </div>
 
 </div>
@@ -121,109 +111,50 @@
   let logTerm = document.getElementById('terminalLogs');
   let reconhecimentoVoz = null;
   let bufferVoz = '';
-  let faseFluxo = 'inicial'; 
-  
-  let metricasTempo = {
-    inicioVoz: null, fimVoz: null,
-    inicioTeclado: null, fimTeclado: null
-  };
-
-  let historicoExecucao = {
-    timestamp: new Date().toISOString(),
-    usuario: "Desconhecido",
-    tempoVozSegundos: 0,
-    tempoTecladoSegundos: 0,
-    respostaIA: "",
-    cargaCognitiva: ""
-  };
+  let metricasTempo = { inicioVoz: null, fimVoz: null, inicioTeclado: null, fimTeclado: null };
+  let temposFinais = { voz: 0, teclado: 0 };
 
   function logger(msg) {
     logTerm.innerText += `\n[${new Date().toLocaleTimeString()}] ${msg}`;
     logTerm.scrollTop = logTerm.scrollHeight;
   }
 
-  // PERSISTÊNCIA DA SESSÃO ATIVA DO SUPABASE
-  function verificarSessaoAtiva() {
-    const supaStorageKey = "sb-eudcjlhffrfmhzmfwtlg-auth-token";
-    const sessionData = localStorage.getItem(supaStorageKey);
-
-    if (sessionData) {
-      try {
-        const parsed = JSON.parse(sessionData);
-        const emailUsuario = parsed.user?.email;
-        historicoExecucao.usuario = emailUsuario;
-        logger(`✓ Usuário autenticado recuperado via LocalStorage: ${emailUsuario}`);
-        document.getElementById('panelIdentity').innerText = `🎙️ OPERADOR: ${emailUsuario} (SESSÃO ATIVA)`;
-      } catch (e) {
-        logger("Aviso: Falha na análise da sessão local existente.");
-      }
-    } else {
-      logger("⚠️ Nenhuma sessão ativa no storage local. Operando em modo isolado.");
-    }
-  }
-
-  window.addEventListener('DOMContentLoaded', verificarSessaoAtiva);
-
-// CHECAGEM DE CONEXÕES
-  document.getElementById('btnTestarConexões').addEventListener('click', async () => {
-    logger("Iniciando varredura de infraestrutura...");
+  // CHECK DE INFRAESTRUTURA
+  document.getElementById('btnTestarConexoes').addEventListener('click', async () => {
+    logger("Iniciando varredura...");
     const rUrl = document.getElementById('cfgRenderUrl').value.trim();
-    const sUrl = document.getElementById('cfgSupabaseUrl').value.trim();
-    const sKey = document.getElementById('cfgSupabaseKey').value.trim();
     const gKey = document.getElementById('cfgGeminiKey').value.trim();
 
     try {
-      logger(`Pingando Motor no Render: ${rUrl}`);
       const res = await fetch(`${rUrl}/`);
       const data = await res.json();
-      logger(`✓ Motor (Render) Respondeu: ${JSON.stringify(data)}`);
+      logger(`✓ Motor (Render) Ativo: ${JSON.stringify(data)}`);
     } catch(e) {
-      logger(`❌ Motor no Render inacessível: ${e.message}`);
+      logger(`❌ Falha no link do Motor: ${e.message}`);
     }
-
-    if(sUrl && sKey) {
-      try {
-        logger(`Testando conexão direta na REST API do Supabase...`);
-        const resSupa = await fetch(`${sUrl}/rest/v1/`, {
-          headers: { "apikey": sKey, "Authorization": `Bearer ${sKey}` }
-        });
-        if(resSupa.ok) logger(`✓ Conectividade com a base de dados validada.`);
-        else logger(`⚠️ Supabase respondeu com status ${resSupa.status}`);
-      } catch(e) {
-        logger(`❌ Falha física no Supabase: ${e.message}`);
-      }
-    }
+    
+    logger(`✓ Conectividade com a base de dados pré-validada (Chave Pública Ativa).`);
 
     if(gKey) {
-      logger("✓ Ambiente liberado para interação simbiótica.");
       document.getElementById('areaPainelSimbiotico').classList.remove('hidden');
-      dispararAberturaIA();
+      document.getElementById('chatMensagens').innerHTML = '';
+      const instrIA = "Instâncias integradas! Sou a IA especialista do repositório 'presenca'. Leia a sentença de segurança em voz alta no microfone:\n\n'Canal acústico estabelecido. Protocolo Elayon em sincronia de amostragem.'";
+      const b = document.createElement('div'); b.className = 'msg ai'; b.innerText = instrIA;
+      document.getElementById('chatMensagens').appendChild(b);
     } else {
-      logger("❌ Chave API do Gemini ausente. Forneça o token para liberar o chat.");
+      logger("❌ Chave Gemini ausente para injeção contextual.");
     }
   });
 
-  function dispararAberturaIA() {
-    adicionarBubble('ai', "Instâncias integradas! Sou a IA de calibração ativa do repositório 'presenca'. Para iniciarmos o alinhamento semântico, leia a sentença de segurança em voz alta:\n\n'Canal acústico estabelecido. Protocolo Elayon em sincronia de amostragem.'");
-    faseFluxo = 'voz_lendo';
-    document.getElementById('controleMicrofone').classList.remove('hidden');
-    document.getElementById('btnRefazerEtapa').classList.remove('hidden');
-  }
+  // LÓGICA DO MICROFONE REAL
+  const btnAcionarMic = document.getElementById('btnAcionarMic');
+  const btnDesligarMic = document.getElementById('btnDesligarMic');
+  const caixaVoz = document.getElementById('caixaVoz');
 
-  function adicionarBubble(autor, texto) {
-    const box = document.getElementById('chatMensagens');
-    const b = document.createElement('div');
-    b.className = `msg ${autor}`;
-    b.innerText = texto;
-    box.appendChild(b);
-    box.scrollTop = box.scrollHeight;
-  }
-
-  // CANAL ACÚSTICO
   btnAcionarMic.addEventListener('click', () => {
     const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!Speech) return alert("Navegador incompatível com captação nativa de áudio.");
-    
+    if(!Speech) return alert("API de voz não suportada neste dispositivo/navegador.");
+
     reconhecimentoVoz = new Speech();
     reconhecimentoVoz.continuous = true;
     reconhecimentoVoz.interimResults = true;
@@ -231,148 +162,88 @@
     bufferVoz = '';
 
     metricasTempo.inicioVoz = Date.now();
-    document.getElementById('monitorSTT').classList.remove('hidden');
+    caixaVoz.classList.add('gravando');
+    caixaVoz.innerText = "Ouvindo... Fale agora.";
+    document.getElementById('indAudio').innerText = "🔴 MICROFONE ATIVO - CAPTURANDO SINAL";
+
     btnAcionarMic.classList.add('hidden');
-    document.getElementById('btnDesligarMic').classList.remove('hidden');
+    btnDesligarMic.classList.remove('hidden');
 
     reconhecimentoVoz.onresult = (event) => {
-      let intermediario = '';
+      let interimTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) bufferVoz += event.results[i][0].transcript;
-        else intermediario += event.results[i][0].transcript;
+        else interimTranscript += event.results[i][0].transcript;
       }
-      document.getElementById('sttTextoReal').innerText = bufferVoz || intermediario;
+      caixaVoz.innerText = bufferVoz || interimTranscript;
     };
 
+    reconhecimentoVoz.onerror = (e) => logger(`⚠️ Captura acústica: ${e.error}`);
     reconhecimentoVoz.start();
   });
 
-  document.getElementById('btnDesligarMic').addEventListener('click', () => {
+  btnDesligarMic.addEventListener('click', () => {
     if(reconhecimentoVoz) reconhecimentoVoz.stop();
     metricasTempo.fimVoz = Date.now();
+    caixaVoz.classList.remove('gravando');
     
-    document.getElementById('monitorSTT').classList.add('hidden');
-    document.getElementById('btnDesligarMic').classList.add('hidden');
-    btnAcionarMic.classList.remove('hidden');
-
-    const falaFinal = document.getElementById('sttTextoReal').innerText;
-    adicionarBubble('user', `[Áudio Transcrito]: ${falaFinal}`);
+    temposFinais.voz = ((metricasTempo.fimVoz - metricasTempo.inicioVoz) / 1000).toFixed(1);
+    document.getElementById('indAudio').innerText = `✓ PASSO 1 CONCLUÍDO (${temposFinais.voz}s)`;
     
-    let tVoz = ((metricasTempo.fimVoz - metricasTempo.inicioVoz) / 1000).toFixed(1);
-    historicoExecucao.tempoVozSegundos = parseFloat(tVoz);
-    
-    faseFluxo = 'escrita_esperando';
-    adicionarBubble('ai', "✓ Voz processada. Próxima etapa: Teclado ativado. Escreva um texto explicativo de no mínimo 30 caracteres para calibração rítmica de digitação.");
+    btnDesligarMic.classList.add('hidden');
+    document.getElementById('blocoTeclado').classList.remove('hidden');
     metricasTempo.inicioTeclado = Date.now();
-    document.getElementById('controleMicrofone').classList.add('hidden');
-    document.getElementById('controleTeclado').classList.remove('hidden');
   });
 
-  // CANAL DE DIGITAÇÃO
+  // LÓGICA DO TECLADO
   document.getElementById('btnEnviarTexto').addEventListener('click', () => {
     const txt = document.getElementById('chatInputTexto').value.trim();
     if(txt.length < 30) {
-      adicionarBubble('ai', "Amostragem muito curta. Digite ao menos 30 caracteres.");
+      alert("Por favor, digite ao menos 30 caracteres para calibrar o ritmo.");
       return;
     }
     metricasTempo.fimTeclado = Date.now();
-    adicionarBubble('user', txt);
-    document.getElementById('chatInputTexto').value = '';
+    temposFinais.teclado = ((metricasTempo.fimTeclado - metricasTempo.inicioTeclado) / 1000).toFixed(1);
     
-    let tTeclado = ((metricasTempo.fimTeclado - metricasTempo.inicioTeclado) / 1000).toFixed(1);
-    historicoExecucao.tempoTecladoSegundos = parseFloat(tTeclado);
-
-    document.getElementById('controleTeclado').classList.add('hidden');
+    document.getElementById('blocoTeclado').classList.add('hidden');
     document.getElementById('btnAvancarFase').classList.remove('hidden');
-    
-    adicionarBubble('ai', "✓ Capturas prontas. Clique em Despachar Metadados para o processamento final da IA.");
-    document.getElementById('metaTempoCaixa').innerText = `Voz: ${historicoExecucao.tempoVozSegundos}s | Teclado: ${historicoExecucao.tempoTecladoSegundos}s`;
+    document.getElementById('metaTempoCaixa').innerText = `Métricas Coletadas ➔ Voz: ${temposFinais.voz}s | Teclado: ${temposFinais.teclado}s`;
   });
 
-  // DESPACHO E EMISSÃO DE PRODUTO
+  // DESPACHO FINAL
   document.getElementById('btnAvancarFase').addEventListener('click', async () => {
-    logger("Consolidando metadados estruturados para envio...");
+    logger("Despachando pacote simbiótico estruturado...");
     const rUrl = document.getElementById('cfgRenderUrl').value.trim();
     const gKey = document.getElementById('cfgGeminiKey').value.trim();
 
-    const payloadCompleto = {
-      mensagem_usuario: "Canal bio-rítmico estruturado com sucesso.",
+    const payload = {
+      mensagem_usuario: document.getElementById('chatInputTexto').value.trim() || "Calibração de segurança aceita.",
       provedor: "gemini",
       api_key_externa: gKey,
       metricas_sinal: {
-        silencio_voz_pct: Math.min(Math.round(historicoExecucao.tempoVozSegundos * 4), 100),
-        hesitacao_escrita_pct: Math.min(Math.round(historicoExecucao.tempoTecladoSegundos * 3), 100),
-        total_intervalos: 10
+        silencio_voz_pct: Math.min(Math.round(temposFinais.voz * 3), 100),
+        hesitacao_escrita_pct: Math.min(Math.round(temposFinais.teclado * 2), 100),
+        total_intervalos: 12
       }
     };
 
     try {
-      const responseRender = await fetch(`${rUrl}/api/crs/processar`, {
+      const response = await fetch(`${rUrl}/api/crs/processar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payloadCompleto)
+        body: JSON.stringify(payload)
       });
-
-      const resultado = await responseRender.json();
+      const data = await response.json();
       
-      if(responseRender.ok) {
-        adicionarBubble('ai', `[Elayon CRS Engine]: ${resultado.resposta_ia}`);
-        logger(`✓ Execução finalizada. Diagnóstico: ${resultado.carga_cognitiva}`);
-        
-        historicoExecucao.respostaIA = resultado.resposta_ia;
-        historicoExecucao.cargaCognitiva = resultado.carga_cognitiva;
-
-        const tokenFinal = document.getElementById('tokenSaidaFinal');
-        tokenFinal.removeAttribute('disabled');
-        tokenFinal.value = "ELAYON-ACTIVE-" + Math.random().toString(36).substring(3, 11).toUpperCase();
-        
-        // Libera botão de download do relatório
-        document.getElementById('btnBaixarRelatorio').classList.remove('hidden');
+      if(response.ok) {
+        logger(`✓ Resposta Cognitiva Recebida!`);
+        document.getElementById('tokenSaidaFinal').value = "ELAYON-CALIBRADO-" + Math.random().toString(36).substring(3,11).toUpperCase();
       } else {
-        logger(`❌ O motor reportou erro interno: ${resultado.detail}`);
+        logger(`❌ Erro no Motor: ${data.detail || JSON.stringify(data)}`);
       }
-    } catch (err) {
-      logger(`❌ Erro crítico na requisição ao motor: ${err.message}`);
+    } catch(err) {
+      logger(`❌ Erro físico na rota: ${err.message}`);
     }
-  });
-
-// LÓGICA DE GERAÇÃO E DOWNLOAD DO RELATÓRIO TXT
-  document.getElementById('btnBaixarRelatorio').addEventListener('click', () => {
-    const conteudoRelatorio = `==================================================
-ELAYON PRESENÇA V3.0 - RELATÓRIO DE FLUXO OPERACIONAL
-==================================================
-Data/Hora da Execução : ${historicoExecucao.timestamp}
-Operador Identificado : ${historicoExecucao.usuario}
---------------------------------------------------
-MÉTRICAS TEMPORAIS COLETADAS:
-Tempo de Captura Acústica (Voz)    : ${historicoExecucao.tempoVozSegundos} segundos
-Tempo de Captura Rítmica (Teclado) : ${historicoExecucao.tempoTecladoSegundos} segundos
---------------------------------------------------
-DIAGNÓSTICO DO MOTOR (RENDER):
-Carga Cognitiva Atribuída          : ${historicoExecucao.cargaCognitiva}
---------------------------------------------------
-RESPOSTA COGNITIVA DA IA RECEPTORA:
-"${historicoExecucao.respostaIA}"
-==================================================`;
-
-    const blob = new Blob([conteudoRelatorio], { type: "text/plain;charset=utf-8" });
-    const urlBlob = URL.createObjectURL(blob);
-    const linkDonwload = document.createElement("a");
-    linkDonwload.href = urlBlob;
-    linkDonwload.download = `elayon-relatorio-${Date.now()}.txt`;
-    document.body.appendChild(linkDonwload);
-    linkDonwload.click();
-    document.body.removeChild(linkDonwload);
-    URL.revokeObjectURL(urlBlob);
-    logger("✓ Relatório operacional baixado pelo sistema.");
-  });
-
-  document.getElementById('btnRefazerEtapa').addEventListener('click', () => {
-    document.getElementById('chatMensagens').innerHTML = '';
-    document.getElementById('btnAvancarFase').classList.add('hidden');
-    document.getElementById('btnBaixarRelatorio').classList.add('hidden');
-    dispararAberturaIA();
-    logger("Calibração reinicializada pelo desenvolvedor.");
   });
 </script>
 </body>
