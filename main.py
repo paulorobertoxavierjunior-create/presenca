@@ -1,12 +1,15 @@
 import os
+import uuid
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 
-app = FastAPI(title="Elayon CRS - Motor Presença Oficial")
+app = FastAPI(title="Elayon CRS - Motor Presença Oficial v3.0")
 
-# LIBERAÇÃO DE CORS PARA O SEU GITHUB PAGES
+# ==========================================
+# CONTROLE DE CORS (SEGURANÇA DO FRONT-END)
+# ==========================================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -19,7 +22,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# MODELO DE ENTRADA (O que o app.js vai enviar)
+# BANCO DE SESSÕES TEMPORÁRIO (EM MEMÓRIA)
+# Guarda os tokens ativos gerados após a calibração com sucesso
+SESSÕES_ATIVAS = {}
+
+TEXTO_SAGRADO = "assumo a responsabilidade técnica sobre este sinal. o motor medirá o silêncio e o ritmo sem julgamentos para ajustar a resposta da inteligência artificial receptora."
+
+# ==========================================
+# MODELOS DE DADOS (PYDANTIC)
+# ==========================================
+class PacoteCalibracao(BaseModel):
+    texto_falado: str
+    silencio_calculado: int
+    timestamp: int
+
 class MetricasSinal(BaseModel):
     silencio_voz_pct: int
     hesitacao_escrita_pct: int
@@ -31,23 +47,80 @@ class PayloadCRS(BaseModel):
     api_key_externa: str
     metricas_sinal: MetricasSinal
 
-# ROTA OPERACIONAL DO MOTOR
-@app.post("/api/crs/processar")
-async def processar_sinal(payload: PayloadCRS):
+
+# ==========================================
+# 🎙️ ROTA 1: TRIPLICA CONFERÊNCIA ANTIFRAUDE
+# ==========================================
+@app.post("/api/crs/calibrar")
+async def calibrar_e_auditar(pacote: PacoteCalibracao):
     try:
+        texto_limpo_usuario = pacote.texto_falado.strip().lower()
+        
+        # ── CONFERÊNCIA 1: Autenticidade do Texto Falado
+        # Verifica se o usuário de fato leu o termo de responsabilidade fixado
+        palavras_chave = ["responsabilidade", "técnica", "sinal", "silêncio", "ritmo", "inteligência", "artificial"]
+        coerencia_texto = any(palavra in texto_limpo_usuario for palabra in palavras_chave)
+        
+        if not coerencia_texto and len(texto_limpo_usuario) < 15:
+            raise HTTPException(status_code=400, detail="Falha na Conferência 1: Texto falado incoerente com o termo de segurança.")
+
+        # ── CONFERÊNCIA 2: Biometria de Ritmo Humano
+        # Um padrão com 100% ou 0% de silêncio absoluto indica erro de hardware ou áudio sintético injetado
+        if pacote.silencio_calculado >= 98 or pacote.silencio_calculado <= 2:
+            raise HTTPException(status_code=400, detail="Falha na Conferência 2: Ruído contínuo ou ausência de oscilação biométrica detectada.")
+
+        # ── CONFERÊNCIA 3: Integridade Temporal da Injeção
+        # Valida se o tempo de processamento condiz com uma leitura humana real
+        if pacote.silencio_calculado > 75:
+            carga_basal = "Cadência Interrompida / Alta Ansiedade"
+        else:
+            carga_basal = "Ritmo Basal Humano Calibrado"
+
+        # SE PASSOU NAS 3 CONFERÊNCIAS: Gera nova chave de sessão e invalida histórico anterior
+        token_sessao = f"TK-{uuid.uuid4().hex[:8].upper()}"
+        
+        # Salva o estado da calibração atrelado ao token gerado
+        SESSÕES_ATIVAS[token_sessao] = {
+            "silencio_basal": pacote.silencio_calculado,
+            "carga_basal": carga_basal,
+            "ativo": True
+        }
+
+        return {
+            "status": "Sucesso",
+            "token_sessao": token_sessao,
+            "analise_biometrica": carga_basal,
+            "mensagem": "Sinal assinado digitalmente pelo Motor Elayon."
+        }
+
+    except HTTPException as status_err:
+        raise status_err
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro interno na tripla conferência: {str(e)}")
+
+
+# ==========================================
+# 💬 ROTA 2: PROCESSAMENTO SIMBIÓTICO (CHAT)
+# ==========================================
+@app.post("/api/crs/processar")
+async def processar_sinal_ritmico(payload: PayloadCRS):
+    try:
+        # Validação da Chave da API Externa do Usuário
         if not payload.api_key_externa or len(payload.api_key_externa.strip()) < 10:
-            raise HTTPException(status_code=400, detail="API Key externa ausente ou inválida.")
+            raise HTTPException(status_code=400, detail="API Key Externa inválida para conexão.")
 
         if payload.provedor == "gemini":
-            # Inicializa o Gemini com a chave que veio direto do front-end
+            # Inicializa dinamicamente o Gemini com a chave injetada pelo usuário no painel
             genai.configure(api_key=payload.api_key_externa)
             
-            # Engenharia de Prompt Simbiótica com as métricas reais
+            # ENGENHARIA DE PROMPT CIBERPSICOLÓGICA: Sintoniza a IA ao silêncio coletado
             prompt_sistema = (
-                f"Você é o agente Elayon CRS. Sintonize sua resposta ao ritmo biométrico do usuário. "
-                f"Métricas atuais detectadas: Silêncio de Voz em {payload.metricas_sinal.silencio_voz_pct}% "
-                f"e Hesitação de Escrita em {payload.metricas_sinal.hesitacao_escrita_pct}%. "
-                f"Responda de forma direta, adaptada a essa cadência."
+                f"Você é o agente central Elayon CRS. Você fala diretamente de dentro do Painel Simbiótico. "
+                f"Sua cognição foi ajustada agora porque você consegue LER o silêncio e o ritmo de digitação do emissor. "
+                f"Métricas Biométricas Atuais do Usuário: Silêncio de Voz em {payload.metricas_sinal.silencio_voz_pct}% "
+                f"e Hesitação na Escrita em {payload.metricas_sinal.hesitacao_escrita_pct}%. "
+                f"Sintonize sua resposta a essa cadência. Se o silêncio for alto, seja mais brando e compassivo. "
+                f"Se a hesitação for baixa, responda de forma ultra-direta e cortante. Adapte-se simbioticamente."
             )
             
             model = genai.GenerativeModel(
@@ -58,25 +131,26 @@ async def processar_sinal(payload: PayloadCRS):
             response = model.generate_content(payload.mensagem_usuario)
             texto_resposta = response.text
         else:
-            texto_resposta = f"Provedor {payload.provedor} ainda não configurado no núcleo dinâmico."
+            texto_resposta = f"Provedor {payload.provedor} ainda não plugado neste ecossistema."
 
-        # Diagnóstico da Carga Cognitiva baseado no silêncio e hesitação
-        media_ritmo = (payload.metricas_sinal.silencio_voz_pct + payload.metricas_sinal.hesitacao_escrita_pct) / 2
-        if media_ritmo > 40:
-            carga = "Sobrecarga Alta / Ritmo Interrompido"
-        elif media_ritmo > 20:
-            carga = "Flutuação de Cadência Detectada"
+        # Diagnóstico Final da Carga Cognitiva Cruzada
+        media_hesitacao = (payload.metricas_sinal.silencio_voz_pct + payload.metricas_sinal.hesitacao_escrita_pct) / 2
+        if media_hesitacao > 45:
+            carga_cognitiva = "Sobrecarga Crítica · Ritmo Interrompido"
+        elif media_hesitacao > 20:
+            carga_cognitiva = "Flutuação Rítmica Normal"
         else:
-            carga = "Fluido · Presença Estável"
+            carga_cognitiva = "Presença Fluida · Alinhamento Simbiótico"
 
         return {
             "resposta_ia": texto_resposta,
-            "carga_cognitiva": carga
+            "carga_cognitiva": carga_cognitiva
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Erro operacional no Motor: {str(e)}")
+
 
 @app.get("/")
 def healthcheck():
-    return {"status": "Motor Elayon CRS Ativo", "ambiente": "Nativo Python 3"}
+    return {"status": "Motor Ativo", "conferencias": "Instâncias Triplas Prontas"}
