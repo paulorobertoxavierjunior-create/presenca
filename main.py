@@ -106,6 +106,9 @@ async def processar_sinal_ritmico(payload: PayloadCRS):
             # Inicializa o SDK do Gemini com a chave dinâmica enviada pelo painel front-end
             genai.configure(api_key=payload.api_key_externa)
             
+            # Força o alinhamento da API para rodar na rota estável estável v1, anulando o erro da v1beta
+            os.environ["GOOGLE_API_VERSION"] = "v1"
+            
             # Engenharia de Prompt Simbiótica baseada em métricas
             prompt_sistema = (
                 f"Você é o agente central Elayon CRS. Você fala diretamente de dentro do Painel Simbiótico. "
@@ -116,7 +119,7 @@ async def processar_sinal_ritmico(payload: PayloadCRS):
                 f"Se a hesitação for baixa, responda de forma ultra-direta e cortante. Adapte-se simbioticamente."
             )
             
-            # Instanciação direta usando o parâmetro system_instruction estável para evitar o erro 404
+            # Instanciação direta e alinhada
             model = genai.GenerativeModel(
                 model_name="gemini-1.5-flash",
                 generation_config={"temperature": 0.7},
@@ -144,8 +147,3 @@ async def processar_sinal_ritmico(payload: PayloadCRS):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro operacional no Motor: {str(e)}")
-
-
-@app.get("/")
-def healthcheck():
-    return {"status": "Motor Ativo", "conferencias": "Instâncias Triplas Prontas"}
