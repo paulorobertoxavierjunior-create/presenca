@@ -4,12 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 
-app = FastAPI(title="Elayon CRS - Núcleo Presença")
+app = FastAPI(title="Elayon CRS - Motor Presença Oficial")
 
-# ==========================================
-# 1. CONTROLE DE CORS (LIBERAÇÃO DO FRONT-END)
-# ==========================================
-# Permite que o seu GitHub Pages e testes locais acessem o backend sem bloqueios
+# LIBERAÇÃO DE CORS PARA O SEU GITHUB PAGES
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -22,9 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ==========================================
-# 2. MODELOS DE DADOS (PAYLOAD DO APP.JS)
-# ==========================================
+# MODELO DE ENTRADA (O que o app.js vai enviar)
 class MetricasSinal(BaseModel):
     silencio_voz_pct: int
     hesitacao_escrita_pct: int
@@ -36,27 +31,23 @@ class PayloadCRS(BaseModel):
     api_key_externa: str
     metricas_sinal: MetricasSinal
 
-# ==========================================
-# 3. ROTA PRINCIPAL DE PROCESSAMENTO
-# ==========================================
+# ROTA OPERACIONAL DO MOTOR
 @app.post("/api/crs/processar")
-async def processar_sinal_ritmico(payload: PayloadCRS):
+async def processar_sinal(payload: PayloadCRS):
     try:
-        # Validação da chave enviada pelo Front-End
         if not payload.api_key_externa or len(payload.api_key_externa.strip()) < 10:
-            raise HTTPException(status_code=400, detail="Chave API Externa inválida ou não fornecida.")
+            raise HTTPException(status_code=400, detail="API Key externa ausente ou inválida.")
 
-        # Execução via Gemini do Usuário
         if payload.provedor == "gemini":
-            # Inicializa o Gemini dinamicamente com a chave que veio do app.js
+            # Inicializa o Gemini com a chave que veio direto do front-end
             genai.configure(api_key=payload.api_key_externa)
             
-            # Engenharia de Prompt Simbiótica: injeta o ritmo do usuário no comportamento da IA
+            # Engenharia de Prompt Simbiótica com as métricas reais
             prompt_sistema = (
-                f"Você é o agente Elayon CRS. Ajuste sua resposta de forma simbiótica ao ritmo do emissor. "
-                f"Métricas atuais do usuário: Silêncio de Voz detectado em {payload.metricas_sinal.silencio_voz_pct}% "
+                f"Você é o agente Elayon CRS. Sintonize sua resposta ao ritmo biométrico do usuário. "
+                f"Métricas atuais detectadas: Silêncio de Voz em {payload.metricas_sinal.silencio_voz_pct}% "
                 f"e Hesitação de Escrita em {payload.metricas_sinal.hesitacao_escrita_pct}%. "
-                f"Seja preciso, direto e responda mantendo a calibração de presença."
+                f"Responda de forma direta, adaptada a essa cadência."
             )
             
             model = genai.GenerativeModel(
@@ -64,34 +55,28 @@ async def processar_sinal_ritmico(payload: PayloadCRS):
                 system_instruction=prompt_sistema
             )
             
-            # Gera a resposta consumindo a cota da chave do usuário
             response = model.generate_content(payload.mensagem_usuario)
             texto_resposta = response.text
-
         else:
-            # Fallback para outros provedores futuros
-            texto_resposta = f"Provedor {payload.provedor} selecionado, mas ainda não configurado no motor principal."
+            texto_resposta = f"Provedor {payload.provedor} ainda não configurado no núcleo dinâmico."
 
-        # Dedução da Carga Cognitiva baseada no cruzamento de dados temporais
-        media_hesitacao = (payload.metricas_sinal.silencio_voz_pct + payload.metricas_sinal.hesitacao_escrita_pct) / 2
-        if media_hesitacao > 40:
-            carga_cognitiva = "Alta Sobrecarga / Ritmo Interrompido"
-        elif media_hesitacao > 20:
-            carga_cognitiva = "Atenção / Flutuação de Cadência"
+        # Diagnóstico da Carga Cognitiva baseado no silêncio e hesitação
+        media_ritmo = (payload.metricas_sinal.silencio_voz_pct + payload.metricas_sinal.hesitacao_escrita_pct) / 2
+        if media_ritmo > 40:
+            carga = "Sobrecarga Alta / Ritmo Interrompido"
+        elif media_ritmo > 20:
+            carga = "Flutuação de Cadência Detectada"
         else:
-            carga_cognitiva = "Fluido · Presença Estável"
+            carga = "Fluido · Presença Estável"
 
-        # Retorna o JSON exato que o app.js espera receber
         return {
             "resposta_ia": texto_resposta,
-            "carga_cognitiva": carga_cognitiva
+            "carga_cognitiva": carga
         }
 
     except Exception as e:
-        print(f"Erro no processamento do motor: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Erro interno no Motor CRS: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-# Rota de verificação simples (Healthcheck)
 @app.get("/")
-def home():
-    return {"status": "Motor Elayon CRS Online e Pronto"}
+def healthcheck():
+    return {"status": "Motor Elayon CRS Ativo", "ambiente": "Nativo Python 3"}
