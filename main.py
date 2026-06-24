@@ -124,9 +124,10 @@ async def processar_sinal_ritmico(payload: PayloadCRS):
             )
             
             model = genai.GenerativeModel(
-                model_name="gemini-1.5-flash",
-                system_instruction=prompt_sistema
-            )
+    model_name="gemini-1.5-flash",
+    system_instruction=prompt_sistema
+)
+
             
             response = model.generate_content(payload.mensagem_usuario)
             texto_resposta = response.text
