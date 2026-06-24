@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 
-app = FastAPI(title="Elayon CRS - Motor Presença Oficial v3.0")
+app = FastAPI(title="Elayon CRS - Motor Presença Oficial v3.0") 
 
 # ==========================================
 # CONTROLE DE CORS (SEGURANÇA DO FRONT-END)
