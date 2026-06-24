@@ -1,5 +1,5 @@
-
-fastapi
-uvicorn
-pydantic
+Flask
+flask-cors
+supabase
 google-generativeai>=0.5.4
+
