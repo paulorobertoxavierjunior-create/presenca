@@ -1,3 +1,8 @@
+// Altere de: const RENDER_BASE_URL = 'https://crs-full3.onrender.com';
+// Para a nova URL estável:
+const RENDER_BASE_URL = 'https://presenca-1yuy.onrender.com';
+
+
 // ==========================================
 // ELAYON PRESENÇA V3.0 - MOTOR DE FLUXO EXCLUSIVO
 // ==========================================
