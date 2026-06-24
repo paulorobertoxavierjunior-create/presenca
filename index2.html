@@ -1,290 +1,300 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repo Presença - Controlador de IA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#165DFF',
-                        success: '#00B42A',
-                        warning: '#FF7D00',
-                        danger: '#F53F3F',
-                        neutral: '#1D2129',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .scrollbar-hide {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-            }
-            .scrollbar-hide::-webkit-scrollbar {
-                display: none;
-            }
-        }
-    </style>
-</head>
-<body class="bg-gray-50 font-sans text-neutral min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
-        
-        <!-- Cabeçalho -->
-        <header class="mb-10">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                    <i class="fa fa-cubes text-xl"></i>
-                </div>
-                <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-neutral">Repo <span class="text-primary">Presença</span></h1>
-            </div>
-            <p class="text-gray-600 ml-13">Painel de Controle, Verificação e Autonomia da IA</p>
-        </header>
-
-        <!-- Área Principal -->
-        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Entrada de Dados -->
-            <section class="lg:col-span-1 space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                    <h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
-                        <i class="fa fa-code text-primary"></i>
-                        Entrada de Comando / JSON
-                    </h2>
-                    <textarea 
-                        id="inputData" 
-                        class="w-full h-[400px] p-3 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                        placeholder="// Cole aqui o conteúdo do INDEX.md convertido para JSON, ou um comando como:
-// { "acao": "verificar_tudo", "regra": "dependencias" }
-
-// Exemplo de estrutura esperada:
-{
-  "sistema": "presenca",
-  "versao": "0.1-alpha",
-  "modulos": [
-    {
-      "nome": "SESSION",
-      "status": "completo",
-      "dependencias": ["MEMORY", "ROUTER"]
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Elayon Presença · Laboratório de Conexões</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f4f8f8;
+      --surface: #ffffff;
+      --border: #c8e2e4;
+      --cyan: #3ecfcf;
+      --cglow: rgba(62,207,207,0.18);
+      --teal: #2a9d8f;
+      --text: #072024;
+      --muted: #4a7a80;
+      --red: #ef4444;
+      --mono: 'Share Tech Mono', monospace;
+      --sans: 'Syne', sans-serif;
     }
-  ]
-}"
-                    ></textarea>
-                    
-                    <button id="verificarBtn" class="mt-4 w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2">
-                        <i class="fa fa-search"></i>
-                        <span>Executar Verificação da IA</span>
-                    </button>
-                </div>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .page { width: 100%; max-width: 520px; }
+    
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(62,207,207,0.02); }
+    .card-label { font-family: var(--mono); font-size: 8px; letter-spacing: 2px; color: var(--cyan); text-transform: uppercase; display: block; margin-bottom: 12px; }
+    
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .field-label { display: block; font-size: 9px; color: var(--muted); font-family: var(--mono); margin-bottom: 4px; text-transform: uppercase; }
+    .field-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--mono); font-size: 11px; outline: none; background: var(--bg); color: var(--text); }
+    
+    /* CHAT SIMBIÓTICO */
+    .chat-box { height: 280px; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    .msg { max-width: 85%; padding: 12px; border-radius: 14px; font-size: 13px; line-height: 1.4; position: relative; }
+    .msg.ai { background: #e2f1f2; align-self: flex-start; border-radius: 14px 14px 14px 4px; border: 1px solid var(--border); }
+    .msg.user { background: var(--teal); color: white; align-self: flex-end; border-radius: 14px 14px 4px 14px; }
+    
+    .live-stt-box { font-size: 12px; font-style: italic; color: var(--red); background: #fff1f1; padding: 10px; border-radius: 8px; border: 1px dashed var(--red); margin-bottom: 12px; font-family: var(--mono); }
+    
+    .btn { padding: 12px 16px; border: none; border-radius: 10px; font-family: var(--mono); font-size: 10px; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
+    .btn-cyan { background: var(--cyan); color: #072024; box-shadow: 0 4px 10px var(--cglow); }
+    .btn-red { background: var(--red); color: white; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-full { width: 100%; display: block; }
+    
+    /* CONSOLE DE LOGS */
+    .log-terminal { background: #0b1d20; color: #7bf5f5; font-family: var(--mono); font-size: 10px; padding: 12px; border-radius: 8px; max-height: 120px; overflow-y: auto; white-space: pre-wrap; margin-top: 8px; border: 1px solid #1c3d42; }
+    
+    .hidden { display: none !important; }
+    .disabled { opacity: 0.5; pointer-events: none; }
+  </style>
+</head>
+<body>
+<div class="page">
 
-                <!-- Regra Principal -->
-                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                    <h3 class="font-semibold text-blue-800 mb-1">Regra de Construção Ativa</h3>
-                    <p class="text-sm text-blue-700">
-                        <strong>Um módulo só pode ser finalizado quando todos os módulos dos quais ele depende estiverem definidos.</strong>
-                    </p>
-                </div>
-            </section>
-
-            <!-- Saída e Análise -->
-            <section class="lg:col-span-2 space-y-6">
-                
-                <!-- Status Geral -->
-                <div id="statusCard" class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 opacity-0 transition-opacity duration-300">
-                    <h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
-                        <i class="fa fa-info-circle text-primary"></i>
-                        Diagnóstico do Sistema
-                    </h2>
-                    <div id="statusContent" class="text-gray-700 space-y-2">
-                        <p class="text-gray-500 italic">Aguardando verificação...</p>
-                    </div>
-                </div>
-
-                <!-- Mapa de Dependências -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 h-[400px] overflow-y-auto scrollbar-hide">
-                    <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <i class="fa fa-sitemap text-primary"></i>
-                        Mapa de Verificação & Dependências
-                    </h2>
-                    <div id="mapaContent" class="space-y-4">
-                        <p class="text-gray-500 italic">Nenhum dado analisado ainda.</p>
-                    </div>
-                </div>
-
-                <!-- Log de Ação da IA -->
-                <div class="bg-gray-900 text-green-400 rounded-xl shadow-sm border border-gray-800 p-5 h-[200px] overflow-y-auto font-mono text-xs">
-                    <h3 class="text-gray-400 uppercase text-xs mb-2 flex items-center gap-2">
-                        <i class="fa fa-terminal"></i>
-                        Terminal IA / Ações Executadas
-                    </h3>
-                    <div id="terminalLog" class="whitespace-pre-line">
-Aguardando entrada de dados...
-> Sistema pronto para verificação do Repo Presença.
-</div>
-                </div>
-
-            </section>
-        </main>
-
-        <footer class="mt-10 text-center text-sm text-gray-500">
-            Repo Presença — Sistema de Inteligência Contínua e Adaptativa © 2026
-        </footer>
+  <!-- CARD 01: PAINEL DE INJEÇÃO MANUAL DE INFRAESTRUTURA -->
+  <div class="card">
+    <span class="card-label">⚙️ CENTRAL DE COMPONENTES E CHAVES (MANUAL)</span>
+    
+    <div class="field-grid">
+      <div>
+        <label class="field-label">Render Backend URL</label>
+        <input type="text" id="cfgRenderUrl" class="field-input" value="https://presenca-1yuy.onrender.com" />
+      </div>
+      <div>
+        <label class="field-label">Supabase URL</label>
+        <input type="text" id="cfgSupabaseUrl" class="field-input" placeholder="https://xxxx.supabase.co" />
+      </div>
     </div>
 
-    <script>
-        // Elementos
-        const inputData = document.getElementById('inputData');
-        const verificarBtn = document.getElementById('verificarBtn');
-        const statusContent = document.getElementById('statusContent');
-        const mapaContent = document.getElementById('mapaContent');
-        const terminalLog = document.getElementById('terminalLog');
-        const statusCard = document.getElementById('statusCard');
+    <div class="field-grid">
+      <div>
+        <label class="field-label">Supabase Anon Key</label>
+        <input type="password" id="cfgSupabaseKey" class="field-input" placeholder="eyJhbGciOi..." />
+      </div>
+      <div>
+        <label class="field-label">Gemini API Key (Interna/Gratuita)</label>
+        <input type="password" id="cfgGeminiKey" class="field-input" placeholder="AIzaSy..." />
+      </div>
+    </div>
 
-        // Regra imutável do sistema
-        const REGRA_PRINCIPAL = "Um módulo só pode ser finalizado quando todos os módulos dos quais ele depende estiverem definidos.";
+    <button class="btn btn-cyan btn-full" id="btnTestarConexões">Disparar Check de Conexão Sem Fio</button>
+    <div class="log-terminal" id="terminalLogs">> Terminal aguardando disparo de verificação...</div>
+  </div>
 
-        // Simulação do cérebro da IA
-        verificarBtn.addEventListener('click', () => {
-            const dadosBrutos = inputData.value.trim();
-            if (!dadosBrutos) {
-                adicionarLog("> ERRO: Nenhum dado ou comando inserido.");
-                return;
-            }
+  <!-- CARD 02: PAINEL SIMBIÓTICO DE CALIBRAÇÃO ATIVA -->
+  <div class="card hidden" id="areaPainelSimbiotico">
+    <span class="card-label">🎙️ CONSOLE DE VOZ E INTERAÇÃO RÍTMICA</span>
+    
+    <div class="chat-box" id="chatMensagens"></div>
 
-            adicionarLog("> INICIANDO VERIFICAÇÃO DO REPO PRESENÇA...");
-            adicionarLog("> REGRA DE CONSTRUÇÃO CARREGADA: " + REGRA_PRINCIPAL);
+    <!-- MONITOR DE CAPTURA DO SINAL DE VOZ SEM FILTRO -->
+    <div class="live-stt-box hidden" id="monitorSTT">
+      🔴 TRANSCREVENDO AO VIVO: <span id="sttTextoReal" style="color: var(--text); font-style: normal; font-weight: bold;">...</span>
+    </div>
 
-            try {
-                // Tenta interpretar como JSON
-                const estruturaRepo = JSON.parse(dadosBrutos);
-                adicionarLog("> ✅ JSON válido interpretado.");
-                adicionarLog("> ANALISANDO ESTRUTURA E DEPENDÊNCIAS...");
-                
-                processarDados(estruturaRepo);
+    <!-- BARRA DE ENTRADA DO TECLADO (TEMPO MONITORADO) -->
+    <div id="controleTeclado" class="hidden" style="display: flex; gap: 8px;">
+      <input type="text" id="chatInputTexto" class="field-input" style="margin-bottom:0; flex:1;" placeholder="Digite o texto solicitado pela IA..." />
+      <button class="btn btn-cyan" id="btnEnviarTexto">Enviar</button>
+    </div>
 
-            } catch (erro) {
-                // Se não for JSON, interpreta como comando de texto
-                adicionarLog("> ⚠️ Entrada não é JSON. Interpretando como comando de texto...");
-                interpretarComando(dadosBrutos);
-            }
-        });
+    <!-- CONTROLES DO CANAL DE MICROFONE -->
+    <div id="controleMicrofone" class="hidden" style="display: flex; gap: 8px;">
+      <button class="btn btn-cyan" style="flex: 1;" id="btnAcionarMic">🎙️ Abrir Microfone e Falar</button>
+      <button class="btn btn-red hidden" style="flex: 1;" id="btnDesligarMic">⏹️ Encerrar e Despachar</button>
+    </div>
 
-        function processarDados(dados) {
-            let modulosAnalisados = [];
-            let errosEncontrados = 0;
-            let liberadosParaCriacao = [];
+    <!-- BOTÃO FLUTUANTE DE SEGURANÇA -->
+    <div style="margin-top: 10px; display: flex; gap: 6px;">
+      <button class="btn btn-ghost hidden" id="btnRefazerEtapa" style="font-size:8px;">🔄 Refazer / Regravar Sinal</button>
+      <button class="btn btn-cyan hidden" id="btnAvancarFase" style="flex:1; background: var(--teal); color:white;">Avançar para Chave Externa ➔</button>
+    </div>
+  </div>
 
-            // Limpa conteúdo anterior
-            mapaContent.innerHTML = '';
-            statusContent.innerHTML = '';
+  <!-- CARD 03: RECEPTOR DA CHAVE DE API EXTERNA LIBERADA -->
+  <div class="card">
+    <span class="card-label">🔑 CHAVE ATUAL REAL (PLUGÁVEL)</span>
+    <label class="field-label">Token de Saída Criptografado do Ecossistema</label>
+    <input type="text" id="tokenSaidaFinal" class="field-input" placeholder="Aguardando liberação da IA do Microfone..." disabled />
+    <div id="metaTempoCaixa" style="font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px;"></div>
+  </div>
 
-            dados.modulos.forEach(modulo => {
-                const nome = modulo.nome;
-                const status = modulo.status;
-                const deps = modulo.dependencias || [];
-                const arquivos = modulo.arquivos || [];
+</div>
 
-                // Verifica cumprimento da regra principal
-                const depsDefinidas = deps.every(dep => 
-                    dados.modulos.some(m => m.nome === dep && (m.status === 'completo' || m.status === 'definido'))
-                );
+<script>
+  // CONTROLADOR CENTRAL DO INDEX2
+  let logTerm = document.getElementById('terminalLogs');
+  let reconhecimentoVoz = null;
+  let bufferVoz = '';
+  let faseFluxo = 'inicial'; // inicial -> voz_lendo -> escrita_esperando -> finalizado
+  
+  // Métricas de Tempo Exigidas
+  let metricasTempo = {
+    inicioVoz: null,
+    fimVoz: null,
+    inicioTeclado: null,
+    fimTeclado: null
+  };
 
-                let estadoModulo = {
-                    nome: nome,
-                    status: status,
-                    dependencias: deps,
-                    regraCumprida: depsDefinidas,
-                    podeFinalizar: depsDefinidas,
-                    arquivosFaltantes: arquivos.filter(a => a.status !== 'concluido')
-                };
+  function logger(msg) {
+    logTerm.innerText += `\n[${new Date().toLocaleTimeString()}] ${msg}`;
+    logTerm.scrollTop = logTerm.scrollHeight;
+  }
 
-                modulosAnalisados.push(estadoModulo);
+  // DISPARADOR DO CHECK DE CONEXÃO MANUAL
+  document.getElementById('btnTestarConexões').addEventListener('click', async () => {
+    logger("Iniciando varredura de conexões injetadas...");
+    const rUrl = document.getElementById('cfgRenderUrl').value.trim();
+    const sUrl = document.getElementById('cfgSupabaseUrl').value.trim();
+    const gKey = document.getElementById('cfgGeminiKey').value.trim();
 
-                if(!depsDefinidas && status === 'completo') {
-                    errosEncontrados++;
-                    adicionarLog(`> ❌ VIOLAÇÃO DETECTADA: Módulo ${nome} está marcado como completo, mas dependências não estão definidas.`);
-                } else if(depsDefinidas && status !== 'completo') {
-                    liberadosParaCriacao.push(nome);
-                    adicionarLog(`> ✅ LIBERADO: ${nome} - Todas dependências cumpridas. Pronto para desenvolvimento/finalização.`);
-                } else {
-                    adicionarLog(`> ℹ️ VERIFICADO: ${nome} - OK.`);
-                }
+    // 1. Testa Render
+    try {
+      logger(`Tentando ping em: ${rUrl}`);
+      const res = await fetch(`${rUrl}/`);
+      const data = await res.json();
+      logger(`✓ Servidor Render respondeu: ${JSON.stringify(data)}`);
+    } catch(e) {
+      logger(`❌ Falha na conexão com Render: ${e.message}`);
+    }
 
-                // Renderiza Card do Módulo
-                renderizarModuloCard(estadoModulo);
-            });
+    // 2. Testa Supabase MOCK / Estrutural
+    if(sUrl) {
+      logger(`✓ Endereço do Supabase mapeado para a próxima fase: ${sUrl}`);
+    } else {
+      logger(`⚠️ Supabase em branco. Ignorado para teste local.`);
+    }
 
-            // Atualiza Status Geral
-            statusCard.classList.remove('opacity-0');
-            statusContent.innerHTML = `
-                <div class="grid grid-cols-3 gap-4 text-center mb-4">
-                    <div class="p-3 bg-gray-50 rounded-lg">
-                        <p class="text-2xl font-bold text-neutral">${modulosAnalisados.length}</p>
-                        <p class="text-xs text-gray-500">Módulos Totais</p>
-                    </div>
-                    <div class="p-3 ${errosEncontrados > 0 ? 'bg-red-50' : 'bg-green-50'} rounded-lg">
-                        <p class="text-2xl font-bold ${errosEncontrados > 0 ? 'text-danger' : 'text-success'}">${errosEncontrados}</p>
-                        <p class="text-xs text-gray-500">Violações de Regra</p>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-lg">
-                        <p class="text-2xl font-bold text-primary">${liberadosParaCriacao.length}</p>
-                        <p class="text-xs text-gray-500">Liberados p/ Criação</p>
-                    </div>
-                </div>
-                <p class="font-medium">Próxima Ação da IA: <span class="text-primary font-bold">${liberadosParaCriacao[0] || 'Nenhum módulo liberado no momento'}</span></p>
-            `;
+    // 3. Testa ativação do painel interno se a chave Gemini local existir
+    if(gKey) {
+      logger("✓ Chave Gemini interna inserida. Liberando inteligência da página.");
+      document.getElementById('areaPainelSimbiotico').classList.remove('hidden');
+      dispararAberturaIA();
+    } else {
+      logger("❌ Alerta: Insira sua Gemini API Key para testar a IA falando dentro do painel.");
+    }
+  });
 
-            adicionarLog("> ✅ ANÁLISE FINALIZADA. Sistema consistente com as regras.");
-        }
+  function dispararAberturaIA() {
+    adicionarBubble('ai', "Olá, Paulo! Sou a inteligência de sinal do Elayon. Para alinhar os motores de calibração, preciso que você repita exatamente a frase técnica abaixo:\n\n'Declaro constância e presença sobre o canal acústico ativo.'");
+    faseFluxo = 'voz_lendo';
+    document.getElementById('controleMicrofone').classList.remove('hidden');
+    document.getElementById('btnRefazerEtapa').classList.remove('hidden');
+  }
 
-        function renderizarModuloCard(mod) {
-            const card = document.createElement('div');
-            card.className = `p-4 rounded-lg border ${mod.regraCumprida ? 'bg-green-50/30 border-green-100' : 'bg-red-50/30 border-red-100'}`;
-            
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <h4 class="font-semibold text-lg">${mod.nome}</h4>
-                    <span class="text-xs font-semibold px-2 py-1 rounded-full ${
-                        mod.status === 'completo' ? 'bg-success/10 text-success' : 
-                        mod.status === 'em_construcao' ? 'bg-warning/10 text-warning' : 'bg-gray-100 text-gray-600'
-                    }">${mod.status.toUpperCase()}</span>
-                </div>
-                <p class="text-sm text-gray-600 mb-2">Dependências: ${mod.dependencias.join(', ') || 'Nenhuma'}</p>
-                <p class="text-sm font-medium ${mod.regraCumprida ? 'text-success' : 'text-danger'}">
-                    ${mod.regraCumprida ? '<i class="fa fa-check-circle"></i> Regra de Dependência Cumprida' : '<i class="fa fa-exclamation-circle"></i> Regra VIOLADA'}
-                </p>
-                ${mod.arquivosFaltantes.length > 0 ? 
-                    `<p class="text-xs text-warning mt-2">Faltam arquivos: ${mod.arquivosFaltantes.map(a => a.nome).join(', ')}</p>` 
-                    : ''
-                }
-            `;
-            mapaContent.appendChild(card);
-        }
+  function adicionarBubble(autor, texto) {
+    const box = document.getElementById('chatMensagens');
+    const b = document.createElement('div');
+    b.className = `msg ${autor}`;
+    b.innerText = texto;
+    box.appendChild(b);
+    box.scrollTop = box.scrollHeight;
+  }
 
-        function interpretarComando(texto) {
-            statusCard.classList.remove('opacity-0');
-            statusContent.innerHTML = `<p>Comando recebido: <strong>${texto}</strong></p>`;
-            mapaContent.innerHTML = `<p class="text-success">Comando reconhecido. IA pronta para executar ação solicitada fora do escopo de validação JSON.</p>`;
-            adicionarLog(`> 🤖 COMANDO EXECUTADO: ${texto}`);
-        }
+  // LOGICA E CONTROLE DO MICROFONE (TRANSCRIÇÃO PURA SEM CORREÇÃO)
+  const btnAcionarMic = document.getElementById('btnAcionarMic');
+  const btnDesligarMic = document.getElementById('btnDesligarMic');
+  const monitorSTT = document.getElementById('monitorSTT');
+  const sttTextoReal = document.getElementById('sttTextoReal');
 
-        function adicionarLog(texto) {
-            const agora = new Date().toLocaleTimeString();
-            terminalLog.innerHTML += `[${agora}] ${texto}\n`;
-            terminalLog.scrollTop = terminalLog.scrollHeight;
-        }
-    </script>
+  btnAcionarMic.addEventListener('click', () => {
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!Speech) return alert("Navegador sem suporte a SpeechRecognition.");
+    
+    reconhecimentoVoz = new Speech();
+    reconhecimentoVoz.continuous = true;
+    reconhecimentoVoz.interimResults = true;
+    reconhecimentoVoz.lang = 'pt-BR';
+    bufferVoz = '';
+
+    metricasTempo.inicioVoz = Date.now();
+    monitorSTT.classList.remove('hidden');
+    btnAcionarMic.classList.add('hidden');
+    btnDesligarMic.classList.remove('hidden');
+
+    reconhecimentoVoz.onresult = (event) => {
+      let intermediario = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) bufferVoz += event.results[i][0].transcript;
+        else intermediario += event.results[i][0].transcript;
+      }
+      // Renderiza na tela sem alteração nem correção
+      sttTextoReal.innerText = bufferVoz || intermediario;
+    };
+
+    reconhecimentoVoz.start();
+  });
+
+  btnDesligarMic.addEventListener('click', () => {
+    if(reconhecimentoVoz) reconhecimentoVoz.stop();
+    metricasTempo.fimVoz = Date.now();
+    
+    monitorSTT.classList.add('hidden');
+    btnDesligarMic.classList.add('hidden');
+    btnAcionarMic.classList.remove('hidden');
+
+    // Despacho Automático imediato para o chat
+    const falaFinal = sttTextoReal.innerText;
+    adicionarBubble('user', `[Áudio Capturado]: ${falaFinal}`);
+    
+    logger(`Áudio bruto despachado para análise temporal.`);
+    processarProximaEtapaIA(falaFinal);
+  });
+
+  function processarProximaEtapaIA(textoUsuario) {
+    if(faseFluxo === 'voz_lendo') {
+      adicionarBubble('ai', "✓ Sinal de voz recebido de forma fluida. Agora, preciso avaliar sua escrita rítmica. Copie ou digite no campo abaixo um termo descritivo de pelo menos 30 caracteres.");
+      faseFluxo = 'escrita_esperando';
+      metricasTempo.inicioTeclado = Date.now();
+      document.getElementById('controleMicrofone').classList.add('hidden');
+      document.getElementById('controleTeclado').classList.remove('hidden');
+    }
+  }
+
+  // INPUT RÍTMICO DE TECLADO
+  document.getElementById('btnEnviarTexto').addEventListener('click', () => {
+    const txt = document.getElementById('chatInputTexto').value.trim();
+    if(txt.length < 30) {
+      adicionarBubble('ai', "O texto inserido é menor que 30 caracteres. Digite com mais calma para calibrar a hesitação.");
+      return;
+    }
+    metricasTempo.fimTeclado = Date.now();
+    adicionarBubble('user', txt);
+    document.getElementById('chatInputTexto').value = '';
+    
+    // Conclusão e Cálculo de Caixa Aberta
+    faseFluxo = 'finalizado';
+    document.getElementById('controleTeclado').classList.add('hidden');
+    document.getElementById('btnAvancarFase').classList.remove('hidden');
+    
+    adicionarBubble('ai', "Alinhamento de calibração concluído! Seus tempos de resposta e presença semântica foram analisados sem julgamentos. Clique no botão de avanço para colher sua chave operacional real.");
+    
+    // Calcula tempos de caixa aberta
+    let tVoz = ((metricasTempo.fimVoz - metricasTempo.inicioVoz) / 1000).toFixed(1);
+    let tTeclado = ((metricasTempo.fimTeclado - metricasTempo.inicioTeclado) / 1000).toFixed(1);
+    
+    document.getElementById('metaTempoCaixa').innerText = `Tempo Caixa Aberta -> Voz: ${tVoz}s | Digitação: ${tTeclado}s`;
+  });
+
+  // BOTÃO REFAZER GERAL
+  document.getElementById('btnRefazerEtapa').addEventListener('click', () => {
+    document.getElementById('chatMensagens').innerHTML = '';
+    document.getElementById('controleTeclado').classList.add('hidden');
+    document.getElementById('btnAvancarFase').classList.add('hidden');
+    dispararAberturaIA();
+    logger("Protocolo reiniciado pelo usuário. Sinais limpos.");
+  });
+
+  // ATIVAÇÃO DA CHAVE EXTERNA FINAL
+  document.getElementById('btnAvancarFase').addEventListener('click', () => {
+    const tokenFinal = document.getElementById('tokenSaidaFinal');
+    tokenFinal.removeAttribute('disabled');
+    tokenFinal.value = "ELAYON-REAL-KEY-" + Math.random().toString(36).substring(3, 11).toUpperCase();
+    logger("✓ Chave real disponibilizada na interface externa.");
+  });
+</script>
 </body>
 </html>
