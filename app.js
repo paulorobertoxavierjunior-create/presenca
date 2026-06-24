@@ -1,207 +1,271 @@
-// Altere de: const RENDER_BASE_URL = 'https://crs-full3.onrender.com';
-// Para a nova URL estável:
+// CONFIGURAÇÃO CENTRAL DO ECOSSISTEMA ELAYON
 const RENDER_BASE_URL = 'https://presenca-1yuy.onrender.com';
 
-
-// ==========================================
-// ELAYON PRESENÇA V3.0 - MOTOR DE FLUXO EXCLUSIVO
-// ==========================================
-const RENDER_BASE_URL = 'https://crs-full3.onrender.com';
-
-// Estado operacional local
-let crsEstado = {
-    tokens: 100,
-    apiKeyExterna: '',
-    provedorIa: 'gemini',
-    // Métricas de calibração / áudio
-    audioInicio: 0,
-    audioSilencioEstimadoPct: 24, // Métrica base calculada na leitura
-    // Sensores de escrita (Teclado)
-    ultimoDigitoTs: 0,
-    intervalosEscrita: [],
-    pausasLongas: 0
+// ESTADO GLOBAL DA SESSÃO
+let estadoGlobal = {
+    creditos: 100,
+    provedor: 'gemini',
+    apiKey: '',
+    calibrado: false,
+    tempoInicioDigitacao: null,
+    totalTeclas: 0,
+    pausasLongasEscrita: 0,
+    ultimoTimestampTecla: null,
+    
+    // Métricas biométricas basais
+    metricas: {
+        silencio_voz_pct: 0,
+        hesitacao_escrita_pct: 0,
+        total_intervalos: 0
+    }
 };
 
-// Carrega dados salvos ao abrir a página
+// CONTROLE DE AUDIO (WEB AUDIO API)
+let audioCtx = null;
+let streamAudio = null;
+let medidorIntervalo = null;
+
+// MAPEAMENTO DOS ELEMENTOS DOM (IDs DO INDEX.HTML)
+const el = {
+    iaProvedor: document.getElementById('iaProvedor'),
+    iaApiKey: document.getElementById('iaApiKey'),
+    hudTokens: document.getElementById('hudTokens'),
+    tokensGrande: document.getElementById('tokensGrande'),
+    btnAbastecer: document.getElementById('btnAbastecer'),
+    calibAba: document.getElementById('calibAba'),
+    btnIniciarCalibracao: document.getElementById('btnIniciarCalibracao'),
+    micCard: document.getElementById('micCard'),
+    micEstado: document.getElementById('micEstado'),
+    micTimer: document.getElementById('micTimer'),
+    btnGravacaoStart: document.getElementById('btnGravacaoStart'),
+    btnGravacaoStop: document.getElementById('btnGravacaoStop'),
+    micBtnIniciar: document.getElementById('micBtnIniciar'),
+    micBtnParar: document.getElementById('micBtnParar'),
+    chatCard: document.getElementById('chatCard'),
+    chatMensagens: document.getElementById('chatMensagens'),
+    chatInput: document.getElementById('chatInput'),
+    chatBtnEnviar: document.getElementById('chatBtnEnviar'),
+    cardResultado: document.getElementById('cardResultado'),
+    resCarga: document.getElementById('resCarga'),
+    resTecnico: document.getElementById('resTecnico'),
+    btnReiniciar: document.getElementById('btnReiniciar'),
+    waveBars: document.querySelectorAll('.wave-bar')
+};
+
+// INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
-    const chaveSalva = localStorage.getItem('elayon_api_key');
-    if (chaveSalva) {
-        document.getElementById('iaApiKey').value = chaveSalva;
-        crsEstado.apiKeyExterna = chaveSalva;
-    }
-    const provedorSalvo = localStorage.getItem('elayon_provedor');
-    if (provedorSalvo) {
-        document.getElementById('iaProvedor').value = provedorSalvo;
-        crsEstado.provedorIa = provedorSalvo;
-    }
-    atualizarPainelRecursos();
+    carregarChaveLocal();
+    configurarEventos();
 });
 
-function salvarChaveLocal() {
-    const chave = document.getElementById('iaApiKey').value.trim();
-    const provedor = document.getElementById('iaProvedor').value;
-    crsEstado.apiKeyExterna = chave;
-    crsEstado.provedorIa = provedor;
-    localStorage.setItem('elayon_api_key', chave);
-    localStorage.setItem('elayon_provedor', provedor);
-}
-
-function abastecerTokensUso() {
-    crsEstado.tokens += 50;
-    atualizarPainelRecursos();
-}
-
-function atualizarPainelRecursos() {
-    document.getElementById('hudTokens').textContent = crsEstado.tokens;
-    document.getElementById('tokensGrande').textContent = crsEstado.tokens;
-}
-
-// ORIENTAÇÃO DA CALIBRAÇÃO (FASE 1 e 2)
-function irCalibrar() {
-    // Transiciona para a Fase 3 abrindo o Microfone de Responsabilidade
-    document.getElementById('calibAba').classList.add('hidden');
-    document.getElementById('micCard').classList.remove('hidden');
-    document.getElementById('micEstado').textContent = "Pronto para ler a responsabilidade assumida.";
-}
-
-// CONTROLADORES DO MICROFONE (FASE 3)
-function micIniciar() {
-    crsEstado.audioInicio = Date.now();
-    document.getElementById('micEstado').textContent = "GRAVANDO SINAL DE VOZ...";
-    document.getElementById('micEstado').className = "mic-estado gravando";
-    document.getElementById('micBtnIniciar').classList.add('hidden');
-    document.getElementById('micBtnParar').classList.remove('hidden');
+function configurarEventos() {
+    el.btnIniciarCalibracao.addEventListener('click', irCalibrar);
+    el.btnGravacaoStart.addEventListener('click', micIniciar);
+    el.btnGravacaoStop.addEventListener('click', micParar);
+    el.chatBtnEnviar.addEventListener('click', chatEnviar);
+    el.btnReiniciar.addEventListener('click', () => window.location.reload());
+    el.btnAbastecer.addEventListener('click', abastecerTokensUso);
     
-    // Ativa animação visual das barras
-    document.querySelectorAll('.wave-bar').forEach(b => b.classList.add('on'));
-    document.getElementById('micTimer').textContent = "00:05"; // Simulação curta para teste prático
+    // Listener dinâmico para capturar hesitação na escrita
+    el.chatInput.addEventListener('keydown', capturarRitmoEscrita);
+}
+
+// PERSISTÊNCIA DA CHAVE
+function carregarChaveLocal() {
+    const chaveSalva = localStorage.getItem('elayon_crs_key');
+    if (chaveSalva) {
+        el.iaApiKey.value = chaveSalva;
+        estadoGlobal.apiKey = chaveSalva;
+    }
+}
+
+el.iaApiKey.addEventListener('input', () => {
+    localStorage.setItem('elayon_crs_key', el.iaApiKey.value);
+    estadoGlobal.apiKey = el.iaApiKey.value;
+});
+
+// FLUXO DE CRÉDITOS
+function abastecerTokensUso() {
+    estadoGlobal.creditos += 50;
+    el.hudTokens.textContent = estadoGlobal.creditos;
+    el.tokensGrande.textContent = estadoGlobal.creditos;
+}
+
+// FASE 1 & 2: TRANSIÇÃO PARA MICROFONE
+function irCalibrar() {
+    if (!el.iaApiKey.value.trim()) {
+        alert('Por favor, insira sua chave de API externa para ligar o motor.');
+        return;
+    }
+    el.calibAba.classList.add('hidden');
+    el.micCard.classList.remove('hidden');
+}
+
+// FASE 3: DETECÇÃO BIOMÉTRICA DE VOZ (SILÊNCIO)
+async function micIniciar() {
+    try {
+        streamAudio = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioCtx.createMediaStreamSource(streamAudio);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        source.connect(analyser);
+        
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        el.micBtnIniciar.classList.add('hidden');
+        el.micBtnParar.classList.remove('hidden');
+        document.getElementById('waveBox').querySelectorAll('.wave-bar').forEach(b => b.classList.add('on'));
+        el.micEstado.textContent = "Analisando cadência de voz em tempo real...";
+        el.micEstado.classList.add('gravando');
+
+        let totalLeituras = 0;
+        let leiturasSilencio = 0;
+        let segundos = 0;
+
+        // Cronômetro visual e amostragem de silêncio
+        medidorIntervalo = setInterval(() => {
+            segundos++;
+            el.micTimer.textContent = `00:${segundos < 10 ? '0' : ''}${segundos}`;
+            
+            analyser.getByteFrequencyData(dataArray);
+            let somaVolume = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                somaVolume += dataArray[i];
+            }
+            let mediaVolume = somaVolume / bufferLength;
+            
+            totalLeituras++;
+            // Threshold adaptativo de silêncio Elayon
+            if (mediaVolume < 12) {
+                leiturasSilencio++;
+            }
+
+            // Força encerramento com 6 segundos de amostra padrão
+            if (segundos >= 6) {
+                estadoGlobal.metricas.silencio_voz_pct = Math.round((leiturasSilencio / totalLeituras) * 100);
+                micParar();
+            }
+        }, 1000);
+
+    } catch (err) {
+        alert('Erro ao acessar o microfone: ' + err.message);
+    }
 }
 
 function micParar() {
-    const duracaoSessao = Date.now() - crsEstado.audioInicio;
+    clearInterval(medidorIntervalo);
+    if (streamAudio) {
+        streamAudio.getTracks().forEach(track => track.stop());
+    }
+    if (audioCtx) {
+        audioCtx.close();
+    }
     
-    // Gera variação rítmica simulada baseada no tempo de fala (métrica simulada para o teste)
-    crsEstado.audioSilencioEstimadoPct = duracaoSessao > 6000 ? 32 : 18;
-
-    document.getElementById('micEstado').textContent = "Responsabilidade Assumida e Gravada.";
-    document.getElementById('micEstado').className = "mic-estado";
-    document.getElementById('micBtnParar').classList.add('hidden');
-    document.getElementById('micBtnIniciar').classList.remove('hidden');
-    document.querySelectorAll('.wave-bar').forEach(b => b.classList.remove('on'));
-    document.getElementById('micTimer').textContent = "00:00";
-
-    // Libera a próxima etapa imediatamente: A escrita curta no Chat
-    document.getElementById('chatCard').classList.remove('hidden');
-    exibirMensagemSistemaChat("🎙️ Presença de voz validada. Agora, digite um texto curto de resposta no campo abaixo para cruzar os dados rítmicos.");
+    document.getElementById('waveBox').querySelectorAll('.wave-bar').forEach(b => b.classList.remove('on'));
+    el.micCard.classList.add('hidden');
+    el.chatCard.classList.remove('hidden');
     
-    // Ativa o monitoramento do teclado para pegar a segunda métrica
-    ativarSensoresTeclado();
+    estadoGlobal.calibrado = true;
+    estadoGlobal.tempoInicioDigitacao = Date.now();
 }
 
-// ==========================================
-// 2. SENSORES DE ESCRITA (TECLADO RÍTMICO)
-// ==========================================
-function activarSensoresTeclado() {
-    const chatInput = document.getElementById('chatInput');
-    if (!chatInput) return;
-
-    chatInput.addEventListener('keyup', (event) => {
-        const agora = Date.now();
-        if (crsEstado.ultimoDigitoTs > 0) {
-            const delta = agora - crsEstado.ultimoDigitoTs;
-            crsEstado.intervalosEscrita.push(delta);
-            
-            // Pausas acima de 650ms contam como hesitação na escrita curta
-            if (delta > 650) {
-                crsEstado.pausasLongas++;
-            }
+// CAPTURA DE HESITAÇÃO DE ESCRITA (CADÊNCIA COGNITIVA)
+function capturarRitmoEscrita(e) {
+    const agora = Date.now();
+    estadoGlobal.totalTeclas++;
+    
+    if (estadoGlobal.ultimoTimestampTecla) {
+        const intervalo = agora - estadoGlobal.ultimoTimestampTecla;
+        // Se o usuário demorar mais de 1.2 segundos entre uma tecla e outra, registra hesitação
+        if (intervalo > 1200) {
+            estadoGlobal.pausasLongasEscrita++;
         }
-        crsEstado.ultimoDigitoTs = agora;
-    });
+    }
+    estadoGlobal.ultimoTimestampTecla = agora;
 }
 
-// ==========================================
-// 3. ENVIO PARA O MOTOR CRS (COM VALIDAÇÃO DE CHAVE)
-// ==========================================
+// ENVIO COMPLETO PARA O MOTOR NO RENDER
 async function chatEnviar() {
-    const chatInput = document.getElementById('chatInput');
-    const texto = chatInput.value.trim();
-    if (!texto) return;
+    const mensagem = el.chatInput.value.trim();
+    if (!mensagem) return;
 
-    // TRAVA CRÍTICA DA CHAVE EXTERNA
-    if (!crsEstado.apiKeyExterna) {
-        exibirMensagemChat("⚠️ MOTOR BLOQUEADO: Insira sua chave de API externa no painel superior para que a inteligência artificial possa rodar com seus créditos.", 'ai');
+    if (estadoGlobal.creditos < 1) {
+        alert('Créditos operacionais insuficientes.');
         return;
     }
 
-    // TRAVA DE SEGURANÇA DE TOKENS LOCAIS DA MARGEM
-    if (crsEstado.tokens < 1) {
-        exibirMensagemChat("❌ CRÉDITOS INSUFICIENTES: Abasteça seus créditos Elayon para cobrir a margem operacional de processamento do silêncio.", 'ai');
-        return;
-    }
+    // Renderiza mensagem do usuário na UI
+    renderizarMensagem(mensagem, 'user');
+    el.chatInput.value = '';
 
-    // Exibe texto na tela e limpa campo
-    exibirMensagemChat(texto, 'user');
-    chatInput.value = '';
+    // Consolida métricas de hesitação de escrita
+    const tempoTotalEscrita = (Date.now() - estadoGlobal.tempoInicioDigitacao) / 1000;
+    estadoGlobal.metricas.hesitacao_escrita_pct = Math.min(
+        Math.round((estadoGlobal.pausasLongasEscrita / (estadoGlobal.totalTeclas || 1)) * 100), 100
+    );
+    estadoGlobal.metricas.total_intervalos = estadoGlobal.totalTeclas;
 
-    // Consolidação das métricas rítmicas de escrita
-    const intervalos = crsEstado.intervalosEscrita;
-    const somaTempos = intervalos.reduce((a, b) => a + b, 0) || 1;
-    const totalPausasTempo = intervalos.filter(t => t > 650).reduce((a, b) => a + b, 0);
-    const escritaHesitacaoPct = Math.min(100, Math.floor((totalPausasTempo / somaTempos) * 100));
+    // Payload estruturado idêntico ao esperado pelo FastAPI em Pydantic
+    const payload = {
+        mensagem_usuario: mensagem,
+        provedor: el.iaProvedor.value,
+        api_key_externa: estadoGlobal.apiKey,
+        metricas_sinal: {
+            silencio_voz_pct: estadoGlobal.metricas.silencio_voz_pct,
+            hesitacao_escrita_pct: estadoGlobal.metricas.hesitacao_escrita_pct,
+            total_intervalos: estadoGlobal.metricas.total_intervalos
+        }
+    };
 
     try {
-        // Dispara o payload completo para o Render processar
+        renderizarMensagem('Processando métricas e consultando núcleo...', 'ai', true);
+
         const response = await fetch(`${RENDER_BASE_URL}/api/crs/processar`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                mensagem_usuario: texto,
-                provedor: crsEstado.provedorIa,
-                api_key_externa: crsEstado.apiKeyExterna,
-                metricas_sinal: {
-                    silencio_voz_pct: crsEstado.audioSilencioEstimadoPct,
-                    hesitacao_escrita_pct: escritaHesitacaoPct,
-                    total_intervalos: intervalos.length
-                }
-            })
+            body: JSON.stringify(payload)
         });
 
-        if (response.ok) {
-            const dados = await response.json();
-            
-            // Renderiza a resposta gerada pela chave do usuário com o tom calibrado pelo CRS
-            exibirMensagemChat(dados.resposta_ia, 'ai');
-            
-            // Cobra a taxa operacional fixa da nossa margem de lucro
-            crsEstado.tokens -= 1;
-            atualizarPainelRecursos();
-
-            // Exibe o relatório de entrega e diagnóstico técnico na tela
-            exibirRelatorioSaida(dados, escritaHesitacaoPct);
-        } else {
-            exibirMensagemChat("⚠️ O motor do Render recusou a requisição. Certifique-se de que a API Key externa colada é válida.", 'ai');
+        if (!response.ok) {
+            const erroData = await response.json();
+            throw new Error(erroData.detail || 'Falha na resposta do motor.');
         }
-    } catch (error) {
-        console.error(error);
-        exibirMensagemChat("❌ Erro de conexão de rede com o servidor de processamento rítmico (Render).", 'ai');
-    }
 
-    // Reseta buffers de digitação para a próxima interação
-    crsEstado.intervalosEscrita = [];
-    crsEstado.pausasLongas = 0;
-    crsEstado.ultimoDigitoTs = 0;
+        const data = await response.json();
+        
+        // Remove balão de "carregando" e coloca a resposta real
+        removerLoading();
+        renderizarMensagem(data.resposta_ia, 'ai');
+
+        // Atualiza HUD de Créditos Margem
+        estadoGlobal.creditos -= 1;
+        el.hudTokens.textContent = estadoGlobal.creditos;
+        el.tokensGrande.textContent = estadoGlobal.creditos;
+
+        // Exibe Relatório de Entrega
+        el.cardResultado.classList.remove('hidden');
+        el.resCarga.textContent = data.carga_cognitiva;
+        el.resTecnico.textContent = JSON.stringify({
+            "Silêncio Basal": `${payload.metricas_sinal.silencio_voz_pct}%`,
+            "Hesitação Cognitiva": `${payload.metricas_sinal.hesitacao_escrita_pct}%`,
+            "Teclas Detectadas": payload.metricas_sinal.total_intervalos,
+            "Custo Margem Fixo": "1 Crédito Elayon",
+            "Status da Transação": "Sucesso"
+        }, null, 2);
+
+    } catch (err) {
+        removerLoading();
+        renderizarMensagem(`Erro no Motor CRS: ${err.message}`, 'ai');
+    }
 }
 
-// ==========================================
-// 4. AUXILIARES VISUAIS DE INTERFACE
-// ==========================================
-function exibirMensagemChat(texto, tipo) {
-    const chatBox = document.getElementById('chatMensagens');
-    if (!chatBox) return;
-
-    const wrapper = document.createElement('div');
-    wrapper.className = `chat-msg chat-${tipo}`;
+// AUXILIARES DE RENDERIZAÇÃO DO CHAT
+function renderizarMensagem(texto, autor, isLoading = false) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `chat-msg chat-${autor}`;
+    if (isLoading) msgDiv.id = 'loadingBubble';
 
     const bubble = document.createElement('div');
     bubble.className = 'chat-bubble';
@@ -209,32 +273,15 @@ function exibirMensagemChat(texto, tipo) {
 
     const meta = document.createElement('div');
     meta.className = 'chat-meta';
-    meta.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    meta.textContent = autor === 'user' ? 'Você (Sinal Ativo)' : 'Elayon CRS';
 
-    wrapper.appendChild(bubble);
-    wrapper.appendChild(meta);
-    chatBox.appendChild(wrapper);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    msgDiv.appendChild(bubble);
+    msgDiv.appendChild(meta);
+    el.chatMensagens.appendChild(msgDiv);
+    el.chatMensagens.scrollTop = el.chatMensagens.scrollHeight;
 }
 
-function exibirMensagemSistemaChat(texto) {
-    exibirMensagemChat(texto, 'ai');
-}
-
-function exibirRelatorioSaida(dados, escritaPct) {
-    const cardRes = document.getElementById('cardResultado');
-    if (!cardRes) return;
-
-    cardRes.classList.remove('hidden');
-    document.getElementById('resEstado').textContent = 
-        `Voz (Silêncio): ${crsEstado.audioSilencioEstimadoPct}% | Escrita (Hesitação): ${escritaPct}% | Carga Cognitiva Relatada: ${dados.carga_cognitiva || 'Calculada'}`;
-    
-    // Mostra o JSON bruto com a resposta do motor para depuração e conferência de margem
-    document.getElementById('resTecnico').textContent = JSON.stringify({
-        status: "Entrega Efetuada",
-        taxa_operacional_elayon: "1 Crédito Retirado",
-        provedor_utilizado: crsEstado.provedorIa,
-        carga: dados.carga_cognitiva,
-        sinal_sincronizado: true
-    }, null, 2);
+function removerLoading() {
+    const loading = document.getElementById('loadingBubble');
+    if (loading) loading.remove();
 }
