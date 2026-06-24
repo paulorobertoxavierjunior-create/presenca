@@ -56,6 +56,7 @@
     /* CONFIGS */
     .field-label { display: block; font-size: 10px; color: var(--muted); margin-bottom: 6px; font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; }
     .field-input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-family: var(--mono); font-size: 11px; color: var(--text); background: var(--bg); outline: none; margin-bottom: 10px; }
+    .field-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* MIC & AUDIO GRAPH */
     .mic-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 22px 20px; margin-bottom: 14px; }
@@ -67,6 +68,9 @@
     @keyframes wave { 0% { height: 8px; } 100% { height: 28px; } }
     .mic-timer { font-family: var(--mono); font-size: 24px; color: var(--text); text-align: center; margin-bottom: 14px; }
 
+    /* MONITOR DE TRANSCRIÇÃO AO VIVO */
+    .transcricao-box { background: var(--bg); border: 1px dashed var(--border); border-radius: 12px; padding: 12px; font-size: 13px; color: var(--text); min-height: 60px; margin-bottom: 14px; font-style: italic; line-height: 1.5; }
+
     /* CHAT ELEMENTOS */
     .chat-msg { max-width: 85%; margin-bottom: 10px; display: flex; flex-direction: column; }
     .chat-user { align-self: flex-end; }
@@ -77,13 +81,17 @@
     .chat-meta { font-family: var(--mono); font-size: 7px; color: var(--muted); margin-top: 3px; }
 
     /* COMPONENTES GERAIS */
-    .citacao { border-left: 2px solid var(--cyan); padding: 10px 14px; font-size: 13px; font-style: italic; color: var(--muted); margin-bottom: 14px; background: var(--bg); border-radius: 0 10px 10px 0; }
+    .citacao { border-left: 2px solid var(--cyan); padding: 10px 14px; font-size: 13px; font-style: italic; color: var(--muted); margin-bottom: 14px; background: var(--bg); border-radius: 0 10px 10px 0; transition: all 0.3s ease; }
     .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
     .btn-primary { background: var(--cyan); color: #072024; font-weight: 700; box-shadow: 0 4px 12px var(--cglow); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-red { background: var(--red); color: white; font-weight: 700; }
     .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
     .hidden { display: none !important; }
     .token-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+    
+    .status-chave { font-family: var(--mono); font-size: 8px; color: var(--red); font-weight: bold; margin-top: 4px; display: inline-block; letter-spacing: 1px; }
+    .status-chave.liberada { color: var(--teal); }
   </style>
 </head>
 <body>
@@ -100,98 +108,95 @@
     </div>
   </header>
 
-  <!-- MOTOR CONFIG -->
-  <div class="card">
-    <span class="card-label">Motor de Execução Próprio</span>
-    <label class="field-label">Provedor de IA</label>
-    <select id="iaProvedor" class="field-input">
-      <option value="gemini">Gemini (Google) — Recomendado</option>
-      <option value="openai">GPT (OpenAI)</option>
-    </select>
-    <label class="field-label">Sua Chave de API Externa</label>
-    <input type="password" id="iaApiKey" class="field-input" placeholder="Cole sua chave aqui para ligar o motor..." />
-    <p style="font-size: 10px; color: var(--muted); line-height: 1.4;">
-      O motor usará seus créditos diretos na IA. A Elayon cobrará apenas a margem fixa de processamento do sinal de silêncio por uso.
-    </p>
-  </div>
-
-  <!-- CRÉDITOS -->
-  <div class="card">
-    <span class="card-label">Consumo & Margem Elayon</span>
-    <div class="token-row">
-      <div style="font-family: var(--mono); font-size: 28px; font-weight: bold; color: var(--teal);" id="tokensGrande">100</div>
-      <button class="btn btn-primary" style="width: auto; padding: 8px 16px;" id="btnAbastecer">+ 50 Créditos</button>
-    </div>
-    <p style="font-size: 10px; color: var(--muted); margin-top: 10px;">Taxa operacional por transação rítmica: <strong>1 crédito + custo de API</strong></p>
-  </div>
-
-  <!-- FASE 1 & 2: CALIBRAÇÃO -->
   <div class="card" id="calibAba">
-    <span class="card-label">Fase 01 & 02: Calibração de Presença Inicial</span>
-    <div class="citacao">
+    <span class="card-label">Fase 01 & 02: Protocolo Antifraude Obrigatório</span>
+    <div class="citacao" id="textoCalibracao">
       "Assumo a responsabilidade técnica sobre este sinal. O motor medirá o silêncio e o ritmo sem julgamentos para ajustar a resposta da inteligência artificial receptora."
     </div>
-    <p style="font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.5;">
-      Leia o texto acima em voz alta para calibrar a taxa de silêncio e oscilação basal do seu perfil.
+    <p style="font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.5;" id="instrCalibracao">
+      Clique abaixo para abrir o canal seguro. O texto sumirá e você deve recitá-lo de memória ou leitura prévia para auditoria biométrica.
     </p>
-    <button class="btn btn-primary" id="btnIniciarCalibracao">Iniciar Calibração de Voz</button>
+    <button class="btn btn-primary" id="btnIniciarCalibracao">Abrir Canal e Ocultar Texto</button>
   </div>
 
-  <!-- FASE 3: MICROFONE / VALIDAÇÃO -->
   <div class="mic-card hidden" id="micCard">
-    <span class="card-label">Fase 03: Validação de Responsabilidade (Microfone)</span>
-    <div class="mic-estado" id="micEstado">Aguardando gatilho de áudio...</div>
+    <span class="card-label">Fase 03: Transcrição & Auditoria Tripla em Andamento</span>
+    <div class="mic-estado" id="micEstado">Aguardando início...</div>
     <div class="wave-box" id="waveBox">
       <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
       <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
       <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
     </div>
     <div class="mic-timer" id="micTimer">00:00</div>
+    
+    <label class="field-label">Retorno de Sinal (Transcrição ao Vivo):</label>
+    <div class="transcricao-box" id="transcricaoAoVivo">Ouvindo sua voz...</div>
+
     <div id="micBtnIniciar">
-      <button class="btn btn-primary" id="btnGravacaoStart">Gravar Validação de Voz</button>
+      <button class="btn btn-primary" id="btnGravacaoStart">Começar a Falar</button>
     </div>
     <div id="micBtnParar" class="hidden">
-      <button class="btn btn-red" id="btnGravacaoStop">Encerrar e Processar Áudio</button>
+      <button class="btn btn-red" id="btnGravacaoStop">Finalizar e Despachar para Auditoria</button>
     </div>
   </div>
 
-  <!-- CHAT CONECTADO -->
+  <div class="card">
+    <span class="card-label">Plug de Inteligência Receptora</span>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <label class="field-label" style="margin-bottom:0;">Chave Elayon Temporária:</label>
+      <span class="status-chave" id="statusTokenSessao">❌ BLOQUEADA (REQUER CALIBRAÇÃO)</span>
+    </div>
+    
+    <label class="field-label">Provedor de Destino</label>
+    <select id="iaProvedor" class="field-input" disabled>
+      <option value="gemini">Gemini (Google) — Conectar IA de Silêncio</option>
+    </select>
+    
+    <label class="field-label">Sua Chave de API Externa (Destino)</label>
+    <input type="password" id="iaApiKey" class="field-input" placeholder="Bloqueado até a tripla conferência..." disabled />
+  </div>
+
+  <div class="card">
+    <span class="card-label">Consumo & Margem Elayon</span>
+    <div class="token-row">
+      <div style="font-family: var(--mono); font-size: 28px; font-weight: bold; color: var(--teal);" id="tokensGrande">100</div>
+      <button class="btn btn-primary" style="width: auto; padding: 8px 16px;" id="btnAbastecer">+ 50 Créditos</button>
+    </div>
+  </div>
+
   <div class="card hidden" id="chatCard" style="padding:0; overflow:hidden;">
     <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid var(--border);">
-      <span class="card-label" style="margin-bottom:0;">Presença · Escrita Conectada</span>
-      <div style="font-family:var(--mono); font-size:8px; color:var(--teal); font-weight:bold;">MOTOR CRS ATIVO</div>
+      <span class="card-label" style="margin-bottom:0;">Painel Simbiótico · Leitura Ativa</span>
+      <div style="font-family:var(--mono); font-size:8px; color:var(--teal); font-weight:bold;">SINAL CRISTALINO</div>
     </div>
     
     <div id="chatMensagens" style="height:220px; overflow-y:auto; padding:14px 16px; display:flex; flex-direction:column; background:var(--bg);"></div>
     
     <div style="padding:12px 16px; border-top:1px solid var(--border); background:var(--surface); display:flex; gap:8px; align-items:flex-end;">
-      <textarea id="chatInput" rows="1" placeholder="Escreva o texto curto de resposta..."
+      <textarea id="chatInput" rows="1" placeholder="Fale com a IA através da escrita rítmica..."
         style="flex:1; border:1px solid var(--border); border-radius:12px; padding:10px 12px; font-family:var(--sans); font-size:14px; color:var(--text); background:var(--bg); resize:none; outline:none; line-height:1.4; max-height:80px;"></textarea>
-      <button id="chatBtnEnviar"
-        style="width:40px; height:40px; border-radius:10px; background:var(--cyan); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <button id="chatBtnEnviar" style="width:40px; height:40px; border-radius:10px; background:var(--cyan); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
         <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:#072024;"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
       </button>
     </div>
   </div>
 
-  <!-- RELATÓRIO DO MOTOR -->
   <div class="card hidden" id="cardResultado">
-    <span class="card-label">Relatório de Entrega & Margem</span>
+    <span class="card-label">Relatório Antifraude & Margem</span>
     <div class="resultado-bloco">
-      <h4>Estado da Carga Cognitiva</h4>
+      <h4>Avaliação do Motor</h4>
       <p class="resultado-texto" id="resCarga" style="font-weight: bold; color: var(--teal); margin-top: 4px;">—</p>
     </div>
     <div class="sep" style="width: 100%; height: 1px; background: var(--border); margin: 12px 0; opacity: 0.5;"></div>
     <div class="resultado-bloco">
-      <h4>Métricas e Custo Técnico</h4>
+      <h4>Métricas de Coerência Sincronizada</h4>
       <pre class="tecnico-pre" id="resTecnico" style="font-family: var(--mono); font-size: 9px; color: var(--muted); white-space: pre-wrap; background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); margin-top: 6px;">—</pre>
     </div>
   </div>
 
-  <!-- FOOTER CONTROLS -->
   <div style="margin-top: 30px; width: 100%; text-align: center;">
-    <button class="btn btn-ghost" id="btnReiniciar">Reiniciar Protocolo</button>
-    <footer style="margin-top: 15px;">ELAYON PRESENÇA V3.0 · CHAVE EXTERNA MODO ATIVO</footer>
+    <button class="btn btn-ghost" id="btnReiniciar">Recalibrar Sinal (Matar Token)</button>
+    <footer style="margin-top: 15px;">ELAYON PRESENÇA V3.0 · MODO AUDITORIA ATIVA</footer>
   </div>
 
 </div>
