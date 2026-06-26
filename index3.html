@@ -3,337 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inspeção Digital - Centro Cirúrgico (ANVISA)</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>ROI - Parte 1: Pessoas e Rotinas</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 800px; width: 100%; }
+        .header { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        h2 { margin-top: 0; color: #1e3a8a; font-size: 1.25rem; }
+        .badge { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; margin-bottom: 12px; }
+        .radio-group { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+        .radio-option { display: flex; align-items: flex-start; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .radio-option:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .radio-option input { margin-top: 3px; }
+        .nav-buttons { display: flex; justify-content: flex-end; margin-top: 24px; }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; text-decoration: none; }
+        .btn:hover { background: #1d4ed8; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen py-8 px-4">
+<body>
+    <div class="container">
+        <div class="header">
+            <span style="font-size: 0.85rem; text-transform: uppercase; tracking: 0.05em;">ANVISA - Centro Cirúrgico</span>
+            <h1 style="margin: 8px 0 0 0; font-size: 1.75rem;">Roteiro de Inspeção Objetiva (ROI)</h1>
+            <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 0.95rem;">Parte 1: Gestão de Pessoas, Capacitação e Rotinas Assistenciais</p>
+        </div>
 
-    <div class="max-w-4xl margin-0-auto bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden mx-auto">
-        
-        <header class="bg-gradient-to-r from-sky-700 to-sky-950 p-6 text-white text-center">
-            <h1 class="text-2xl font-bold tracking-tight">Roteiro Objetivo de Inspeção: Centro Cirúrgico</h1>
-            <p class="text-sky-200 text-sm mt-1">Baseado na RDC 63/2011 & Diretrizes ANVISA</p>
-        </header>
-
-        <section id="part-identification" class="p-6 space-y-6">
-            <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r">
-                <p class="text-sm text-blue-800 font-medium">
-                    Este aplicativo mapeia, isola e gera planos de ação automáticos para inconformidades críticas no Centro Cirúrgico.
-                </p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Unidade de Saúde / Hospital</label>
-                    <input type="text" id="hospitalName" class="w-full p-2.5 border border-slate-300 rounded focus:ring-2 focus:ring-sky-500 outline-none" placeholder="Ex: Hospital Regional">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Avaliador / Inspetor responsável</label>
-                    <input type="text" id="inspectorName" class="w-full p-2.5 border border-slate-300 rounded focus:ring-2 focus:ring-sky-500 outline-none" placeholder="Nome do fiscal ou estagiário">
-                </div>
-            </div>
-            <button onclick="startInspection()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold p-3 rounded transition-all cursor-pointer">
-                Iniciar Inspeção (Dividida em 4 Blocos)
-            </button>
-        </section>
-
-        <nav id="block-navigation" class="hidden bg-slate-100 border-b border-slate-200 px-6 py-3 flex justify-between items-center text-xs font-bold text-slate-500">
-            <span id="badge-bloco-1" class="px-2 py-1 rounded bg-sky-100 text-sky-800">1. Recursos Humanos</span>
-            <span id="badge-bloco-2" class="px-2 py-1 rounded">2. Normas & Processos</span>
-            <span id="badge-bloco-3" class="px-2 py-1 rounded">3. Infraestrutura & Elétrica</span>
-            <span id="badge-bloco-4" class="px-2 py-1 rounded">4. Materiais & Esterilização</span>
-        </nav>
-
-        <section id="part-questions" class="hidden p-6">
-            <div id="question-box" class="space-y-4">
-                </div>
-            <div class="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
-                <span id="progress-text" class="text-xs text-slate-500 font-medium">Progresso</span>
-                <button onclick="submitAnswer()" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-6 rounded text-sm transition-all cursor-pointer">
-                    Confirmar Resposta ➔
-                </button>
-            </div>
-        </section>
-
-        <section id="part-results" class="hidden p-6 space-y-6">
-            <div class="border-b border-slate-200 pb-4">
-                <h2 class="text-xl font-bold text-slate-900">Relatório Consolidado de Desempenho</h2>
-                <div id="meta-summary" class="text-sm text-slate-600 mt-1"></div>
-            </div>
-
-            <div id="status-card" class="p-4 rounded-lg text-center font-bold text-lg">
-                </div>
-
-            <div class="space-y-3">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">Revisão por Indicador</h3>
-                <div id="review-list" class="space-y-2 max-h-60 overflow-y-auto pr-2">
-                    </div>
-            </div>
-
-            <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg space-y-3">
-                <div class="flex items-center space-x-2">
-                    <span class="text-amber-600 font-bold text-lg">⚠️</span>
-                    <h3 class="text-amber-800 font-bold text-base">Plano de Ação para Itens Críticos (Inaceitáveis)</h3>
-                </div>
-                <p class="text-xs text-amber-700">
-                    Os itens abaixo obtiveram nota insatisfatória e foram isolados automaticamente para tratamento de risco imediato.
-                </p>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-700 mt-2 bg-white rounded border border-amber-100">
-                        <thead class="bg-amber-100 text-amber-900 font-bold">
-                            <tr>
-                                <th class="p-2 border-b border-amber-200">Nº / Indicador</th>
-                                <th class="p-2 border-b border-amber-200">Nota</th>
-                                <th class="p-2 border-b border-amber-200">Impacto Constatado</th>
-                                <th class="p-2 border-b border-amber-200 bg-orange-50">Ação Corretiva Solicitada</th>
-                            </tr>
-                        </thead>
-                        <tbody id="action-plan-rows">
-                            </tbody>
-                    </table>
+        <form action="parte2.html">
+            <!-- Indicador 1 -->
+            <div class="card">
+                <span class="badge">Amparo: Art. 15 e 16 RDC 63/2011</span>
+                <h2>1. Coordenação / Supervisão</h2>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="ind1" value="0" required> <span><strong>0</strong> - Não dispõe de profissional responsável legalmente habilitado.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind1" value="1"> <span><strong>1</strong> - Conta com habilitado, mas não responde pelas questões operacionais.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind1" value="2"> <span><strong>2</strong> - Atua nas questões operacionais, porém não está formalmente designado.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind1" value="3"> <span><strong>3</strong> - Unidade conta com profissional habilitado que responde e está formalmente designado.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind1" value="4"> <span><strong>4</strong> - Profissional responsável é exclusivo do setor.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind1" value="5"> <span><strong>5</strong> - Profissional responsável é exclusivo do setor e possui pós-graduação na área.</span></label>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                <button onclick="generatePDFReport()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-3 rounded text-sm transition-all cursor-pointer">
-                    🖨️ Gerar Relatório Explicativo PDF
-                </button>
-                <button onclick="resetInspection()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold p-3 rounded text-sm transition-all cursor-pointer">
-                    🔄 Zerar Teste e Dados
-                </button>
+            <!-- Indicador 2 -->
+            <div class="card">
+                <span class="badge">Amparo: Art. 17, 29 e 30 RDC 63/2011</span>
+                <h2>2. Dimensionamento da Equipe</h2>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="ind2" value="0" required> <span><strong>0</strong> - Equipe multiprofissional insuficiente para o perfil de atendimento e demanda.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind2" value="1"> <span><strong>1</strong> - Possui equipe, mas um único médico atua como cirurgião e anestesista simultaneamente.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind2" value="2"> <span><strong>2</strong> - O médico anestesista ou cirurgião atende em mais de uma sala simultaneamente.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind2" value="3"> <span><strong>3</strong> - Possui equipe multiprofissional dimensionada conforme perfil de atendimento e demanda.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind2" value="4"> <span><strong>4</strong> - Existe plano de contingência para substituição de pessoal e equipes cirúrgicas.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind2" value="5"> <span><strong>5</strong> - Equipe multiprofissional com capacidade operacional superior ao atendimento da demanda.</span></label>
+                </div>
             </div>
-        </section>
 
+            <!-- Indicador 3 -->
+            <div class="card">
+                <span class="badge">Amparo: Art. 32 e 33 RDC 63/2011</span>
+                <h2>3. Capacitação Profissional</h2>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="ind3" value="0" required> <span><strong>0</strong> - Não há registro de capacitação.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind3" value="1"> <span><strong>1</strong> - Existem apenas alguns registros e/ou não realizam capacitações permanentes.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind3" value="2"> <span><strong>2</strong> - Registro de capacitações permanentes, porém com dados incompletos.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind3" value="3"> <span><strong>3</strong> - Registro periódico completo (programa mínimo, higiene, EPI/EPC, vestimentas, carga horária).</span></label>
+                    <label class="radio-option"><input type="radio" name="ind3" value="4"> <span><strong>4</strong> - Existe planejamento das capacitações e há registro de avaliação percentual de treinados.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind3" value="5"> <span><strong>5</strong> - A capacitação inclui incentivo da organização para participação em eventos científicos da área.</span></label>
+                </div>
+            </div>
+
+            <!-- Indicador 4 -->
+            <div class="card">
+                <span class="badge">Amparo: Art. 7, 23 e 51 RDC 63/2011</span>
+                <h2>4. Padronização de Normas e Rotinas dos Procedimentos Assistenciais</h2>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="ind4" value="0" required> <span><strong>0</strong> - Não dispõe de normas, procedimentos e rotinas técnicas.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind4" value="1"> <span><strong>1</strong> - Normas em elaboração, diferem da prática real ou não estão disponíveis.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind4" value="2"> <span><strong>2</strong> - Dispõe de normas escritas de todos os processos, porém desatualizadas e/ou sem aprovação.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind4" value="3"> <span><strong>3</strong> - Dispõe de normas e rotinas técnicas escritas, atualizadas e aprovadas em local de fácil acesso.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind4" value="4"> <span><strong>4</strong> - Normas revisadas a cada nova tecnologia com registro de divulgação e treinamento.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind4" value="5"> <span><strong>5</strong> - Existe auditoria interna para verificação do cumprimento das normas e rotinas.</span></label>
+                </div>
+            </div>
+
+            <!-- Indicador 5 -->
+            <div class="card">
+                <span class="badge">Amparo: Portaria 344/1998; RDC 63/2011</span>
+                <h2>5. Medicamentos</h2>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="ind5" value="0" required> <span><strong>0</strong> - Medicamentos estão fora do prazo de validade.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind5" value="1"> <span><strong>1</strong> - Organizados e na validade, mas dispensário acessível sem controle ou rastreabilidade.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind5" value="2"> <span><strong>2</strong> - Organizados e na validade com controle de acesso, mas sem controle de especiais.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind5" value="3"> <span><strong>3</strong> - Rotinas de rastreabilidade implantadas, controlados em local exclusivo sob chave.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind5" value="4"> <span><strong>4</strong> - Possui protocolo de antibioticoprofilaxia cirúrgica e controle formal de validade.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind5" value="5"> <span><strong>5</strong> - Dispensário do Centro Cirúrgico sob a responsabilidade técnica de profissional farmacêutico.</span></label>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button type="submit" class="btn">Avançar para Parte 2 ➡️</button>
+            </div>
+        </form>
     </div>
-
-<script>
-    // Divisão do Roteiro Técnico em 4 Blocos Logísticos para o texto não sobrecarregar
-    // Aqui incluí exemplos estruturados das páginas do seu PDF. Basta estender mantendo o padrão.
-    const databaseIndicadores = [
-        // BLOCO 1: Recursos Humanos & Coordenação
-        { n: 1, bloco: 1, indicador: "Coordenação / Supervisão", rdc: "Art. 15 e 16 da RDC 63/2011", criterios: { 0: "Não dispõe de profissional responsável habilitado.", 3: "Profissional responsável legalmente habilitado e formalmente designado.", 5: "Responsável exclusivo do setor com pós-graduação na área." }},
-        { n: 2, bloco: 1, indicador: "Dimensionamento da Equipe", rdc: "Art. 17, 29 e 30 da RDC 63/2011", criterios: { 0: "Equipe multiprofissional insuficiente para a demanda.", 3: "Equipe dimensionada conforme perfil de atendimento.", 5: "Capacidade operacional superior ao atendimento da demanda." }},
-        
-        // BLOCO 2: Normas, Práticas Assistenciais e Medicamentos
-        { n: 4, bloco: 2, indicador: "Padronização de Normas e Rotinas", rdc: "Art. 7, 23 e 51 da RDC 63/2011", criterios: { 0: "Não dispõe de normas, procedimentos e rotinas técnicas.", 3: "Dispõe de normas e rotinas escritas, atualizadas e aprovadas.", 5: "Existe auditoria interna para verificação do cumprimento das normas." }},
-        { n: 5, bloco: 2, indicador: "Gerenciamento de Medicamentos", rdc: "Portaria 344/1998 & RDC 63", criterios: { 0: "Medicamentos fora do prazo de validade.", 3: "Medicamentos na validade, controlados sob chave/dispositivo de segurança.", 5: "Dispensário sob responsabilidade técnica de profissional habilitado." }},
-        
-        // BLOCO 3: Infraestrutura, Elétrica e Climatização
-        { n: 10, bloco: 3, indicador: "Estrutura Física do Setor", rdc: "RDC 50/2002 & Art. 21 RDC 63", criterios: { 0: "Área não exclusiva e sem restrição de acesso.", 3: "Área exclusiva, restrita, contendo todas as salas e apoio da legislação.", 5: "Possui sala destinada a guarda de equipamentos para reserva técnica." }},
-        { n: 13, bloco: 3, indicador: "Sistema Elétrico de Emergência", rdc: "Art. 41 da RDC 63/2011", criterios: { 0: "Não dispõe de sistema de energia elétrica de emergência em funcionamento.", 3: "Garante continuidade por meio de sistema de emergência/gerador.", 5: "Sistema atende todo o hospital com registros de testes diários." }},
-        { n: 14, bloco: 3, indicador: "Climatização", rdc: "Lei 13.589/2018 & PMOC", criterios: { 0: "Não existe sistema de climatização artificial.", 3: "Sistema adequado com PMOC ativo, temperatura ideal (18 a 22ºC) e filtros G3+F8.", 5: "Programa de gerenciamento de condições com relatórios e ações corretivas." }},
-
-        // BLOCO 4: Equipamentos, Materiais e Esterilização
-        { n: 19, bloco: 4, indicador: "Armazenamento de Materiais Esterilizados (CME)", rdc: "RDC 15/2012 & RDC 156/2006", criterios: { 0: "Materiais da CME chegam em más condições, identificação falha ou reuso proibido.", 3: "Materiais em boas condições, com rastreabilidade garantida e prateleiras laváveis.", 5: "Auditoria interna periódica de integridade de pacotes e registros gravados." }}
-    ];
-
-    let currentQuestionIndex = 0;
-    let respostasUsuario = {};
-    let infoClinica = {};
-
-    function startInspection() {
-        const hospital = document.getElementById('hospitalName').value.trim();
-        const inspector = document.getElementById('inspectorName').value.trim();
-
-        if (!hospital || !inspector) {
-            alert("⚠️ Insira os dados de Identificação do Estabelecimento e Avaliador para iniciar.");
-            return;
-        }
-
-        infoClinica = { hospital, inspector, data: new Date().toLocaleDateString('pt-BR') };
-        
-        document.getElementById('part-identification').classList.add('hidden');
-        document.getElementById('block-navigation').classList.remove('hidden');
-        document.getElementById('part-questions').classList.remove('hidden');
-
-        renderQuestion();
-    }
-
-    function renderQuestion() {
-        const item = databaseIndicadores[currentQuestionIndex];
-        const container = document.getElementById('question-box');
-        
-        // Atualiza Badges de Navegação Superior conforme o Bloco
-        for(let i=1; i<=4; i++) {
-            const badge = document.getElementById(`badge-bloco-${i}`);
-            badge.className = item.bloco === i ? "px-2 py-1 rounded bg-sky-600 text-white" : "px-2 py-1 rounded bg-slate-100 text-slate-500";
-        }
-
-        document.getElementById('progress-text').innerText = `Indicador N° ${item.n} — Progresso: ${currentQuestionIndex + 1} de ${databaseIndicadores.length}`;
-
-        let optionsHtml = '';
-        // Constrói os níveis de conformidade de 0 a 5 dinamicamente baseado na existência do texto
-        [0, 1, 2, 3, 4, 5].forEach(score => {
-            if (item.criterios[score]) {
-                optionsHtml += `
-                    <label class="flex items-start p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-all space-x-3">
-                        <input type="radio" name="score-opt" value="${score}" class="mt-1 w-4 h-4 text-sky-600">
-                        <div class="text-xs">
-                            <span class="font-bold text-slate-700 block">Nível ${score} Pontos</span>
-                            <span class="text-slate-600">${item.criterios[score]}</span>
-                        </div>
-                    </label>
-                `;
-            }
-        });
-
-        container.innerHTML = `
-            <div class="bg-slate-100 p-2 rounded text-[10px] uppercase tracking-wider text-slate-500 font-bold flex justify-between">
-                <span>Bloco Logístico 0${item.bloco}</span>
-                <span>${item.rdc}</span>
-            </div>
-            <h3 class="text-base font-bold text-slate-900">Item ${item.n}: ${item.indicador}</h3>
-            <p class="text-xs text-slate-500 mb-4">Escolha o nível de constatação de campo que melhor descreve a realidade atual do setor:</p>
-            <div class="grid grid-cols-1 gap-2.5">${optionsHtml}</div>
-        `;
-    }
-
-    function submitAnswer() {
-        const selected = document.querySelector('input[name="score-opt"]:checked');
-        if (!selected) {
-            alert("⚠️ Selecione uma das opções de conformidade para continuar.");
-            return;
-        }
-
-        const scoreValue = parseInt(selected.value);
-        const itemAtual = databaseIndicadores[currentQuestionIndex];
-
-        respostasUsuario[itemAtual.n] = {
-            indicador: itemAtual.indicador,
-            nota: scoreValue,
-            descricao: itemAtual.criterios[scoreValue],
-            bloco: itemAtual.bloco
-        };
-
-        currentQuestionIndex++;
-
-        if (currentQuestionIndex < databaseIndicadores.length) {
-            renderQuestion();
-        } else {
-            calculateAndDisplayResults();
-        }
-    }
-
-    function calculateAndDisplayResults() {
-        document.getElementById('part-questions').classList.add('hidden');
-        document.getElementById('block-navigation').classList.add('hidden');
-        document.getElementById('part-results').classList.remove('hidden');
-
-        document.getElementById('meta-summary').innerHTML = `
-            <strong>Estabelecimento:</strong> ${infoClinica.hospital} | 
-            <strong>Avaliador:</strong> ${infoClinica.inspector} | 
-            <strong>Data:</strong> ${infoClinica.data}
-        `;
-
-        // Lógica de Notas: Máxima teórica é (Nº total de itens * 5)
-        const maxScorePossivel = databaseIndicadores.length * 5;
-        let scoreObtido = 0;
-        
-        let reviewHtml = '';
-        let planRowsHtml = '';
-
-        Object.keys(respostasUsuario).forEach(num => {
-            const resp = respostasUsuario[num];
-            scoreObtido += resp.nota;
-
-            // Revisão Geral por número
-            reviewHtml += `
-                <div class="flex justify-between items-center bg-slate-50 p-2 rounded border border-slate-200 text-xs">
-                    <span><strong>Item ${num}:</strong> ${resp.indicador}</span>
-                    <span class="font-bold px-2 py-0.5 rounded ${resp.nota >= 3 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">Nota: ${resp.nota}/5</span>
-                </div>
-            `;
-
-            // Mapeamento e Isolamento Crítico (Se a nota for menor que 3, entra direto no Plano de Ação)
-            if (resp.nota < 3) {
-                planRowsHtml += `
-                    <tr class="border-b border-amber-100 hover:bg-amber-50/50">
-                        <td class="p-2 font-semibold text-slate-900">${num}. ${resp.indicador}</td>
-                        <td class="p-2 font-bold text-rose-600">${resp.nota} pts</td>
-                        <td class="p-2 text-slate-500">${resp.descricao}</td>
-                        <td class="p-2 bg-orange-50 font-medium text-amber-900">
-                            <span class="block text-[10px] text-slate-400 italic">Espaço reservado para vincular colunas da planilha / ações do estagiário:</span>
-                            • Emitir notificação formal; Estabelecer barreira de risco e prazo de correção regulatória imediata.
-                        </td>
-                    </tr>
-                `;
-            }
-        });
-
-        document.getElementById('review-list').innerHTML = reviewHtml;
-        
-        if (planRowsHtml === '') {
-            document.getElementById('action-plan-rows').innerHTML = `<tr><td colspan="4" class="p-4 text-center text-emerald-600 font-bold">Nenhuma inconformidade crítica isolada! Todos os itens atendem aos critérios regulatórios.</td></tr>`;
-        } else {
-            document.getElementById('action-plan-rows').innerHTML = planRowsHtml;
-        }
-
-        // Regra de Negócio: Estabelecer os 20% de aceitabilidade
-        // Nota obtida precisa representar pelo menos 80% da nota máxima para ser considerado APTO (Margem de erro tolerada = 20%)
-        const porcentagemAproveitamento = (scoreObtido / maxScorePossivel) * 100;
-        const statusCard = document.getElementById('status-card');
-
-        if (porcentagemAproveitamento >= 80) {
-            statusCard.className = "p-4 rounded-lg text-center font-bold text-lg bg-emerald-100 text-emerald-800 border border-emerald-300";
-            statusCard.innerHTML = `✅ ESTABELECIMENTO APTO<br><span class="text-xs font-normal">Aproveitamento de ${porcentagemAproveitamento.toFixed(1)}% (Margem de inconformidade dentro dos 20% aceitáveis). Pontuação: ${scoreObtido}/${maxScorePossivel}</span>`;
-        } else {
-            statusCard.className = "p-4 rounded-lg text-center font-bold text-lg bg-rose-100 text-rose-800 border border-rose-300";
-            statusCard.innerHTML = `❌ ESTABELECIMENTO INAPTO / REPROVADO<br><span class="text-xs font-normal">Aproveitamento de ${porcentagemAproveitamento.toFixed(1)}% (Inconformidades ultrapassaram o teto de 20% de aceitabilidade). Pontuação: ${scoreObtido}/${maxScorePossivel}</span>`;
-        }
-    }
-
-    function generatePDFReport() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        doc.setFont("Helvetica", "bold");
-        doc.text("RELATÓRIO FISCAL - VIGILÂNCIA SANITÁRIA", 14, 20);
-        doc.setFontSize(10);
-        doc.setFont("Helvetica", "normal");
-        doc.text(`Hospital Inspecionado: ${infoClinica.hospital}`, 14, 28);
-        doc.text(`Responsável Técnico / Fiscal: ${infoClinica.inspector}`, 14, 34);
-        doc.text(`Data da Avaliação de Campo: ${infoClinica.data}`, 14, 40);
-        
-        doc.setLineWidth(0.5);
-        doc.line(14, 45, 196, 45);
-
-        doc.setFont("Helvetica", "bold");
-        doc.text("LISTA EXPLICATIVA DE ITENS TRATADOS:", 14, 53);
-        
-        let yCursor = 60;
-        doc.setFont("Helvetica", "normal");
-        doc.setFontSize(9);
-
-        Object.keys(respostasUsuario).forEach(num => {
-            const resp = respostasUsuario[num];
-            const linhaExplicativa = `Item ${num} [${resp.indicador}] -> Nota: ${resp.nota}/5. Constatado: ${resp.descricao}`;
-            
-            // Quebra automática de texto para não vazar a folha do PDF
-            const splitText = doc.splitTextToSize(linhaExplicativa, 180);
-            doc.text(splitText, 14, yCursor);
-            yCursor += (splitText.length * 5);
-
-            if(yCursor > 270) {
-                doc.addPage();
-                yCursor = 20;
-            }
-        });
-
-        doc.save(`relatorio-inspecao-${infoClinica.hospital.replace(/\s+/g, '-').toLowerCase()}.pdf`);
-    }
-
-    function resetInspection() {
-        if(confirm("Deseja realmente zerar todos os dados recolhidos nesta inspeção e reiniciar o teste?")) {
-            currentQuestionIndex = 0;
-            respostasUsuario = {};
-            infoClinica = {};
-            document.getElementById('hospitalName').value = '';
-            document.getElementById('inspectorName').value = '';
-            
-            document.getElementById('part-results').classList.add('hidden');
-            document.getElementById('part-identification').classList.remove('hidden');
-        }
-    }
-</script>
 </body>
 </html>
