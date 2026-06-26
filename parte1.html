@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROI - Parte 1: Pessoas e Rotinas</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 800px; width: 100%; }
+        .header { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        h2 { margin-top: 0; color: #1e3a8a; font-size: 1.25rem; }
+        .badge { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; margin-bottom: 12px; }
+        .radio-group { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+        .radio-option { display: flex; align-items: flex-start; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .radio-option:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .radio-option input { margin-top: 3px; }
+        .nav-buttons { display: flex; justify-content: flex-end; margin-top: 24px; }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; text-decoration: none; }
+        .btn:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span style="font-size: 0.85rem; text-transform: uppercase; tracking: 0.05em;">ANVISA - Centro Cirúrgico</span>
+            <h1 style="margin: 8px 0 0 0; font-size: 1.75rem;">Roteiro de Inspeção Objetiva (ROI)</h1>
+            <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 0.95rem;">Parte 1: Gestão de Pessoas, Capacitação e Rotinas Assistenciais</p>
+        </div>
+
+        <form action="parte2.html">
+            <!-- Indicador 1 -->
+            <div class="card">
+                <span class="badge">Amparo: Art. 15 e 16 RDC 63/2011</span>
+                <h2>1. Coordenação / Supervisão</h2>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="ind1" value="0" required> <span><strong>0</strong> - Não dispõe de profissional responsável legalmente habilitado.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind1" value="1"> <span><strong>1</strong> - Conta com habilitado, mas não responde pelas questões operacionais.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind1" value="2"> <span><strong>2</strong> - Atua nas questões operacionais, porém não está formalmente designado.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind1" value="3"> <span><strong>3</strong> - Unidade conta com profissional habilitado que responde e está formalmente designado.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind1" value="4"> <span><strong>4</strong> - Profissional responsável é exclusivo do setor.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind1" value="5"> <span><strong>5</strong> - Profissional responsável é exclusivo do setor e possui pós-graduação na área.</span></label>
+                </div>
+            </div>
+
+            <!-- Indicador 2 -->
+            <div class="card">
+                <span class="badge">Amparo: Art. 17, 29 e 30 RDC 63/2011</span>
+                <h2>2. Dimensionamento da Equipe</h2>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="ind2" value="0" required> <span><strong>0</strong> - Equipe multiprofissional insuficiente para o perfil de atendimento e demanda.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind2" value="1"> <span><strong>1</strong> - Possui equipe, mas um único médico atua como cirurgião e anestesista simultaneamente.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind2" value="2"> <span><strong>2</strong> - O médico anestesista ou cirurgião atende em mais de uma sala simultaneamente.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind2" value="3"> <span><strong>3</strong> - Possui equipe multiprofissional dimensionada conforme perfil de atendimento e demanda.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind2" value="4"> <span><strong>4</strong> - Existe plano de contingência para substituição de pessoal e equipes cirúrgicas.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind2" value="5"> <span><strong>5</strong> - Equipe multiprofissional com capacidade operacional superior ao atendimento da demanda.</span></label>
+                </div>
+            </div>
+
+            <!-- Indicador 3 -->
+            <div class="card">
+                <span class="badge">Amparo: Art. 32 e 33 RDC 63/2011</span>
+                <h2>3. Capacitação Profissional</h2>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="ind3" value="0" required> <span><strong>0</strong> - Não há registro de capacitação.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind3" value="1"> <span><strong>1</strong> - Existem apenas alguns registros e/ou não realizam capacitações permanentes.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind3" value="2"> <span><strong>2</strong> - Registro de capacitações permanentes, porém com dados incompletos.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind3" value="3"> <span><strong>3</strong> - Registro periódico completo (programa mínimo, higiene, EPI/EPC, vestimentas, carga horária).</span></label>
+                    <label class="radio-option"><input type="radio" name="ind3" value="4"> <span><strong>4</strong> - Existe planejamento das capacitações e há registro de avaliação percentual de treinados.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind3" value="5"> <span><strong>5</strong> - A capacitação inclui incentivo da organização para participação em eventos científicos da área.</span></label>
+                </div>
+            </div>
+
+            <!-- Indicador 4 -->
+            <div class="card">
+                <span class="badge">Amparo: Art. 7, 23 e 51 RDC 63/2011</span>
+                <h2>4. Padronização de Normas e Rotinas dos Procedimentos Assistenciais</h2>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="ind4" value="0" required> <span><strong>0</strong> - Não dispõe de normas, procedimentos e rotinas técnicas.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind4" value="1"> <span><strong>1</strong> - Normas em elaboração, diferem da prática real ou não estão disponíveis.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind4" value="2"> <span><strong>2</strong> - Dispõe de normas escritas de todos os processos, porém desatualizadas e/ou sem aprovação.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind4" value="3"> <span><strong>3</strong> - Dispõe de normas e rotinas técnicas escritas, atualizadas e aprovadas em local de fácil acesso.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind4" value="4"> <span><strong>4</strong> - Normas revisadas a cada nova tecnologia com registro de divulgação e treinamento.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind4" value="5"> <span><strong>5</strong> - Existe auditoria interna para verificação do cumprimento das normas e rotinas.</span></label>
+                </div>
+            </div>
+
+            <!-- Indicador 5 -->
+            <div class="card">
+                <span class="badge">Amparo: Portaria 344/1998; RDC 63/2011</span>
+                <h2>5. Medicamentos</h2>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="ind5" value="0" required> <span><strong>0</strong> - Medicamentos estão fora do prazo de validade.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind5" value="1"> <span><strong>1</strong> - Organizados e na validade, mas dispensário acessível sem controle ou rastreabilidade.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind5" value="2"> <span><strong>2</strong> - Organizados e na validade com controle de acesso, mas sem controle de especiais.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind5" value="3"> <span><strong>3</strong> - Rotinas de rastreabilidade implantadas, controlados em local exclusivo sob chave.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind5" value="4"> <span><strong>4</strong> - Possui protocolo de antibioticoprofilaxia cirúrgica e controle formal de validade.</span></label>
+                    <label class="radio-option"><input type="radio" name="ind5" value="5"> <span><strong>5</strong> - Dispensário do Centro Cirúrgico sob a responsabilidade técnica de profissional farmacêutico.</span></label>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button type="submit" class="btn">Avançar para Parte 2 ➡️</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
