@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle VISA - Produtividade Diária</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen py-8 px-4">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        
+        <header class="bg-slate-800 rounded-xl p-6 border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl">
+            <div>
+                <h1 class="text-xl font-bold text-sky-400">📊 Monitor de Desempenho Diário</h1>
+                <p class="text-xs text-slate-400 mt-1">Plano de Ação e Retomada de Processos Inaceitáveis — VISA</p>
+            </div>
+            <div class="w-full md:w-64 bg-slate-700 p-4 rounded-lg text-center border border-slate-600">
+                <span class="text-xs font-semibold text-slate-300 block mb-1">Rendimento do Dia</span>
+                <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-600">
+                    <div id="progress-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <span id="progress-percentage" class="text-lg font-black text-emerald-400 block mt-1">0% Concluído</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">1. Conferência Interativa de Processo</h2>
+                    <div class="space-y-3">
+                        <label class="flex items-start p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/40 transition-all">
+                            <input type="checkbox" id="chk-fase1" onchange="updateRendimento()" class="mt-1 w-4 h-4 rounded text-sky-500">
+                            <div class="ml-3 text-xs">
+                                <span class="font-bold text-slate-200 block">Fase 1: Mapear e Isolar Inaceitáveis</span>
+                                <span class="text-slate-400">Filtrar os piores casos da planilha base e separar por gravidade.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/40 transition-all">
+                            <input type="checkbox" id="chk-fase2" onchange="updateRendimento()" class="mt-1 w-4 h-4 rounded text-sky-500">
+                            <div class="ml-3 text-xs">
+                                <span class="font-bold text-slate-200 block">Fase 2: Verificar Linha do Tempo Legal</span>
+                                <span class="text-slate-400">Checar data da última intervenção e se o prazo de resposta expirou.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/40 transition-all">
+                            <input type="checkbox" id="chk-fase3" onchange="updateRendimento()" class="mt-1 w-4 h-4 rounded text-sky-500">
+                            <div class="ml-3 text-xs">
+                                <span class="font-bold text-slate-200 block">Fase 3: Disparar Meio Comunicativo / Reatamento</span>
+                                <span class="text-slate-400">Enviar e-mail institucional/alerta para o hospital atualizar o status antes do ofício rígido.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md space-y-4">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">2. Alimentar Planilha de Ações (Entrada Manual)</h2>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="block text-slate-400 font-semibold mb-1">Nome do Estabelecimento Crítico</label>
+                            <input type="text" id="inputHospital" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 outline-none focus:border-sky-500 text-xs" placeholder="Ex: Hospital das Clínicas">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 font-semibold mb-1">Indicador Crítico Travado</label>
+                            <input type="text" id="inputIndicador" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 outline-none focus:border-sky-500 text-xs" placeholder="Ex: Climatização / CME">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 font-semibold mb-1">Data Limite Legal</label>
+                            <input type="date" id="inputData" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 outline-none focus:border-sky-500 text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 font-semibold mb-1">Status da Ação de Campo</label>
+                            <select id="inputStatus" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 outline-none focus:border-sky-500 text-xs">
+                                <option value="E-mail de Alerta Enviado">✉️ E-mail de Alerta Enviado</option>
+                                <option value="Aguardando Triagem Digital">⏳ Aguardando Triagem Digital</option>
+                                <option value="Processado para Ofício Rígido">🚫 Sem Resposta - Oficiar Urgente</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button onclick="adicionarAoPlano()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold p-2 rounded text-xs transition-all cursor-pointer">
+                        ➕ Registrar e Isolar na Planilha Abaixo
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md space-y-4">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">3. Fechamento do Expediente</h2>
+                    
+                    <div class="text-xs space-y-2">
+                        <div>
+                            <label class="block text-slate-400 font-semibold mb-1">Nome do Estagiário(a)</label>
+                            <input type="text" id="nomeEstagiario" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs outline-none" placeholder="Nome completo">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 font-semibold mb-1">Observações do Dia para a Coordenação</label>
+                            <textarea id="obsDia" rows="3" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs outline-none" placeholder="Ex: Tentativa de reatar contato com 3 hospitais da lista inaceitável..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <button onclick="gerarRelatorioProdutividade()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-2.5 rounded text-xs transition-all cursor-pointer">
+                            🖨️ Exportar PDF de Rendimento Diário
+                        </button>
+                        <button onclick="zerarPainel()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold p-2 rounded text-xs transition-all cursor-pointer">
+                            🔄 Limpar Dados e Iniciar Novo Dia
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl overflow-hidden">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3">📋 Planilha Ativa de Acompanhamento (Casos Isolados)</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-700 text-slate-200 font-bold uppercase tracking-wider text-[10px]">
+                        <tr>
+                            <th class="p-3">Hospital / Unidade</th>
+                            <th class="p-3">Indicador Crítico</th>
+                            <th class="p-3">Data da Intervenção</th>
+                            <th class="p-3">Status da Comunicação</th>
+                            <th class="p-3 text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="planilha-linhas" class="divide-y divide-slate-700 text-xs">
+                        <tr id="linha-vazia">
+                            <td colspan="5" class="p-4 text-center text-slate-500 italic">Nenhum caso isolado preenchido para o relatório de hoje ainda.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    let registrosPlanilha = [];
+
+    // Lógica para calcular o percentual de rendimento diário de checagens obrigatórias
+    function updateRendimento() {
+        const check1 = document.getElementById('chk-fase1').checked ? 1 : 0;
+        const check2 = document.getElementById('chk-fase2').checked ? 1 : 0;
+        const check3 = document.getElementById('chk-fase3').checked ? 1 : 0;
+        
+        // Peso das checagens + peso de ter pelo menos 1 item alimentado na planilha
+        const totalChecks = check1 + check2 + check3;
+        const totalItemsPlanilha = registrosPlanilha.length > 0 ? 1 : 0;
+        
+        // Rendimento total baseado nas 4 tarefas principais do dia
+        const rendimentoCalculado = ((totalChecks + totalItemsPlanilha) / 4) * 100;
+
+        document.getElementById('progress-bar').style.width = `${rendimentoCalculado}%`;
+        document.getElementById('progress-percentage').innerText = `${rendimentoCalculado.toFixed(0)}% Concluído`;
+        
+        return rendimentoCalculado;
+    }
+
+    function adicionarAoPlano() {
+        const hospital = document.getElementById('inputHospital').value.trim();
+        const indicador = document.getElementById('inputIndicador').value.trim();
+        const dataInput = document.getElementById('inputData').value;
+        const statusSel = document.getElementById('inputStatus').value;
+
+        if (!hospital || !indicador || !dataInput) {
+            alert("⚠️ Por favor, preencha todos os campos do caso antes de isolar na planilha.");
+            return;
+        }
+
+        // Formata data padrão BR
+        const dataFormatada = dataInput.split('-').reverse().join('/');
+
+        const novoCaso = { hospital, indicador, data: dataFormatada, status: statusSel };
+        registrosPlanilha.push(novoCaso);
+
+        // Limpa campos do form para o próximo input
+        document.getElementById('inputHospital').value = '';
+        document.getElementById('inputIndicador').value = '';
+        document.getElementById('inputData').value = '';
+
+        renderPlanilha();
+        updateRendimento();
+    }
+
+    function removerCaso(index) {
+        registrosPlanilha.splice(index, 1);
+        renderPlanilha();
+        updateRendimento();
+    }
+
+    function renderPlanilha() {
+        const tbody = document.getElementById('planilha-linhas');
+        
+        if (registrosPlanilha.length === 0) {
+            tbody.innerHTML = `
+                <tr id="linha-vazia">
+                    <td colspan="5" class="p-4 text-center text-slate-500 italic">Nenhum caso isolado preenchido para o relatório de hoje ainda.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        registrosPlanilha.forEach((item, index) => {
+            let badgeClass = "bg-amber-900/40 text-amber-300 border border-amber-700/60";
+            if(item.status.includes("Ofício")) {
+                badgeClass = "bg-rose-900/40 text-rose-300 border border-rose-700/60";
+            }
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-700/30 border-b border-slate-700 transition-all">
+                    <td class="p-3 font-semibold text-white">${item.hospital}</td>
+                    <td class="p-3 text-slate-400">${item.indicador}</td>
+                    <td class="p-3">${item.data}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-medium ${badgeClass}">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button onclick="removerCaso(${index})" class="text-rose-400 hover:text-rose-500 font-bold cursor-pointer">Excluir</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function gerarRelatorioProdutividade() {
+        const estagiario = document.getElementById('nomeEstagiario').value.trim();
+        if (!estagiario) {
+            alert("⚠️ Por favor, digite o nome do estagiário antes de gerar o relatório final.");
+            return;
+        }
+
+        const rendimento = updateRendimento();
+        const obs = document.getElementById('obsDia').value.trim() || "Nenhuma observação informada.";
+        const dateStr = new Date().toLocaleDateString('pt-BR');
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Estilização do PDF Técnico
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("DIÁRIO DE BORDO E PERFORMANCE - VISA", 14, 20);
+        
+        doc.setFontSize(10);
+        doc.setFont("Helvetica", "normal");
+        doc.text(`Estagiário Responsável: ${estagiario}`, 14, 28);
+        doc.text(`Data do Expediente: ${dateStr}`, 14, 34);
+        doc.text(`Rendimento de Processamento Diário: ${rendimento.toFixed(0)}% Concluído`, 14, 40);
+
+        doc.setLineWidth(0.5);
+        doc.line(14, 44, 196, 44);
+
+        doc.setFont("Helvetica", "bold");
+        doc.text("CASOS CRÍTICOS ISOLADOS E PROCESSADOS HOJE:", 14, 52);
+
+        let yCursor = 60;
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(9);
+
+        if(registrosPlanilha.length === 0) {
+            doc.text("Nenhum caso isolado registrado na planilha hoje.", 14, yCursor);
+            yCursor += 10;
+        } else {
+            registrosPlanilha.forEach((item, index) => {
+                const textLinha = `${index+1}. Hosp: ${item.hospital} | Item: ${item.indicador} | Prazo Legal: ${item.data} | Status: ${item.status}`;
+                doc.text(textLinha, 14, yCursor);
+                yCursor += 6;
+
+                if (yCursor > 270) {
+                    doc.addPage();
+                    yCursor = 20;
+                }
+            });
+        }
+
+        doc.line(14, yCursor + 4, 196, yCursor + 4);
+        yCursor += 12;
+
+        doc.setFont("Helvetica", "bold");
+        doc.text("OBSERVAÇÕES OPERACIONAIS LEVADAS À COORDENAÇÃO:", 14, yCursor);
+        yCursor += 6;
+        doc.setFont("Helvetica", "normal");
+        
+        const splitObs = doc.splitTextToSize(obs, 180);
+        doc.text(splitObs, 14, yCursor);
+
+        doc.save(`rendimento-diario-${estagiario.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+    }
+
+    function zerarPainel() {
+        if (confirm("Deseja limpar todos os checks e zerar a planilha de hoje?")) {
+            document.getElementById('chk-fase1').checked = false;
+            document.getElementById('chk-fase2').checked = false;
+            document.getElementById('chk-fase3').checked = false;
+            document.getElementById('obsDia').value = '';
+            registrosPlanilha = [];
+            renderPlanilha();
+            updateRendimento();
+        }
+    }
+</script>
+</body>
+</html>
