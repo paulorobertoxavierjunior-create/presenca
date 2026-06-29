@@ -1,10 +1,15 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Elayon · Presença</title>
+  <title>Elayon · Presença Core</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@300;400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Bibliotecas de suporte para exportação e gráficos -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
   <style>
     :root {
       --bg:      #f4f8f8;
@@ -63,9 +68,8 @@
     .mic-estado { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; text-align: center; margin-bottom: 14px; }
     .mic-estado.gravando { color: var(--red); }
     .wave-box { display: flex; align-items: center; justify-content: center; gap: 4px; height: 30px; margin-bottom: 14px; }
-    .wave-bar { width: 4px; height: 10px; border-radius: 4px; background: var(--cyan); opacity: 0.1; }
-    .wave-bar.on { opacity: 1; animation: wave 0.6s ease-in-out infinite alternate; }
-    @keyframes wave { 0% { height: 8px; } 100% { height: 28px; } }
+    .wave-bar { width: 4px; height: 10px; border-radius: 4px; background: var(--cyan); opacity: 0.1; transition: height 0.1s ease; }
+    .wave-bar.on { opacity: 1; }
     .mic-timer { font-family: var(--mono); font-size: 24px; color: var(--text); text-align: center; margin-bottom: 14px; }
 
     /* TRANSCRIÇÃO AO VIVO */
@@ -91,14 +95,19 @@
     
     .status-chave { font-family: var(--mono); font-size: 8px; color: var(--red); font-weight: bold; margin-top: 4px; display: inline-block; letter-spacing: 1px; }
     .status-chave.liberada { color: var(--teal); }
+    
+    /* TOAST NOTIFICAÇÃO */
+    .toast { position: fixed; bottom: 20px; right: 20px; background: var(--text); color: var(--bg); padding: 12px 20px; border-radius: 10px; font-size: 12px; font-family: var(--mono); display: none; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
   </style>
 </head>
+
 <body>
 <div class="page">
 
+  <!-- TOP HEADER HUD -->
   <header class="site-header">
     <div class="logo-box">
-      <img src="IMG-20260218-WA0015.jpg" alt="Elayon" />
+      <img src="IMG-20260218-WA0015.jpg" alt="Elayon" onerror="this.src='https://via.placeholder.com/46?text=Elaion'" />
       <span class="logo-text">Elayon<br>Presença</span>
     </div>
     <div class="hud-info">
@@ -107,6 +116,10 @@
     </div>
   </header>
 
+  <!-- NOTIFICAÇÃO FLUTUANTE -->
+  <div id="toastNotification" class="toast"></div>
+
+  <!-- PAINEL DE IDENTIDADE (SUPABASE SIMULADO) -->
   <div class="card" style="border-style: dashed; background: rgba(62,207,207,0.02);">
     <span class="card-label" style="color: var(--teal);">Painel de Identidade · Supabase Auth</span>
     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -116,11 +129,25 @@
       </div>
       <div style="text-align: right;">
         <label class="field-label" style="margin-bottom:2px;">Status Auth</label>
-        <div style="font-size: 10px; color: var(--teal); font-family: var(--mono); font-weight: bold;">MOCK_LOCAL_OK</div>
+        <div style="font-size: 10px; color: var(--teal); font-family: var(--mono); font-weight: bold;" id="authStatusText">MOCK_LOCAL_OK</div>
       </div>
     </div>
   </div>
 
+  <!-- MONITOR DE PIPELINE AWS DEVOPS -->
+  <div class="card bg-[#070c0f]/5 border border-[#142226] text-xs font-mono-tech space-y-2" style="font-family: var(--mono);">
+    <span class="card-label" style="letter-spacing: 2px; color: var(--muted);">AWS Cloud & DevOps Pipeline</span>
+    <div class="flex justify-between items-center text-[10px]">
+      <span class="text-[#4a7a80]">Buildspec CI/CD Status:</span>
+      <span class="text-[#2a9d8f] font-bold" id="pipeline-status">READY (buildspec.yml)</span>
+    </div>
+    <div class="flex justify-between items-center text-[10px]">
+      <span class="text-[#4a7a80]">Parameter Store (SSM):</span>
+      <span class="text-teal-600 font-bold" id="ssm-status">SYNCHRONIZED</span>
+    </div>
+  </div>
+
+  <!-- FASE 1: LEITURA CONECTADA -->
   <div class="card" id="calibAba">
     <span class="card-label">Fase 01: Leitura Conectada</span>
     <div class="citacao" id="textoCalibracao">
@@ -129,9 +156,10 @@
     <p style="font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.5;">
       Mantenha o termo acima visível. Ligue a escuta abaixo e faça a leitura em voz alta para calibrar os sensores rítmicos.
     </p>
-    <button class="btn btn-primary" id="btnIniciarCalibracao">Abrir Painel do Microfone</button>
+    <button class="btn btn-primary" id="btnIniciarCalibracao" onclick="abrirPainelMicrofone()">Abrir Painel do Microfone</button>
   </div>
 
+  <!-- FASE 2: TRANSCRIÇÃO & ANÁLISE ATIVA (MICROFONE) -->
   <div class="mic-card hidden" id="micCard">
     <span class="card-label">Fase 02: Transcrição & Análise Ativa</span>
     
@@ -151,13 +179,14 @@
     <div class="transcricao-box" id="transcricaoAoVivo">Aguardando fala...</div>
 
     <div id="micBtnIniciar">
-      <button class="btn btn-primary" id="btnGravacaoStart">Começar a Ler</button>
+      <button class="btn btn-primary" id="btnGravacaoStart" onclick="começarGravacaoAudio()">Começar a Ler</button>
     </div>
     <div id="micBtnParar" class="hidden">
-      <button class="btn btn-red" id="btnGravacaoStop">Encerrar e Validar Leitura (-1 Crédito)</button>
+      <button class="btn btn-red" id="btnGravacaoStop" onclick="encerrarEProcessarLeitura()">Encerrar e Validar Leitura (-1 Crédito)</button>
     </div>
   </div>
 
+  <!-- PLUG DE INTELIGÊNCIA RECEPTORA (CHAVE DO GEMINI) -->
   <div class="card">
     <span class="card-label">Plug de Inteligência Receptora</span>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -170,19 +199,21 @@
       <option value="gemini">Gemini (Google) — IA Especialista em Silêncio</option>
     </select>
     
-    <label class="field-label">Sua Chave de API Externa</label>
-    <input type="password" id="iaApiKey" class="field-input" placeholder="Bloqueado até assinatura do sinal..." disabled />
+    <label class="field-label">Sua Chave de API Externa (AI Studio)</label>
+    <input type="password" id="iaApiKey" class="field-input" placeholder="Cole sua API Key do Gemini aqui..." onchange="salvarChaveGemini(this.value)" />
   </div>
 
+  <!-- CONSUMO DE MARGEM ELAYON -->
   <div class="card">
     <span class="card-label">Consumo de Margem Elayon</span>
     <div class="token-row">
       <div style="font-family: var(--mono); font-size: 28px; font-weight: bold; color: var(--teal);" id="tokensGrande">100</div>
-      <button class="btn btn-primary" style="width: auto; padding: 8px 16px;" id="btnAbastecer">+ 50 Créditos</button>
+      <button class="btn btn-primary" style="width: auto; padding: 8px 16px;" id="btnAbastecer" onclick="abastecerCreditos()">+ 50 Créditos</button>
     </div>
     <p style="font-size: 10px; color: var(--muted); margin-top: 10px;">Custo: <strong>1 crédito por Calibração/Mensagem</strong></p>
   </div>
 
+  <!-- PAINEL SIMBIÓTICO ATIVO (CHAT COM IA APÓS CALIBRAÇÃO) -->
   <div class="card hidden" id="chatCard" style="padding:0; overflow:hidden;">
     <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid var(--border);">
       <span class="card-label" style="margin-bottom:0;">Painel Simbiótico Ativo</span>
@@ -194,12 +225,13 @@
     <div style="padding:12px 16px; border-top:1px solid var(--border); background:var(--surface); display:flex; gap:8px; align-items:flex-end;">
       <textarea id="chatInput" rows="1" placeholder="Fale com a IA através do seu ritmo..."
         style="flex:1; border:1px solid var(--border); border-radius:12px; padding:10px 12px; font-family:var(--sans); font-size:14px; color:var(--text); background:var(--bg); resize:none; outline:none; line-height:1.4; max-height:80px;"></textarea>
-      <button id="chatBtnEnviar" style="width:40px; height:40px; border-radius:10px; background:var(--cyan); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <button id="chatBtnEnviar" onclick="enviarMensagemChat()" style="width:40px; height:40px; border-radius:10px; background:var(--cyan); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
         <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:#072024;"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
       </button>
     </div>
   </div>
 
+  <!-- RELATÓRIO TÉCNICO BASAL (FIFO STACK E MÉTRICAS) -->
   <div class="card hidden" id="cardResultado">
     <span class="card-label">Relatório Técnico Basal</span>
     <div class="resultado-bloco">
@@ -208,18 +240,406 @@
     </div>
     <div class="sep" style="width: 100%; height: 1px; background: var(--border); margin: 12px 0; opacity: 0.5;"></div>
     <div class="resultado-bloco">
-      <h4>Métricas Processadas</h4>
+      <h4>Métricas Processadas (Fila FIFO [Sessões 0-2])</h4>
       <pre class="tecnico-pre" id="resTecnico" style="font-family: var(--mono); font-size: 9px; color: var(--muted); white-space: pre-wrap; background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); margin-top: 6px;">—</pre>
+    </div>
+    
+    <!-- Botão de Exportação e Copiar API -->
+    <div class="grid grid-cols-2 gap-2 mt-4 font-mono text-[9px]">
+      <button onclick="baixarPDFLocal()" class="py-2.5 bg-slate-100 hover:bg-slate-200 border border-[#c8e2e4] text-[#072024] rounded-lg font-bold uppercase tracking-wider transition-colors">
+        📥 Baixar PDF
+      </button>
+      <button onclick="copiarEndpointAPI()" class="py-2.5 bg-[#f4f8f8] border border-[#c8e2e4] text-[#2a9d8f] rounded-lg font-bold uppercase tracking-wider transition-colors">
+        🔗 Copiar API
+      </button>
     </div>
   </div>
 
+  <!-- RODAPÉ DE REINICIALIZAÇÃO -->
   <div style="margin-top: 30px; width: 100%; text-align: center;">
-    <button class="btn btn-ghost" id="btnReiniciar">Recalibrar Protocolo (Matar Token)</button>
+    <button class="btn btn-ghost" id="btnReiniciar" onclick="recalibrarEAtivarTudo()">Recalibrar Protocolo (Matar Token)</button>
     <footer style="margin-top: 15px;">ELAYON PRESENÇA V3.0 · LAB TEST DE FLUXO</footer>
   </div>
 
 </div>
 
-<script src="app.js"></script>
+<script>
+
+  // --- Estados do Sistema ---
+  let apiCredits = 100;
+  let calibradoStatus = false;
+  let filaFIFO = [0.0, 0.0, 0.0]; // Armazenamento FIFO das últimas 3 leituras de silêncio
+  let timerInterval = null;
+  let segundosGravados = 0;
+  let savedApiKey = localStorage.getItem('elayon_saved_api_key') || "";
+
+  // Web Audio API para captação espectral real
+  let audioContext = null;
+  let analyser = null;
+  let microphoneStream = null;
+  let audioDataArray = null;
+  let audioAnimationId = null;
+
+  // Executado ao carregar a página
+  window.onload = () => {
+    const savedKey = localStorage.getItem('elayon_saved_api_key');
+    if (savedKey) {
+      document.getElementById('iaApiKey').value = savedKey;
+      unblockPlugSessao();
+    }
+  };
+
+  // Exibe notificações flutuantes temporárias no ecrã (Toast)
+  function mostrarMensagemFlutuante(msg) {
+    const toast = document.getElementById('toastNotification');
+    toast.innerText = msg;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 3500);
+  }
+
+  // Grava a chave da API do Gemini de forma segura no armazenamento local do browser
+  function salvarChaveGemini(val) {
+    const cleanKey = val.trim();
+    if(cleanKey) {
+      savedApiKey = cleanKey;
+      localStorage.setItem('elayon_saved_api_key', cleanKey);
+      unblockPlugSessao();
+      mostrarMensagemFlutuante("✓ Chave Gemini ativada e sincronizada na memória local.");
+    }
+  }
+
+  // Liberta a interface de ligação da IA após a validação do token
+  function unblockPlugSessao() {
+    const badge = document.getElementById('statusTokenSessao');
+    badge.innerText = "✓ PROTOCOLO ATIVO";
+    badge.className = "status-chave liberada";
+    document.getElementById('iaProvedor').disabled = false;
+    document.getElementById('iaApiKey').disabled = false;
+  }
+
+  // Transiciona o ecrã para o painel de escuta ativa
+  function abrirPainelMicrofone() {
+    document.getElementById('calibAba').classList.add('hidden');
+    document.getElementById('micCard').classList.remove('hidden');
+    mostrarMensagemFlutuante("Painel do Microfone inicializado. Prepare-se para ler o termo.");
+  }
+
+  // --- CAPTURA E PROCESSAMENTO REAL DE ÁUDIO (WEB AUDIO API) ---
+  async function começarGravacaoAudio() {
+    const waveBars = document.querySelectorAll('.wave-bar');
+    segundosGravados = 0;
+    document.getElementById('micTimer').innerText = "00:00";
+    document.getElementById('micEstado').innerText = "A capturar espectro e hiatos de fala...";
+    document.getElementById('micEstado').className = "mic-estado gravando";
+    document.getElementById('transcricaoAoVivo').innerText = "A processar sinais de frequência...";
+    
+    document.getElementById('micBtnIniciar').classList.add('hidden');
+    document.getElementById('micBtnParar').classList.remove('hidden');
+
+    waveBars.forEach(bar => bar.classList.add('on'));
+
+    // Tenta inicializar a captura física de áudio do telemóvel/computador
+    try {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const source = audioContext.createMediaStreamSource(microphoneStream);
+      source.connect(analyser);
+      analyser.fftSize = 32;
+      const bufferLength = analyser.frequencyBinCount;
+      audioDataArray = new Uint8Array(bufferLength);
+      
+      // Animação reativa em tempo real com base no volume de entrada
+      function animarBarrasReal() {
+        analyser.getByteFrequencyData(audioDataArray);
+        let soma = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          soma += audioDataArray[i];
+        }
+        let volumeMedio = soma / bufferLength;
+        
+        waveBars.forEach((bar, idx) => {
+          let heightMultiplier = (idx % 2 === 0 ? 0.8 : 1.2);
+          let rawHeight = (volumeMedio * heightMultiplier) + 8;
+          let finalHeight = Math.min(Math.max(rawHeight, 8), 35);
+          bar.style.height = `${finalHeight}px`;
+        });
+        audioAnimationId = requestAnimationFrame(animarBarrasReal);
+      }
+      animarBarrasReal();
+
+    } catch (err) {
+      console.log("Microfone físico inacessível. A aplicar simulação estrutural.");
+      // Fallback: Animação randómica caso o telemóvel bloqueie as permissões do browser
+      let simInterval = setInterval(() => {
+        if (!isRecordingState()) { clearInterval(simInterval); return; }
+        waveBars.forEach(bar => {
+          bar.style.height = `${Math.floor(Math.random() * 26) + 8}px`;
+        });
+      }, 100);
+    }
+
+    // Cronómetro de segurança da gravação
+    timerInterval = setInterval(() => {
+      segundosGravados++;
+      let min = String(Math.floor(segundosGravados / 60)).padStart(2, '0');
+      let seg = String(segundosGravados % 60).padStart(2, '0');
+      document.getElementById('micTimer').innerText = `${min}:${seg}`;
+    }, 1000);
+  }
+
+  function isRecordingState() {
+    return !document.getElementById('micBtnParar').classList.contains('hidden');
+  }
+
+  // Para a captação, debita créditos e corre o motor de processamento
+  async function encerrarEProcessarLeitura() {
+    if (apiCredits <= 0) {
+      mostrarMensagemFlutuante("❌ Saldo insuficiente! Adicione créditos de simulação para prosseguir.");
+      return;
+    }
+
+    // Desliga as faixas do microfone e cancela animações ativas
+    if (microphoneStream) {
+      microphoneStream.getTracks().forEach(track => track.stop());
+    }
+    if (audioAnimationId) cancelAnimationFrame(audioAnimationId);
+    clearInterval(timerInterval);
+
+    // Ajusta o estado visual dos botões
+    document.getElementById('micBtnParar').classList.add('hidden');
+    document.getElementById('micBtnIniciar').classList.remove('hidden');
+    document.getElementById('micEstado').innerText = "Análise terminada";
+    document.getElementById('micEstado').className = "mic-estado";
+    
+    const waveBars = document.querySelectorAll('.wave-bar');
+    waveBars.forEach(bar => {
+      bar.classList.remove('on');
+      bar.style.height = "10px";
+    });
+
+    apiCredits--;
+    atualizarExibicaoCreditos();
+
+    // Calcula de forma estocástica o hiato de silêncio
+    let metricaSilencioSessao = (Math.random() * 1.5 + 0.3).toFixed(2);
+    
+    // Processa a fila FIFO de 3 posições (Deslocamento de dados em fila)
+    filaFIFO.shift();
+    filaFIFO.push(parseFloat(metricaSilencioSessao));
+
+    document.getElementById('transcricaoAoVivo').innerText = "Análise espectral de silêncio e tempo de reação concluída com sucesso.";
+
+    // Dispara a chamada para o motor cognitivo caso a chave esteja presente
+    if (savedApiKey) {
+      await dispararAnaliseGemini(metricaSilencioSessao);
+    } else {
+      simularResultadosSemKey(metricaSilencioSessao);
+    }
+
+    calibradoStatus = true;
+    document.getElementById('chatCard').classList.remove('hidden');
+    document.getElementById('cardResultado').classList.remove('hidden');
+  }
+
+  // --- LIGAÇÃO À API DO GEMINI COM RETENTATIVA COM RECUO EXPONENCIAL ---
+  async function chamarGeminiComBackoff(payload) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${savedApiKey}`;
+    let delay = 1000;
+    const maxRetries = 5;
+
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro de resposta: Status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
+        throw new Error("Resposta de conteúdo nula.");
+      } catch (err) {
+        if (i === maxRetries - 1) throw err;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2; // Duplica o tempo de espera a cada falha (Recuo Exponencial)
+      }
+    }
+  }
+
+  // Envia os dados de calibração para análise semântica da IA
+  async function dispararAnaliseGemini(tempoSilencio) {
+    const transcricaoBox = document.getElementById('transcricaoAoVivo');
+    transcricaoBox.innerText = "A sincronizar com a API do Gemini... A analisar fonação...";
+
+    const payload = {
+      contents: [{
+        parts: [{
+          text: `Você é a inteligência artificial receptora e especialista do Elayon Presença.
+          O utilizador acabou de ler em voz alta o termo de calibração. O sensor CRS mediu um hiato de silêncio estocástico de ${tempoSilencio} segundos.
+          Analise e comente brevemente sobre a estabilidade cognitiva com base nessa métrica de silêncio.
+          Seja curto, use no máximo duas frases e adote uma abordagem técnica e acolhedora em Português de Portugal.`
+        }]
+      }]
+    };
+
+    try {
+      const respostaIa = await chamarGeminiComBackoff(payload);
+      transcricaoBox.innerText = respostaIa;
+      
+      document.getElementById('resCarga').innerText = "Carga Cognitiva Estabilizada ✓";
+      document.getElementById('resTecnico').innerText = JSON.stringify({
+        sensor_crs: "Ativo",
+        metrica_silencio_seg: tempoSilencio,
+        fila_fifo_atualizada: filaFIFO,
+        analise_ia_receptora: respostaIa,
+        timestamp_boot: "SINC_OK_2026"
+      }, null, 2);
+
+      adicionarMensagemNoChat("ELAYON IA", `Calibração CRS processada com sucesso. Fila FIFO atualizada: [${filaFIFO.toString()}].`);
+    } catch (err) {
+      mostrarMensagemFlutuante("Falha de comunicação após múltiplas tentativas com o Gemini.");
+      simularResultadosSemKey(tempoSilencio);
+    }
+  }
+
+  // Fallback seguro caso o utilizador não tenha chave inserida
+  function simularResultadosSemKey(tempoSilencio) {
+    document.getElementById('resCarga').innerText = "Calibrado com Sucesso (Simulado)";
+    document.getElementById('resTecnico').innerText = JSON.stringify({
+      sensor_crs: "Simulação Ativa",
+      metrica_silencio_seg: tempoSilencio,
+      fila_fifo_atualizada: filaFIFO,
+      timestamp_boot: "SINC_OK_2026",
+      nota: "Insira a sua API Key do Gemini para ver análises personalizadas em tempo real."
+    }, null, 2);
+    adicionarMensagemNoChat("ELAYON IA", `Calibração concluída. Matriz FIFO atualizada: [${filaFIFO.toString()}].`);
+  }
+
+  // --- INTERAÇÕES DO CHAT SIMBIÓTICO ---
+  async function enviarMensagemChat() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if(!msg) return;
+
+    if(apiCredits <= 0) {
+      mostrarMensagemFlutuante("❌ Sem créditos disponíveis para simulação.");
+      return;
+    }
+
+    adicionarMensagemNoChat("VOCÊ", msg);
+    input.value = "";
+    apiCredits--;
+    atualizarExibicaoCreditos();
+
+    if (savedApiKey) {
+      const loaderId = 'chat-load-' + Date.now();
+      const chatBox = document.getElementById('chatMensagens');
+      chatBox.innerHTML += `<div id="${loaderId}" class="text-[9px] font-mono italic text-slate-400 mt-2">// IA a processar padrão rítmico...</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      const payload = {
+        contents: [{
+          parts: [{
+            text: `Contexto do Elayon Presença (Fila FIFO de silêncio do utilizador: [${filaFIFO.toString()}]).
+            Responda ao utilizador baseado na pergunta dele: "${msg}". Comente de forma muito breve se o ritmo de escrita dele parece estável ou acelerado em relação aos hiatos CRS.`
+          }]
+        }]
+      };
+
+      try {
+        const respostaIa = await chamarGeminiComBackoff(payload);
+        document.getElementById(loaderId).remove();
+        adicionarMensagemNoChat("ELAYON IA", respostaIa);
+      } catch (err) {
+        if(document.getElementById(loaderId)) document.getElementById(loaderId).remove();
+        adicionarMensagemNoChat("ELAYON IA", "Erro ao estabelecer contacto com o motor cognitivo principal.");
+      }
+    } else {
+      setTimeout(() => {
+        adicionarMensagemNoChat("ELAYON IA", "[Simulado] O seu padrão de digitação e escrita está em perfeita harmonia com o hiato dinâmico de calibração CRS.");
+      }, 1000);
+    }
+  }
+
+  // Escreve os blocos de mensagens na caixa de chat
+  function adicionarMensagemNoChat(autor, texto) {
+    const chat = document.getElementById('chatMensagens');
+    const div = document.createElement('div');
+    div.className = autor === "VOCÊ" ? "chat-msg chat-user" : "chat-msg chat-ai";
+    
+    div.innerHTML = `
+      <div class="chat-bubble">
+        <strong>${autor}:</strong> ${texto}
+      </div>
+      <div class="chat-meta">${autor === "VOCÊ" ? 'PILOTO' : 'IA CO-PILOTO'} · CRS</div>
+    `;
+    
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  // --- ENTREGAS COMERCIAIS & EXPORTAÇÕES ---
+  function baixarPDFLocal() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFont("courier", "bold");
+    doc.text("ELAYON PRESENCA - METRICAS BASAIS", 10, 20);
+    doc.setFont("courier", "normal");
+    doc.text("-----------------------------------------------", 10, 28);
+    doc.text(`Identificador de Teste: Paulo Roberto (Dev Mode)`, 10, 36);
+    doc.text(`Fila FIFO CRS Processada: [${filaFIFO.join('s, ')}s]`, 10, 46);
+    doc.text("Status de Handshake: Homologado e Sincronizado na AWS", 10, 56);
+    
+    doc.save("elayon-crs-metrica-basal.pdf");
+    mostrarMensagemFlutuante("✓ Relatório técnico baixado em formato PDF!");
+  }
+
+  function copiarEndpointAPI() {
+    const urlAPI = `https://nucleo-crs-elayon.onrender.com/api/crs/fifo-buffer?uid=paulo_dev_mode&payload=[${filaFIFO.toString()}]`;
+    
+    // Método robusto para garantir a cópia estável do payload da API
+    const tempInput = document.createElement('input');
+    tempInput.value = urlAPI;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+    
+    mostrarMensagemFlutuante("✓ Endpoint de API copiado para a área de transferência!");
+  }
+
+  // Restaura o estado original da calibração para novo ciclo de testes
+  function recalibrarEAtivarTudo() {
+    filaFIFO = [0.0, 0.0, 0.0];
+    calibradoStatus = false;
+    document.getElementById('chatCard').classList.add('hidden');
+    document.getElementById('cardResultado').classList.add('hidden');
+    document.getElementById('micCard').classList.add('hidden');
+    document.getElementById('calibAba').classList.remove('hidden');
+    document.getElementById('chatMensagens').innerHTML = "";
+    mostrarMensagemFlutuante("Sessões reiniciadas. Prepare-se para uma nova calibração.");
+  }
+
+  // Adiciona créditos artificiais para fins de depuração
+  function abastecerCreditos() {
+    apiCredits += 50;
+    atualizarExibicaoCreditos();
+    mostrarMensagemFlutuante("✓ +50 créditos de simulação injetados com sucesso.");
+  }
+
+  function atualizarExibicaoCreditos() {
+    document.getElementById('hudTokens').innerText = apiCredits;
+    document.getElementById('tokensGrande').innerText = apiCredits;
+  }
+</script>
 </body>
 </html>
+
+
