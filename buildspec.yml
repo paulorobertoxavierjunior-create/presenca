@@ -1,0 +1,45 @@
+version: 0.2
+
+env:
+  # Captura as chaves criptografadas diretamente do AWS Systems Manager (SSM) Parameter Store
+  parameter-store:
+    AMAZON_APPSTORE_KEY: "/elaion/appstore/auth_key"
+    AMAZON_APP_ID: "/elaion/appstore/app_id"
+    AMAZON_RELEASE_ID: "/elaion/appstore/release_id"
+    AMAZON_SKU: "/elaion/appstore/sku"
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17 # JDK oficial e estável para compilação Android Gradle moderna
+    commands:
+      - echo "==> A configurar o ambiente do Android SDK no contentor..."
+      - export ANDROID_HOME=/usr/local/android-sdk-linux
+      - export PATH=$PATH:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools
+
+  pre_build:
+    commands:
+      - echo "==> A preparar o diretório de Assets do aplicativo Elaion..."
+      - # Cria a pasta assets caso ela não exista na raiz do projeto nativo/híbrido
+      - mkdir -p app/src/main/assets
+      - echo "==> A gravar a chave AppstoreAuthenticationKey.pem a partir dos segredos da AWS..."
+      - echo "$AMAZON_APPSTORE_KEY" > app/src/main/assets/AppstoreAuthenticationKey.pem
+      - echo "==> Validação e injeção da chave de autenticação concluída com sucesso!"
+      - chmod +x gradlew
+
+  build:
+    commands:
+      - echo "==> A iniciar a compilação do APK do aplicativo Elaion..."
+      - ./gradlew assembleRelease
+      - ./gradlew bundleRelease
+
+  post_build:
+    commands:
+      - echo "==> Processo de compilação da AWS terminado com sucesso!"
+      - echo "==> Identificador da Aplicação Compilada: $AMAZON_APP_ID"
+
+artifacts:
+  files:
+    - 'app/build/outputs/apk/release/*.apk'
+    - 'app/build/outputs/bundle/release/*.aab'
+  name: ElaionBuilds-$(date +%Y-%m-%d_%H-%M-%S)
