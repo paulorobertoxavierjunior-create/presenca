@@ -1,4 +1,17 @@
 
+// ============================================================================
+// CREDENCIAIS DE AUTENTICAÇÃO INTEGRADAS NATIVAMENTE - AMAZON APPSTORE
+// ============================================================================
+const AMAZON_APPSTORE_METADATA = {
+    appName: "Elaion",
+    sku: "paulo.elaion",
+    appId: "amzn1.devportal.mobileapp.3686be6f723b4d029baa60e593ecbb66",
+    releaseId: "amzn1.devportal.apprelease.7fbe0ccdb72e4e45b608536b46373f5d",
+    publicKeyPath: "./AppstoreAuthenticationKey.pem"
+};
+console.log("✓ [Amazon Appstore] Metadados de handshake injetados com sucesso.");
+// ============================================================================
+
 // Complete, well-commented, runnable code for app.js in the "presenca" repository
 // app.js - Módulo de Conexão Física e Transmissão CRS do Elayon Presença
 
