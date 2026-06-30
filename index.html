@@ -66,7 +66,8 @@
         let totalSilencioDetectado = 0;
         
         // Altere a URL conforme o ambiente: Localhost (http://localhost:5000/api/crs/fifo-buffer) ou Render
-        const URL_BACKEND = "https://nucleo-crs-elayon.onrender.com/api/crs/fifo-buffer";
+        const URL_BACKEND = "// Localiza esta linha e altera para:
+const URL_BACKEND = "http://localhost:5000/api/crs/fifo-buffer";
 
         function atualizarExibicaoCreditos() {
             console.log(`[ELAYON-UI] Atualizando contador de créditos para: ${apiCredits}`);
