@@ -2,30 +2,259 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Elayon Presença - Painel CRS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elayon Presença — Laboratório de Calibração Basal</title>
     <style>
-        body { background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', sans-serif; margin: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-        .btn { background: #238636; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        /* Estilização Geral do Ecossistema Elayon */
+        body { 
+            background: #0d1117; 
+            color: #c9d1d9; 
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+        }
+        .card { 
+            background: #161b22; 
+            border: 1px solid #30363d; 
+            border-radius: 8px; 
+            padding: 25px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        h2, h3, h4 { 
+            color: #58a6ff; 
+            margin-top: 0; 
+            font-weight: 600;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        /* Formulários e Inputs */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-size: 12px;
+            color: #8b949e;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        input, select, textarea {
+            background: #010409;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #58a6ff;
+            outline: none;
+        }
+        
+        /* Botões */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn { 
+            background: #238636; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #2ea043; }
         .btn-stop { background: #da3633; }
-        .hidden { display: none; }
-        .wave-container { display: flex; gap: 4px; height: 60px; align-items: center; margin: 20px 0; }
-        .wave-bar { width: 8px; height: 10px; background: #58a6ff; border-radius: 4px; transition: height 0.1s ease; }
-        .wave-bar.on { background: #238636; }
-        pre { background: #010409; padding: 15px; border-radius: 6px; overflow-x: auto; color: #7ee787; font-family: monospace; }
-        .status-panel { display: flex; justify-content: space-between; background: #21262d; padding: 10px; border-radius: 6px; font-size: 14px; }
+        .btn-stop:hover { background: #f85149; }
+        .btn-secondary { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; }
+        .btn-secondary:hover { background: #30363d; }
+        
+        /* Painéis de Status e Feedback */
+        .status-panel { 
+            display: flex; 
+            justify-content: space-between; 
+            background: #21262d; 
+            padding: 12px 15px; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            margin-bottom: 20px;
+            border: 1px solid #30363d;
+        }
+        .badge {
+            font-weight: bold;
+            color: #58a6ff;
+        }
+        .hidden { display: none !important; }
+        
+        /* Animação Gráfica do Sinal de Áudio */
+        .wave-container { 
+            display: flex; 
+            gap: 6px; 
+            height: 60px; 
+            align-items: center; 
+            margin: 20px 0; 
+            background: #010409;
+            padding: 10px;
+            border-radius: 6px;
+            justify-content: center;
+            border: 1px solid #21262d;
+        }
+        .wave-bar { 
+            width: 8px; 
+            height: 15px; 
+            background: #21262d; 
+            border-radius: 4px; 
+            transition: height 0.1s ease, background 0.2s; 
+        }
+        .wave-bar.on { background: #58a6ff; }
+        
+        /* Terminais de Log e Códigos */
+        pre, .log-box { 
+            background: #010409; 
+            padding: 15px; 
+            border-radius: 6px; 
+            overflow-x: auto; 
+            color: #7ee787; 
+            font-family: 'Fira Code', monospace; 
+            font-size: 13px;
+            border: 1px solid #30363d;
+            line-height: 1.5;
+        }
+        .log-box {
+            color: #58a6ff;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        /* Notificação Flutuante (Toast) */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #238636;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1000;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+
         <div class="card">
-            <h2>🔊 Elayon Presença — Calibração CRS</h2>
-            <div class="status-panel">
-                <div>Créditos API: <span id="apiCreditos">100</span></div>
-                <div>Estado: <span id="micEstado" style="color: #58a6ff;">Pronto</span></div>
+            <div class="section-title">
+                <h2>⚙️ Central de Infraestrutura Física</h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Endpoint do Motor FastAPI (Local ou Nuvem)</label>
+                    <input type="text" id="backendUrlInput" value="http://localhost:8000" placeholder="Ex: http://192.168.100.100:8000">
+                </div>
+                <div class="form-group">
+                    <label>Provedor de Cognição</label>
+                    <select id="iaProvedor">
+                        <option value="gemini" selected>Google Gemini API (v1 Estável)</option>
+                        <option value="contingencia">Modo Contingência Local</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Chave de Acesso Externa (Injetada Localmente)</label>
+                <input type="password" id="iaApiKey" placeholder="Insira sua chave privada de IA...">
+            </div>
+        </div>
+
+        <div class="card" id="cardCadastroUsuario">
+            <div class="section-title">
+                <h2>👤 Identificação do Piloto & Expansão de Token</h2>
+            </div>
+            <p style="font-size: 14px; color: #8b949e; margin-bottom: 20px;">
+                Preencha os dados de assinatura técnica para vincular sua biometria e habilitar o recebimento de alertas de cota e atualizações da engine.
+            </p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nome Completo do Operador</label>
+                    <input type="text" id="usrNome" placeholder="Ex: Paulo Roberto Xavier Júnior">
+                </div>
+                <div class="form-group">
+                    <label>E-mail Corporativo / Notificações</label>
+                    <input type="email" id="usrEmail" placeholder="seu-email@dominio.com">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Canal de Atualizações</label>
+                    <select id="usrMailing">
+                        <option value="full">Receber Atualizações de Carga & Ingestão de Tokens</option>
+                        <option value="alertas">Apenas Alertas Críticos de Saldo Esgotado</option>
+                        <option value="desativado">Não assinar novidades</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Perfil Operacional</label>
+                    <input type="text" id="usrCargo" value="Desenvolvedor Líder" readonly style="background: #161b22; color: #8b949e;">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn" onclick="registrarEGerarRelatorioBasal()">✓ Assinar Termo de Responsabilidade</button>
             </div>
             
+            <div id="relatorioCadastroBox" class="hidden" style="margin-top: 20px; border-top: 1px solid #21262d; padding-top: 15px;">
+                <h4>📄 Relatório Digital de Registro Emitido</h4>
+                <pre id="relatorioCadastroTexto">Aguardando assinatura técnica...</pre>
+            </div>
+        </div>
+
+        <!-- CARD 3: PIEPLINE ACÚSTICO CRS (MODO INVISÍVEL NO FUTURO, EXPOSTO PARA TESTE AGORA) -->
+        <div class="card" id="micCard">
+            <div class="section-title">
+                <h2>🔊 Captura de Sinal Acústico e Calibração Basal</h2>
+            </div>
+            
+            <div class="status-panel">
+                <div>Créditos do Token API: <span id="apiCreditos" class="badge">100</span></div>
+                <div>Cronômetro: <span id="micTimer" class="badge">00:00</span></div>
+                <div>Estado da Engine: <span id="micEstado" style="color: #58a6ff; font-weight: bold;">Pronto</span></div>
+            </div>
+
+            <!-- Visualizador Gráfico das Ondas de Fonação -->
             <div class="wave-container" id="waveContainer">
                 <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
                 <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
@@ -33,252 +262,64 @@
                 <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
             </div>
 
-            <div style="margin-top: 15px;">
-                <button id="micBtnIniciar" class="btn" onclick="iniciarLeitura()">Iniciar Captura de Fonação</button>
-                <button id="micBtnParar" class="btn btn-stop hidden" onclick="encerrarEProcessarLeitura()">Encerrar e Processar Sinal</button>
+            <!-- Texto Sagrado de Calibração Técnica -->
+            <div style="margin-bottom: 15px;">
+                <label>Texto de Coerência Biométrica (Leia em voz alta ao iniciar):</label>
+                <p id="textoCalibracao" style="background: #010409; padding: 12px; border-radius: 6px; border: 1px solid #21262d; font-style: italic; color: #8b949e; line-height: 1.4;">
+                    Assumo a responsabilidade técnica sobre este sinal. O motor medirá o silêncio e o ritmo sem julgamentos para ajustar a resposta da inteligência artificial receptora.
+                </p>
             </div>
-            <p id="transcricaoAoVivo" style="font-style: italic; color: #8b949e; margin-top: 15px;">Aguardando ativação do hardware de áudio...</p>
+
+            <!-- Caixa de Texto da Transcrição Corrigida (Evita Acúmulo de Loops) -->
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Vetor de Texto Capturado (Buffer Dinâmico)</label>
+                <textarea id="transcricaoAoVivo" style="width: 100%; height: 80px; background: #010409; color: #7ee787; font-family: monospace;" readonly>Aguardando ativação do hardware acústico físico...</textarea>
+            </div>
+
+            <div class="btn-group">
+                <button id="micBtnIniciar" class="btn" onclick="iniciarLeituraAjustada()">Iniciar Captura de Fonação</button>
+                <button id="micBtnParar" class="btn btn-stop hidden" onclick="encerrarEPipelineCRS()">Encerrar e Processar Sinal</button>
+                <button class="btn btn-secondary" onclick="recalibrarEAtivarTudo()">Limpar Painel</button>
+            </div>
         </div>
 
+        <!-- CARD 4: CONSOLE DE HANDSHAKE INFRAESTRUTURA (EXCLUSIVO PARA NOSSO DE BUG LOCAL) -->
+        <div class="card" id="infraPainelDev" style="border-color: #ff7b72;">
+            <div class="section-title">
+                <h3 style="color: #ff7b72; margin-bottom: 0;">🛠️ Console de Handshake Presença ➔ CRS FULL</h3>
+            </div>
+            <p style="font-size: 12px; color: #8b949e; margin-top: -10px; margin-bottom: 10px;">
+                Este terminal monitora a conexão física viva do seu celular/navegador com o arquivo <code style="color: #ff7b72;">main.py</code> na porta 8000.
+            </p>
+            <div id="infraConsoleLog" class="log-box">[ELAYON-INIT] Inicializando esteira do Front-end... Aguardando disparo físico.</div>
+        </div>
+
+        <!-- CARD 5: RELATÓRIO DO MOTOR E CHAT SIMBIÓTICO COGNITIVO -->
         <div id="cardResultado" class="card hidden">
-            <h3>📊 Pipeline CRS — Resposta do Servidor</h3>
-            <p>Carga Cognitiva Estimada: <strong id="resCarga" style="color: #ff7b72;">-</strong></p>
-            <h4>Relatório Técnico Multimodal:</h4>
-            <pre id="resTecnico">Aguardando payload...</pre>
+            <h3>📊 Resposta do Servidor FastAPI (Vetor CRS)</h3>
+            <p style="font-size: 15px;">Diagnóstico de Sobrecarga Cruzada: <strong id="resCarga" style="color: #ff7b72;">-</strong></p>
+            <h4>Metadados Técnicos de Ingestão:</h4>
+            <pre id="resTecnico">Aguardando payload do motor local...</pre>
         </div>
 
         <div id="chatCard" class="card hidden">
-            <h3>🤖 Elayon IA — Feedback</h3>
-            <div id="chatLogs" style="max-height: 150px; overflow-y: auto; font-size: 14px; color: #c9d1d9;"></div>
+            <h3>🤖 Elayon IA — Feedback Baseado em Ritmo</h3>
+            <div id="chatMensagens" style="max-height: 200px; overflow-y: auto; background: #010409; padding: 15px; border-radius: 6px; border: 1px solid #21262d; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;"></div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="chatInput" placeholder="Envie uma mensagem de texto pós-calibração..." style="flex: 1;">
+                <button class="btn" onclick="enviarMensagemChat()">Enviar</button>
+            </div>
         </div>
+
     </div>
+
+    <!-- Elemento Flutuante Toast -->
+    <div id="toastNotification" class="toast">✓ Sucesso</div>
+
+    <!-- Injeção Externa do Script de Controle Lógico -->
+    <script src="app.js"></script>
     <script>
-        console.log("[ELAYON-INIT] Inicializando a esteira de estado do Front-end...");
-        
-        let apiCredits = 100;
-        let filaFIFO = [0.0, 0.0, 0.0, 0.0, 0.0];
-        let audioContext = null;
-        let analyser = null;
-        let microphoneStream = null;
-        let audioAnimationId = null;
-        let timerInterval = null;
-        let segundosGravados = 0;
-        let totalSilencioDetectado = 0;
-        
-        // Altere a URL conforme o ambiente: Localhost (http://localhost:5000/api/crs/fifo-buffer) ou Render
-        const URL_BACKEND = "// Localiza esta linha e altera para:
-const URL_BACKEND = "http://localhost:5000/api/crs/fifo-buffer";
-
-        function atualizarExibicaoCreditos() {
-            console.log(`[ELAYON-UI] Atualizando contador de créditos para: ${apiCredits}`);
-            document.getElementById('apiCreditos').innerText = apiCredits;
-        }
-
-        function adicionarMensagemNoChat(emissor, texto) {
-            console.log(`[ELAYON-CHAT] [${emissor}]: ${texto}`);
-            const chatLogs = document.getElementById('chatLogs');
-            const p = document.createElement('p');
-            p.innerHTML = `<strong>[${emissor}]</strong>: ${texto}`;
-            chatLogs.appendChild(p);
-            chatLogs.scrollTop = chatLogs.scrollHeight;
-        }
-
-        async function iniciarLeitura() {
-            console.log("[ELAYON-AUDIO] Tentando acessar o hardware de áudio (Microfone)...");
-            if (apiCredits <= 0) {
-                console.error("[ELAYON-AUTH] Bloqueado: Saldo de créditos esgotado.");
-                alert("Créditos esgotados!");
-                return;
-            }
-
-            try {
-                navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia ||
-                                                      navigator.mediaDevices.webkitGetUserMedia ||
-                                                      navigator.mediaDevices.mozGetUserMedia;
-
-                if (!navigator.mediaDevices.getUserMedia) {
-                    throw new Error("API getUserMedia não suportada neste navegador.");
-                }
-
-                microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                console.log("[ELAYON-AUDIO] Permissão de microfone concedida com sucesso.");
-
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                audioContext = new AudioContextClass();
-                console.log(`[ELAYON-AUDIO] AudioContext iniciado. Estado atual: ${audioContext.state}`);
-
-                const source = audioContext.createMediaStreamSource(microphoneStream);
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                source.connect(analyser);
-                console.log("[ELAYON-AUDIO] Pipeline Web Audio API montada (Source -> Analyser).");
-
-                document.getElementById('micBtnIniciar').classList.add('hidden');
-                document.getElementById('micBtnParar').classList.remove('hidden');
-                document.getElementById('micEstado').innerText = "Analisando em tempo real...";
-                document.getElementById('micEstado').style.color = "#238636";
-                document.getElementById('transcricaoAoVivo').innerText = "Capturando oscilações e silêncios temporais...";
-
-                segundosGravados = 0;
-                totalSilencioDetectado = 0;
-                
-                timerInterval = setInterval(() => {
-                    segundosGravados++;
-                    console.log(`[ELAYON-TIMER] Tempo decorrido de leitura: ${segundosGravados}s`);
-                }, 1000);
-
-                animarBarrasAudio();
-            } catch (err) {
-                console.error("[ELAYON-AUDIO-FATAL] Falha crítica ao inicializar o hardware de áudio:", err);
-                document.getElementById('transcricaoAoVivo').innerText = `Erro de Hardware: ${err.message}`;
-            }
-        }
-
-        function animarBarrasAudio() {
-            if (!analyser) return;
-            audioAnimationId = requestAnimationFrame(animarBarrasAudio);
-
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            analyser.getByteFrequencyData(dataArray);
-
-            let soma = 0;
-            for (let i = 0; i < bufferLength; i++) {
-                soma += dataArray[i];
-            }
-            let volumeMedio = soma / bufferLength;
-
-            if (volumeMedio < 15) {
-                totalSilencioDetectado += 0.016; 
-            }
-
-            const barras = document.querySelectorAll('.wave-bar');
-            barras.forEach((barra, index) => {
-                let valorData = dataArray[index % bufferLength] || 0;
-                let alturaCalculada = Math.max(10, Math.min(60, valorData / 4));
-                barra.style.height = `${alturaCalculada}px`;
-                if (valorData > 20) {
-                    barra.classList.add('on');
-                } else {
-                    barra.classList.remove('on');
-                }
-            });
-        }
-        async function encerrarEProcessarLeitura() {
-            console.log("[ELAYON-PIPELINE] Encerrando captura de fonação física...");
-            
-            if (microphoneStream) {
-                console.log("[ELAYON-AUDIO] Fechando todas as faixas do MediaStream de áudio.");
-                microphoneStream.getTracks().forEach(track => {
-                    track.stop();
-                    console.log(`[ELAYON-AUDIO] Track ${track.label} parada.`);
-                });
-            }
-
-            if (audioContext) {
-                console.log("[ELAYON-AUDIO] Fechando o AudioContext...");
-                await audioContext.close();
-                console.log("[ELAYON-AUDIO] AudioContext finalizado totalmente.");
-            }
-
-            if (audioAnimationId) {
-                cancelAnimationFrame(audioAnimationId);
-                console.log("[ELAYON-UI] Loop de animação de onda cancelado.");
-            }
-            
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                console.log("[ELAYON-TIMER] Cronômetro de fonação interrompido.");
-            }
-
-            document.getElementById('micBtnParar').classList.add('hidden');
-            document.getElementById('micBtnIniciar').classList.remove('hidden');
-            document.getElementById('micEstado').innerText = "Análise concluída";
-            document.getElementById('micEstado').style.color = "#58a6ff";
-            
-            document.querySelectorAll('.wave-bar').forEach(bar => {
-                bar.classList.remove('on');
-                bar.style.height = "10px";
-            });
-
-            apiCredits--;
-            atualizarExibicaoCreditos();
-
-            let metricaSilencioSessao = parseFloat(Math.min(totalSilencioDetectado, segundosGravados).toFixed(2));
-            if (isNaN(metricaSilencioSessao) || metricaSilencioSessao === 0) {
-                metricaSilencioSessao = parseFloat((Math.random() * 1.1 + 0.2).toFixed(2));
-                console.log(`[ELAYON-CORE] Métrica gerada por aproximação estocástica: ${metricaSilencioSessao}s`);
-            } else {
-                console.log(`[ELAYON-CORE] Métrica real de silêncio extraída do analisador: ${metricaSilencioSessao}s`);
-            }
-            
-            filaFIFO.shift();
-            filaFIFO.push(metricaSilencioSessao);
-            console.log(`[ELAYON-FIFO] Fila estruturada local atualizada: [${filaFIFO.join(', ')}]`);
-
-            document.getElementById('transcricaoAoVivo').innerText = "Fazendo ingestão do sinal no CRS-FULL backend...";
-            console.log(`[ELAYON-FETCH] Iniciando chamada HTTP POST para: ${URL_BACKEND}`);
-
-            const payloadEnvio = {
-                uid: 'paulo_dev_mode',
-                silencio_seg: metricaSilencioSessao,
-                duracao: segundosGravados
-            };
-            console.log("[ELAYON-FETCH] Payload estruturado montado:", JSON.stringify(payloadEnvio));
-
-            document.getElementById('cardResultado').classList.remove('hidden');
-            document.getElementById('chatCard').classList.remove('hidden');
-
-            try {
-                console.log("[ELAYON-NET] Disparando fetch de rede...");
-                const response = await fetch(URL_BACKEND, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(payloadEnvio)
-                });
-
-                console.log(`[ELAYON-NET] Resposta recebida do servidor. Status HTTP: ${response.status} (${response.statusText})`);
-
-                if (!response.ok) {
-                    throw new Error(`Erro de comunicação com o backend. Status HTTP: ${response.status}`);
-                }
-                
-                const dadosServidor = await response.json();
-                console.log("[ELAYON-NET] JSON parseado com sucesso vindo do crs-full:", dadosServidor);
-
-                document.getElementById('resCarga').innerText = dadosServidor.carga_cognitiva;
-                document.getElementById('resTecnico').innerText = JSON.stringify({
-                    sensor_crs: "Nativo / Conexão Viva Ativa",
-                    endpoint: "/api/crs/fifo-buffer",
-                    status_pipeline: "HANDSHAKE_CONCLUIDO_OK",
-                    metrica_silencio_seg: dadosServidor.metrica_silencio_seg,
-                    duracao_total_seg: dadosServidor.duracao_total_seg,
-                    fila_fifo_atualizada: filaFIFO,
-                    timestamp_servidor: dadosServidor.timestamp_server
-                }, null, 2);
-
-                document.getElementById('transcricaoAoVivo').innerText = "Sinal integrado com sucesso!";
-                adicionarMensagemNoChat("ELAYON ENGINE", `Handshake executado com sucesso. Carga cognitiva: ${dadosServidor.carga_cognitiva}`);
-
-            } catch (err) {
-                console.error("[ELAYON-NET-ERROR] Falha crítica na requisição HTTP:", err);
-                document.getElementById('transcricaoAoVivo').innerText = "Falha de conexão. Veja o console do desenvolvedor.";
-                
-                document.getElementById('resCarga').innerText = "Modo Contingência (Offline)";
-                document.getElementById('resTecnico').innerText = JSON.stringify({
-                    status_pipeline: "ERRO_CONEXAO_BACKEND",
-                    detalhes_erro: err.message,
-                    url_tentada: URL_BACKEND,
-                    acao_sugerida: "Verifique se o backend crs-full está rodando localmente ou se o contêiner do Render concluiu o build.",
-                    fila_fifo_local: filaFIFO
-                }, null, 2);
-
-                adicionarMensagemNoChat("SISTEMA ALERTA", `Não foi possível alcançar o CRS-FULL. Erro: ${err.message}`);
-            }
-        }
+        console.log("✓ [Elayon DOM] Árvore HTML index montada e pronta para o app.js");
     </script>
 </body>
 </html>
