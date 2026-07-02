@@ -184,8 +184,8 @@
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Endpoint do Motor FastAPI (Local ou Nuvem)</label>
-                    <input type="text" id="backendUrlInput" value="http://localhost:8000" placeholder="Ex: http://192.168.100.100:8000">
+                    <label>Endpoint do Motor (Local ou Nuvem)</label>
+                    <input type="text" id="backendUrlInput" value="http://localhost:5000" placeholder="Ex: http://localhost:5000">
                 </div>
                 <div class="form-group">
                     <label>Provedor de Cognição</label>
@@ -242,7 +242,6 @@
             </div>
         </div>
 
-        <!-- CARD 3: PIEPLINE ACÚSTICO CRS (MODO INVISÍVEL NO FUTURO, EXPOSTO PARA TESTE AGORA) -->
         <div class="card" id="micCard">
             <div class="section-title">
                 <h2>🔊 Captura de Sinal Acústico e Calibração Basal</h2>
@@ -254,7 +253,6 @@
                 <div>Estado da Engine: <span id="micEstado" style="color: #58a6ff; font-weight: bold;">Pronto</span></div>
             </div>
 
-            <!-- Visualizador Gráfico das Ondas de Fonação -->
             <div class="wave-container" id="waveContainer">
                 <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
                 <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
@@ -262,7 +260,6 @@
                 <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
             </div>
 
-            <!-- Texto Sagrado de Calibração Técnica -->
             <div style="margin-bottom: 15px;">
                 <label>Texto de Coerência Biométrica (Leia em voz alta ao iniciar):</label>
                 <p id="textoCalibracao" style="background: #010409; padding: 12px; border-radius: 6px; border: 1px solid #21262d; font-style: italic; color: #8b949e; line-height: 1.4;">
@@ -270,7 +267,6 @@
                 </p>
             </div>
 
-            <!-- Caixa de Texto da Transcrição Corrigida (Evita Acúmulo de Loops) -->
             <div class="form-group" style="margin-bottom: 20px;">
                 <label>Vetor de Texto Capturado (Buffer Dinâmico)</label>
                 <textarea id="transcricaoAoVivo" style="width: 100%; height: 80px; background: #010409; color: #7ee787; font-family: monospace;" readonly>Aguardando ativação do hardware acústico físico...</textarea>
@@ -283,20 +279,15 @@
             </div>
         </div>
 
-        <!-- CARD 4: CONSOLE DE HANDSHAKE INFRAESTRUTURA (EXCLUSIVO PARA NOSSO DE BUG LOCAL) -->
         <div class="card" id="infraPainelDev" style="border-color: #ff7b72;">
             <div class="section-title">
-                <h3 style="color: #ff7b72; margin-bottom: 0;">🛠️ Console de Handshake Presença ➔ CRS FULL</h3>
+                <h3 style="color: #ff7b72; margin-bottom: 0;">🛠️ Console de Handshake Presença ➔ CRS</h3>
             </div>
-            <p style="font-size: 12px; color: #8b949e; margin-top: -10px; margin-bottom: 10px;">
-                Este terminal monitora a conexão física viva do seu celular/navegador com o arquivo <code style="color: #ff7b72;">main.py</code> na porta 8000.
-            </p>
             <div id="infraConsoleLog" class="log-box">[ELAYON-INIT] Inicializando esteira do Front-end... Aguardando disparo físico.</div>
         </div>
 
-        <!-- CARD 5: RELATÓRIO DO MOTOR E CHAT SIMBIÓTICO COGNITIVO -->
         <div id="cardResultado" class="card hidden">
-            <h3>📊 Resposta do Servidor FastAPI (Vetor CRS)</h3>
+            <h3>📊 Resposta do Servidor (Vetor CRS)</h3>
             <p style="font-size: 15px;">Diagnóstico de Sobrecarga Cruzada: <strong id="resCarga" style="color: #ff7b72;">-</strong></p>
             <h4>Metadados Técnicos de Ingestão:</h4>
             <pre id="resTecnico">Aguardando payload do motor local...</pre>
@@ -313,13 +304,230 @@
 
     </div>
 
-    <!-- Elemento Flutuante Toast -->
     <div id="toastNotification" class="toast">✓ Sucesso</div>
 
-    <!-- Injeção Externa do Script de Controle Lógico -->
-    <script src="app.js"></script>
     <script>
-        console.log("✓ [Elayon DOM] Árvore HTML index montada e pronta para o app.js");
+        let engineSpeech = null;
+        let metricasAudio = { tempoInicio: null, tempoFim: null, totalCaracteres: 0 };
+        let loopAnimacaoOndas = null;
+
+        const consoleLogs = document.getElementById("infraConsoleLog");
+        const inputBackendUrl = document.getElementById("backendUrlInput");
+
+        function registrarLog(mensagem) {
+            const timestamp = new Date().toLocaleTimeString();
+            consoleLogs.innerText += `\n[${timestamp}] ${mensagem}`;
+            consoleLogs.scrollTop = consoleLogs.scrollHeight;
+        }
+
+        function dispararToast(mensagem, cor = "#238636") {
+            const toast = document.getElementById("toastNotification");
+            toast.innerText = mansion;
+            toast.innerText = mensagem;
+            toast.style.background = cor;
+            toast.style.display = "block";
+            setTimeout(() => { toast.style.display = "none"; }, 3000);
+        }
+
+        function registrarEGerarRelatorioBasal() {
+            const nome = document.getElementById("usrNome").value.trim();
+            const email = document.getElementById("usrEmail").value.trim();
+            const mailing = document.getElementById("usrMailing").value;
+
+            if (!nome || !email) {
+                dispararToast("⚠️ Preencha o Nome e E-mail para assinar.", "#da3633");
+                return;
+            }
+
+            const docAssinatura = {
+                operador: nome,
+                contato: email,
+                regime_notificacao: mailing,
+                timestamp_registro: new Date().toISOString(),
+                status_token: "ATIVO_PROVISORIO",
+                hash_seguranca: "ELAYON-SHA256-" + Math.random().toString(36).substring(2, 10).toUpperCase()
+            };
+
+            document.getElementById("relatorioCadastroTexto").innerText = JSON.stringify(docAssinatura, null, 4);
+            document.getElementById("relatorioCadastroBox").classList.remove("hidden");
+            
+            registrarLog(`✓ Piloto registrado com sucesso: ${nome}`);
+            dispararToast("✓ Termo de Responsabilidade Assinado!");
+        }
+
+        function simularOndasAcusticas(estaAtivo) {
+            const barras = document.querySelectorAll(".wave-bar");
+            if (!estaAtivo) {
+                clearInterval(loopAnimacaoOndas);
+                barras.forEach(b => { b.style.height = "15px"; b.classList.remove("on"); });
+                return;
+            }
+
+            loopAnimacaoOndas = setInterval(() => {
+                barras.forEach(b => {
+                    if (Math.random() > 0.3) {
+                        b.style.height = `${Math.floor(Math.random() * 45) + 15}px`;
+                        b.classList.add("on");
+                    } else {
+                        b.style.height = "15px";
+                        b.classList.remove("on");
+                    }
+                });
+            }, 100);
+        }
+
+        function iniciarLeituraAjustada() {
+            const SpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechAPI) {
+                alert("A API de Voz não é suportada neste navegador. Use o Chrome.");
+                return;
+            }
+
+            engineSpeech = new SpeechAPI();
+            engineSpeech.continuous = true;
+            engineSpeech.interimResults = true;
+            engineSpeech.lang = 'pt-BR';
+
+            document.getElementById("transcricaoAoVivo").value = "Escutando canal acústico físico... Fale agora.";
+            document.getElementById("micEstado").innerText = "GRAVANDO";
+            document.getElementById("micEstado").style.color = "#da3633";
+            
+            document.getElementById("micBtnIniciar").classList.add("hidden");
+            document.getElementById("micBtnParar").classList.remove("hidden");
+
+            metricasAudio.tempoInicio = Date.now();
+            simularOndasAcusticas(true);
+            registrarLog("🎙️ Hardware de microfone ativo. Calibração iniciada.");
+
+            engineSpeech.onresult = (event) => {
+                let textoAcumulado = "";
+                for (let i = 0; i < event.results.length; ++i) {
+                    textoAcumulado += event.results[i][0].transcript;
+                }
+                document.getElementById("transcricaoAoVivo").value = textoAcumulado;
+                metricasAudio.totalCaracteres = textoAcumulado.length;
+            };
+
+            engineSpeech.onerror = (err) => { registrarLog(`⚠️ Falha áudio: ${err.error}`); };
+            engineSpeech.start();
+        }
+
+        async function encerrarEPipelineCRS() {
+            if (engineSpeech) { engineSpeech.stop(); }
+            metricasAudio.tempoFim = Date.now();
+            simularOndasAcusticas(false);
+
+            document.getElementById("micBtnParar").classList.add("hidden");
+            document.getElementById("micBtnIniciar").classList.remove("hidden");
+            document.getElementById("micEstado").innerText = "Processando...";
+            document.getElementById("micEstado").style.color = "#ff7b72";
+
+            const duracaoSegundos = ((metricasAudio.tempoFim - metricasAudio.tempoInicio) / 1000);
+            document.getElementById("micTimer").innerText = `${duracaoSegundos.toFixed(1)}s`;
+
+            registrarLog(`⏹️ Microfone fechado. Duração: ${duracaoSegundos.toFixed(1)}s.`);
+            await processarMetadadosNoServidor(duracaoSegundos);
+        }
+
+        async function processarMetadadosNoServidor(duracao) {
+            const urlBase = inputBackendUrl.value.trim();
+            const provedor = document.getElementById("iaProvedor").value;
+            const apiKey = document.getElementById("iaApiKey").value.trim();
+            const textoCapturado = document.getElementById("transcricaoAoVivo").value;
+
+            const payload = {
+                mensagem: textoCapturado,
+                provedor: provedor,
+                api_key_externa: apiKey || "MODO_LOCAL_SEM_CHAVE",
+                ritmo: {
+                    silencio_pct: duracao > 0 ? Math.min(Math.round((duracao * 2.5)), 100) : 0,
+                    hesitacao_pct: metricasAudio.totalCaracteres > 0 ? Math.min(Math.round((duracao / metricasAudio.totalCaracteres) * 100), 100) : 0,
+                    eventos: metricasAudio.totalCaracteres
+                }
+            };
+
+            registrarLog(`Despachando payload para: ${urlBase}/api/crs/processar`);
+
+            try {
+                const response = await fetch(`${urlBase}/api/crs/processar`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const dadosRetorno = await response.json();
+
+                if (response.ok) {
+                    registrarLog("✓ Handshake CRS concluído com sucesso!");
+                    document.getElementById("micEstado").innerText = "Pronto";
+                    document.getElementById("micEstado").style.color = "#2ea043";
+
+                    document.getElementById("cardResultado").classList.remove("hidden");
+                    document.getElementById("chatCard").classList.remove("hidden");
+                    
+                    document.getElementById("resCarga").innerText = dadosRetorno.analise_ritmo.carga;
+                    document.getElementById("resTecnico").innerText = JSON.stringify(dadosRetorno, null, 4);
+
+                    renderizarMensagemChat("IA", dadosRetorno.resposta);
+                    dispararToast("✓ Sincronização CRS Concluída!");
+                } else {
+                    registrarLog(`❌ Servidor Rejeitou: ${dadosRetorno.detail || "Erro desconhecido"}`);
+                    document.getElementById("micEstado").innerText = "Falha";
+                }
+            } catch (err) {
+                registrarLog(`❌ Erro de Rede: Não conectou em ${urlBase}. Verifique se o backend está ativo.`);
+                document.getElementById("micEstado").innerText = "Offline";
+                dispararToast("❌ Erro de conexão de rede.", "#da3633");
+            }
+        }
+
+        function renderizarMensagemChat(autor, texto) {
+            const caixaChat = document.getElementById("chatMensagens");
+            const containerMsg = document.createElement("div");
+            containerMsg.style.padding = "10px 14px";
+            containerMsg.style.borderRadius = "6px";
+            containerMsg.style.fontSize = "14px";
+            containerMsg.style.maxWidth = "85%";
+            
+            if (autor === "Usuário") {
+                containerMsg.style.background = "#21262d";
+                containerMsg.style.alignSelf = "flex-end";
+                containerMsg.style.color = "#c9d1d9";
+            } else {
+                containerMsg.style.background = "#1f6feb22";
+                containerMsg.style.border = "1px solid #1f6feb";
+                containerMsg.style.alignSelf = "flex-start";
+                containerMsg.style.color = "#58a6ff";
+            }
+            
+            containerMsg.innerHTML = `<strong>${autor}:</strong> ${texto}`;
+            caixaChat.appendChild(containerMsg);
+            caixaChat.scrollTop = caixaChat.scrollHeight;
+        }
+
+        function enviarMensagemChat() {
+            const input = document.getElementById("chatInput");
+            const txt = input.value.trim();
+            if (!txt) return;
+
+            renderizarMensagemChat("Usuário", txt);
+            input.value = "";
+            
+            setTimeout(() => {
+                renderizarMensagemChat("IA", "Canal acústico calibrado. Aguardando amostragem de voz para reajuste adaptativo.");
+            }, 1000);
+        }
+
+        function recalibrarEAtivarTudo() {
+            document.getElementById("transcricaoAoVivo").value = "Aguardando ativação do hardware acústico físico...";
+            document.getElementById("micTimer").innerText = "00:00";
+            document.getElementById("micEstado").innerText = "Pronto";
+            document.getElementById("micEstado").style.color = "#58a6ff";
+            document.getElementById("cardResultado").classList.add("hidden");
+            document.getElementById("chatCard").classList.add("hidden");
+            document.getElementById("chatMensagens").innerHTML = "";
+            registrarLog("[ELAYON-RESET] Painel reinicializado.");
+        }
     </script>
 </body>
 </html>
