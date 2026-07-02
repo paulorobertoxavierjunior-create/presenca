@@ -1,149 +1,120 @@
+# -*- coding: utf-8 -*-
+"""
+Elayon Presença - Motor de Infraestrutura e Gestão de Cadência Cognitiva (CRS)
+Framework: FastAPI | Versão: v3.0 Estável
+"""
+
 import os
-import uuid
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 
-app = FastAPI(title="Elayon CRS - Motor Presença Oficial v3.0") 
+app = FastAPI(
+    title="Elayon Presença Core Engine",
+    description="Motor central de processamento de ritmos biométricos e despacho adaptativo",
+    version="3.0.0"
+)
 
-# ==========================================
-# CONTROLE DE CORS (SEGURANÇA DO FRONT-END)
-# ==========================================
+# Configuração Ampla do Middleware CORS para Handshake com o Git Pages/Localhost
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://paulorobertoxavierjunior-create.github.io",
-        "http://localhost:5500",
-        "http://127.0.0.1:5500"
-    ],
+    allow_origins=["*"],  # Permite chamadas de qualquer origem física ou móvel
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# BANCO DE SESSÕES TEMPORÁRIO (EM MEMÓRIA)
-SESSÕES_ATIVAS = {}
+# Modelagem de Dados de Entrada (Contratos Pydantic)
+class MetricasRitmo(BaseModel):
+    silencio_pct: int
+    hesitacao_pct: int
+    eventos: int
 
-TEXTO_SAGRADO = "assumo a responsabilidade técnica sobre este sinal. o motor medirá o silêncio e o ritmo sem julgamentos para ajustar a resposta da inteligência artificial receptora."
-
-# ==========================================
-# MODELOS DE DADOS (PYDANTIC)
-# ==========================================
-class PacoteCalibracao(BaseModel):
-    texto_falado: str
-    silencio_calculado: int
-    timestamp: int
-
-class MetricasSinal(BaseModel):
-    silencio_voz_pct: int
-    hesitacao_escrita_pct: int
-    total_intervalos: int
-
-class PayloadCRS(BaseModel):
-    mensagem_usuario: str
+class PacoteSimbiotico(BaseModel):
+    mensagem: str
     provedor: str
     api_key_externa: str
-    metricas_sinal: MetricasSinal
+    ritmo: MetricasRitmo
 
+# Rota de Verificação Física (Health Check)
+@app.get("/")
+async def health_check():
+    return {
+        "status": "Online",
+        "engine": "Elayon CRS FastAPI",
+        "infraestrutura": "Pronta para recepção biométrica"
+    }
 
-# ==========================================
-# 🎙️ ROTA 1: TRIPLICA CONFERÊNCIA ANTIFRAUDE
-# ==========================================
-@app.post("/api/crs/calibrar")
-async def calibrar_e_auditar(pacote: PacoteCalibracao):
-    try:
-        texto_limpo_usuario = pacote.texto_falado.strip().lower()
-        
-        # ── CONFERÊNCIA 1: Autenticidade do Texto Falado
-        palavras_chave = ["responsabilidade", "técnica", "sinal", "silêncio", "ritmo", "inteligência", "artificial"]
-        coerencia_texto = any(palavra in texto_limpo_usuario for palavra in palavras_chave)
-        
-        if not coerencia_texto and len(texto_limpo_usuario) < 15:
-            raise HTTPException(status_code=400, detail="Falha na Conferência 1: Texto falado incoerente com o termo de segurança.")
-
-        # ── CONFERÊNCIA 2: Biometria de Ritmo Humano
-        if pacote.silencio_calculado >= 98 or pacote.silencio_calculado <= 2:
-            raise HTTPException(status_code=400, detail="Falha na Conferência 2: Ruído contínuo ou ausência de oscilação biométrica detectada.")
-
-        # ── CONFERÊNCIA 3: Integridade Temporal da Injeção
-        if pacote.silencio_calculado > 75:
-            carga_basal = "Cadência Interrompida / Alta Ansiedade"
-        else:
-            carga_basal = "Ritmo Basal Humano Calibrado"
-
-        token_sessao = f"TK-{uuid.uuid4().hex[:8].upper()}"
-        
-        SESSÕES_ATIVAS[token_sessao] = {
-            "silencio_basal": pacote.silencio_calculado,
-            "carga_basal": carga_basal,
-            "ativo": True
-        }
-
-        return {
-            "status": "Sucesso",
-            "token_sessao": token_sessao,
-            "analise_biometrica": carga_basal,
-            "mensagem": "Sinal assinado digitalmente pelo Motor Elayon."
-        }
-
-    except HTTPException as status_err:
-        raise status_err
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro interno na tripla conferência: {str(e)}")
-
-
-# ==========================================
-# 💬 ROTA 2: PROCESSAMENTO SIMBIÓTICO (CHAT)
-# ==========================================
+# Core de Processamento do Pipeline CRS
 @app.post("/api/crs/processar")
-async def processar_sinal_ritmico(payload: PayloadCRS):
-    try:
-        if not payload.api_key_externa or len(payload.api_key_externa.strip()) < 10:
-            raise HTTPException(status_code=400, detail="API Key Externa inválida para conexão.")
+async def processar_sinal_cognitivo(pacote: PacoteSimbiotico):
+    if not pacote.mensagem or pacote.mensagem.strip() == "":
+        raise HTTPException(status_code=400, detail="O buffer de texto capturado está vazio.")
 
-        if payload.provedor == "gemini":
-            # Inicializa o SDK do Gemini com a chave dinâmica enviada pelo painel front-end
-            genai.configure(api_key=payload.api_key_externa)
+    # Análise Matemática de Carga e Modulação da IA
+    silencio = pacote.ritmo.silencio_pct
+    hesitacao = pacote.ritmo.hesitacao_pct
+    
+    if silencio > 45 or hesitacao > 50:
+        carga_cognitiva = "SOBRECARGA DETECTADA"
+        diretriz_ia = (
+            "O operador apresenta pausas longas e ritmo hesitante. "
+            "Responda de forma extremamente acolhedora, clara, sem jargões e estruturada por tópicos curtos."
+        )
+    elif pacote.ritmo.eventos > 80 and silencio < 15:
+        carga_cognitiva = "CADÊNCIA ACELERADA"
+        diretriz_ia = (
+            "O operador está em fluxo contínuo de pensamento rápido. "
+            "Seja direto, técnico, elimine saudações prolixas e forneça a solução imediatamente."
+        )
+    else:
+        carga_cognitiva = "ESTÁVEL / BASAL"
+        diretriz_ia = "O ritmo está equilibrado. Responda de forma profissional, equilibrada e natural."
+
+    # Processamento do Provedor de IA
+    if pacote.provedor == "contingencia":
+        # Modo de Segurança Local (Sem consumo de internet ou chaves)
+        resposta_final = (
+            f"[MODO CONTINGÊNCIA LOCAL ATIVO] Mensagem recebida com sucesso. "
+            f"Seu ritmo biométrico foi computado como {carga_cognitiva}. O motor local está respondendo de forma segura."
+        )
+    else:
+        # Integração Real e Direta com o Ecossistema Gemini
+        if not pacote.api_key_externa or len(pacote.api_key_externa.strip()) < 10:
+            raise HTTPException(status_code=400, detail="Chave Privada de IA inválida ou ausente no painel.")
+
+        try:
+            # Configuração explícita da API estável do Google
+            genai.configure(api_key=pacote.api_key_externa.strip())
             
-            # Força o alinhamento da API para rodar na rota estável estável v1, anulando o erro da v1beta
-            os.environ["GOOGLE_API_VERSION"] = "v1"
-            
-            # Engenharia de Prompt Simbiótica baseada em métricas
-            prompt_sistema = (
-                f"Você é o agente central Elayon CRS. Você fala diretamente de dentro do Painel Simbiótico. "
-                f"Sua cognição foi ajustada agora porque você consegue LER o silêncio e o ritmo de digitação do emissor. "
-                f"Métricas Biométricas Atuais do Usuário: Silêncio de Voz em {payload.metricas_sinal.silencio_voz_pct}% "
-                f"e Hesitação na Escrita em {payload.metricas_sinal.hesitacao_escrita_pct}%. "
-                f"Sintonize sua resposta a essa cadência. Se o silêncio for alto, seja mais brando e compassivo. "
-                f"Se a hesitação for baixa, responda de forma ultra-direta e cortante. Adapte-se simbioticamente."
-            )
-            
-            # Instanciação direta e alinhada
-            model = genai.GenerativeModel(
+            # Ajuste de instruções de sistema injetando a diretriz de cadência do ritmo do usuário
+            modelo_configurado = genai.GenerativeModel(
                 model_name="gemini-1.5-flash",
-                generation_config={"temperature": 0.7},
-                system_instruction=prompt_sistema
+                system_instruction=f"Você é o módulo de resposta do ecossistema Elayon Presença. Diretriz operacional de comportamento: {diretriz_ia}"
             )
             
-            response = model.generate_content(payload.mensagem_usuario)
-            texto_resposta = response.text
-        else:
-            texto_resposta = f"Provedor {payload.provedor} ainda não plugado neste ecossistema."
+            resposta_gemini = modelo_configurado.generate_content(pacote.mensagem)
+            resposta_final = resposta_gemini.text
 
-        # Diagnóstico da Carga Cognitiva Cruzada
-        media_hesitacao = (payload.metricas_sinal.silencio_voz_pct + payload.metricas_sinal.hesitacao_escrita_pct) / 2
-        if media_hesitacao > 45:
-            carga_cognitiva = "Sobrecarga Crítica · Ritmo Interrompido"
-        elif media_hesitacao > 20:
-            carga_cognitiva = "Flutuação Rítmica Normal"
-        else:
-            carga_cognitiva = "Presença Fluida · Alinhamento Simbiótico"
+        except Exception as erro_api:
+            raise HTTPException(status_code=500, detail=f"Falha na execução do modelo Gemini: {str(erro_api)}")
 
-        return {
-            "resposta_ia": texto_resposta,
-            "carga_cognitiva": carga_cognitiva
+    # Retorno estruturado do Handshake completo
+    return {
+        "resposta": resposta_final,
+        "analise_ritmo": {
+            "carga": carga_cognitiva,
+            "estabilidade_score": max(0, 100 - (silencio + hesitacao))
+        },
+        "telemetria": {
+            "caracteres_processados": pacote.ritmo.eventos,
+            "silencio_registrado": f"{silencio}%",
+            "hesitacao_registrada": f"{hesitacao}%"
         }
+    }
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro operacional no Motor: {str(e)}")
+if __name__ == "__main__":
+    import uvicorn
+    # Inicializa o servidor local na porta 8000
+    uvicorn.run(app, host="0.0.0.0", port=8000)
